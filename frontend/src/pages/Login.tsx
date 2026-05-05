@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,8 +20,7 @@ export default function Login() {
     setTimeout(() => {
       setLoading(false);
       console.log("Login with:", username, password);
-      // TODO: navigate("/dashboard")
-      alert("Protocol Initialized. Welcome to GX-Sentinel.");
+      navigate("/dashboard");
     }, 1200);
   };
 
