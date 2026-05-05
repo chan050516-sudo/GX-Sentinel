@@ -354,6 +354,12 @@
   font-weight: 600;
 }
 
+.flex-align {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .add-btn-small {
   background: rgba(255, 255, 255, 0.1);
   border: none;
@@ -371,6 +377,42 @@
 
 .add-btn-small:hover {
   background: var(--primary);
+}
+
+.inline-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.inline-add-form input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.8rem;
+  border-radius: 8px;
+  color: white;
+  font-family: inherit;
+  outline: none;
+}
+
+.inline-add-form input:focus {
+  border-color: var(--primary);
+}
+
+.inline-add-form button {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
 }
 
 .goal-item {
@@ -434,10 +476,14 @@
 }
 
 .expense-icon {
-  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 0.5rem;
   border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
 }
 
 .expense-info {
@@ -459,4 +505,38 @@
   font-weight: 700;
   font-size: 1.1rem;
   color: #e2e8f0;
+}
+
+/* Slider Number Inputs */
+.slider-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+}
+
+.slider-input-wrapper span {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.slider-number-input {
+  background: transparent;
+  border: none;
+  color: #10b981;
+  font-size: 1.1rem;
+  font-weight: 700;
+  width: 60px;
+  outline: none;
+  font-family: inherit;
+  text-align: right;
+}
+
+.slider-number-input::-webkit-outer-spin-button,
+.slider-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

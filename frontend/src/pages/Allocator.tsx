@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Sparkles, Target, Calendar, Plus, Film, ArrowLeft, Ticket } from "lucide-react";
 import "./Allocator.css";
 
 // Same section types
@@ -7,7 +8,9 @@ type Section = { id: string; name: string; amount: number; aiRecommended: number
 
 export default function Allocator() {
   const navigate = useNavigate();
-  const [incomeAmount, setIncomeAmount] = useState<number>(2500);
+  const location = useLocation();
+  const initialAmount = location.state?.amount || 2500;
+  const [incomeAmount, setIncomeAmount] = useState<number>(initialAmount);
   
   const [sections, setSections] = useState<Section[]>([
     { id: "s1", name: "Emergency Fund", amount: 0, aiRecommended: 500, min: 200, max: 1000 },
@@ -16,6 +19,19 @@ export default function Allocator() {
     { id: "s4", name: "Variable Budget", amount: 0, aiRecommended: 400, min: 200, max: 800 },
     { id: "s5", name: "Savings Pocket", amount: 0, aiRecommended: 300, min: 100, max: 1000 },
   ]);
+
+  // Interactive Goal State
+  const [goals, setGoals] = useState([{ id: "g1", name: "Buy a Car", target: 20000, saved: 7000, date: "Dec 2027" }]);
+  const [showAddGoal, setShowAddGoal] = useState(false);
+  const [newGoal, setNewGoal] = useState({ name: "", target: "", date: "" });
+
+  // Interactive Calendar State
+  const [expenses, setExpenses] = useState([
+    { id: "e1", name: "Movie Date", date: "Next Friday", amount: 85, iconType: "ticket" },
+    { id: "e2", name: "Netflix Subscription", date: "28th May", amount: 55, iconType: "film" },
+  ]);
+  const [showAddExpense, setShowAddExpense] = useState(false);
+  const [newExpense, setNewExpense] = useState({ name: "", date: "", amount: "" });
 
   // If incomeAmount changes drastically, we'd normally recalculate AI values.
   // For the hackathon mockup, we'll assume the AI values scale or are fixed.
@@ -42,10 +58,36 @@ export default function Allocator() {
     navigate("/dashboard");
   };
 
+  const handleAddGoal = () => {
+    if (!newGoal.name || !newGoal.target || !newGoal.date) return;
+    setGoals(prev => [...prev, {
+      id: Date.now().toString(),
+      name: newGoal.name,
+      target: Number(newGoal.target),
+      saved: 0,
+      date: newGoal.date
+    }]);
+    setShowAddGoal(false);
+    setNewGoal({ name: "", target: "", date: "" });
+  };
+
+  const handleAddExpense = () => {
+    if (!newExpense.name || !newExpense.date || !newExpense.amount) return;
+    setExpenses(prev => [...prev, {
+      id: Date.now().toString(),
+      name: newExpense.name,
+      date: newExpense.date,
+      amount: Number(newExpense.amount),
+      iconType: "ticket"
+    }]);
+    setShowAddExpense(false);
+    setNewExpense({ name: "", date: "", amount: "" });
+  };
+
   return (
     <div className="allocator-container">
       <header className="allocator-header">
-        <button className="back-btn" onClick={() => navigate("/dashboard")}>← Back</button>
+        <button className="back-btn" onClick={() => navigate("/dashboard")}><ArrowLeft size={20} /> Back</button>
         <h2>Smart Allocator</h2>
         <div style={{ width: '80px' }}></div> {/* Spacer to keep title centered */}
       </header>
@@ -65,13 +107,13 @@ export default function Allocator() {
 
           <div className="ai-recommendation-banner">
             <div className="ai-info">
-              <span className="ai-icon">✨</span>
+              <Sparkles className="ai-icon" size={24} />
               <div>
                 <h4>AI Optimal Distribution</h4>
                 <p>Based on your 45-day runway deficit and upcoming goals.</p>
               </div>
             </div>
-            <button className="one-click-btn" onClick={handle1ClickAccept}>1-Click Accept</button>
+            <button className="one-click-btn" onClick={handle1ClickAccept}>Accept</button>
           </div>
 
           <div className="sliders-container">
@@ -79,7 +121,15 @@ export default function Allocator() {
               <div key={sec.id} className="slider-group">
                 <div className="slider-header">
                   <span className="slider-name">{sec.name}</span>
-                  <span className="slider-value">RM {sec.amount}</span>
+                  <div className="slider-input-wrapper">
+                    <span>RM</span>
+                    <input 
+                      type="number" 
+                      className="slider-number-input"
+                      value={sec.amount}
+                      onChange={(e) => handleSliderChange(sec.id, Number(e.target.value))}
+                    />
+                  </div>
                 </div>
                 <input 
                   type="range" 
@@ -122,46 +172,64 @@ export default function Allocator() {
         <div className="bottom-layout">
           <section className="bottom-card goals-card">
             <div className="card-header">
-              <h3>🎯 Long-term Goals</h3>
-              <button className="add-btn-small">+</button>
+              <h3 className="flex-align"><Target size={20} /> Long-term Goals</h3>
+              <button className="add-btn-small" onClick={() => setShowAddGoal(!showAddGoal)}><Plus size={16}/></button>
             </div>
-            <div className="goal-item">
-              <div className="goal-header">
-                <strong>Buy a Car</strong>
-                <span>RM 20,000</span>
+            
+            {showAddGoal && (
+              <div className="inline-add-form">
+                <input type="text" placeholder="Goal Name" value={newGoal.name} onChange={e => setNewGoal({...newGoal, name: e.target.value})} />
+                <input type="number" placeholder="Target Amount (RM)" value={newGoal.target} onChange={e => setNewGoal({...newGoal, target: e.target.value})} />
+                <input type="text" placeholder="Target Date (e.g. Dec 2027)" value={newGoal.date} onChange={e => setNewGoal({...newGoal, date: e.target.value})} />
+                <button onClick={handleAddGoal}>Save Goal</button>
               </div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: '35%' }}></div>
+            )}
+
+            {goals.map(goal => (
+              <div key={goal.id} className="goal-item">
+                <div className="goal-header">
+                  <strong>{goal.name}</strong>
+                  <span>RM {goal.target.toLocaleString()}</span>
+                </div>
+                <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${(goal.saved / goal.target) * 100}%` }}></div>
+                </div>
+                <div className="goal-footer">
+                  <span className="goal-saved">RM {goal.saved.toLocaleString()} Saved</span>
+                  <span className="goal-date">Target: {goal.date}</span>
+                </div>
               </div>
-              <div className="goal-footer">
-                <span className="goal-saved">RM 7,000 Saved</span>
-                <span className="goal-date">Target: Dec 2027</span>
-              </div>
-            </div>
+            ))}
           </section>
 
           <section className="bottom-card expenses-card">
             <div className="card-header">
-              <h3>📅 Planned Expenses</h3>
-              <button className="add-btn-small">+</button>
+              <h3 className="flex-align"><Calendar size={20} /> Planned Expenses</h3>
+              <button className="add-btn-small" onClick={() => setShowAddExpense(!showAddExpense)}><Plus size={16}/></button>
             </div>
+
+            {showAddExpense && (
+              <div className="inline-add-form">
+                <input type="text" placeholder="Expense Name" value={newExpense.name} onChange={e => setNewExpense({...newExpense, name: e.target.value})} />
+                <input type="number" placeholder="Amount (RM)" value={newExpense.amount} onChange={e => setNewExpense({...newExpense, amount: e.target.value})} />
+                <input type="text" placeholder="Date (e.g. Next Friday)" value={newExpense.date} onChange={e => setNewExpense({...newExpense, date: e.target.value})} />
+                <button onClick={handleAddExpense}>Save Expense</button>
+              </div>
+            )}
+
             <div className="expense-list">
-              <div className="expense-item">
-                <div className="expense-icon">🍿</div>
-                <div className="expense-info">
-                  <strong>Movie Date</strong>
-                  <span>Next Friday</span>
+              {expenses.map(exp => (
+                <div key={exp.id} className="expense-item">
+                  <div className="expense-icon">
+                    {exp.iconType === "film" ? <Film size={20} /> : <Ticket size={20} />}
+                  </div>
+                  <div className="expense-info">
+                    <strong>{exp.name}</strong>
+                    <span>{exp.date}</span>
+                  </div>
+                  <span className="expense-amount">RM {exp.amount}</span>
                 </div>
-                <span className="expense-amount">RM 85</span>
-              </div>
-              <div className="expense-item">
-                <div className="expense-icon">🎬</div>
-                <div className="expense-info">
-                  <strong>Netflix Subscription</strong>
-                  <span>28th May</span>
-                </div>
-                <span className="expense-amount">RM 55</span>
-              </div>
+              ))}
             </div>
           </section>
         </div>
