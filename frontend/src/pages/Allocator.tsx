@@ -25,13 +25,31 @@ export default function Allocator() {
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [newGoal, setNewGoal] = useState({ name: "", target: "", date: "" });
 
-  // Interactive Calendar State
+  // Dynamic Calendar Logic
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay(); // 0 is Sunday
+  const startOffset = firstDayIndex === 0 ? 6 : firstDayIndex - 1; // Align to Mon-Sun
+  
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const currentMonthName = monthNames[currentMonth];
+  const weekDaysHeader = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  const calendarDays = [];
+  for (let i = 0; i < startOffset; i++) calendarDays.push(null);
+  for (let i = 1; i <= daysInMonth; i++) calendarDays.push(i);
+  while (calendarDays.length % 7 !== 0) calendarDays.push(null);
+
+  const [selectedDate, setSelectedDate] = useState<string>(`${currentDate.getDate()} ${currentMonthName.substring(0,3)}`);
+
   const [expenses, setExpenses] = useState([
-    { id: "e1", name: "Movie Date", date: "Next Friday", amount: 85, iconType: "ticket" },
-    { id: "e2", name: "Netflix Subscription", date: "28th May", amount: 55, iconType: "film" },
+    { id: "e1", name: "Movie Date", date: `16 ${currentMonthName.substring(0,3)}`, amount: 85, iconType: "ticket" },
+    { id: "e2", name: "Netflix Subscription", date: `13 ${currentMonthName.substring(0,3)}`, amount: 55, iconType: "film" },
   ]);
   const [showAddExpense, setShowAddExpense] = useState(false);
-  const [newExpense, setNewExpense] = useState({ name: "", date: "", amount: "" });
+  const [newExpense, setNewExpense] = useState({ name: "", amount: "" });
 
   // If incomeAmount changes drastically, we'd normally recalculate AI values.
   // For the hackathon mockup, we'll assume the AI values scale or are fixed.
@@ -72,16 +90,16 @@ export default function Allocator() {
   };
 
   const handleAddExpense = () => {
-    if (!newExpense.name || !newExpense.date || !newExpense.amount) return;
+    if (!newExpense.name || !newExpense.amount) return;
     setExpenses(prev => [...prev, {
       id: Date.now().toString(),
       name: newExpense.name,
-      date: newExpense.date,
+      date: selectedDate,
       amount: Number(newExpense.amount),
       iconType: "ticket"
     }]);
     setShowAddExpense(false);
-    setNewExpense({ name: "", date: "", amount: "" });
+    setNewExpense({ name: "", amount: "" });
   };
 
   return (
@@ -204,28 +222,55 @@ export default function Allocator() {
 
           <section className="bottom-card expenses-card">
             <div className="card-header">
-              <h3 className="flex-align"><Calendar size={20} /> Planned Expenses</h3>
+              <h3 className="flex-align"><Calendar size={20} /> {currentMonthName} {currentYear}</h3>
               <button className="add-btn-small" onClick={() => setShowAddExpense(!showAddExpense)}><Plus size={16}/></button>
+            </div>
+
+            {/* Full Month Calendar Grid */}
+            <div className="month-calendar">
+              <div className="calendar-weekdays">
+                {weekDaysHeader.map(d => <span key={d}>{d}</span>)}
+              </div>
+              <div className="calendar-grid">
+                {calendarDays.map((d, idx) => {
+                  if (!d) return <div key={`empty-${idx}`} className="calendar-cell empty"></div>;
+                  
+                  const fullDate = `${d} ${currentMonthName.substring(0,3)}`;
+                  const hasExpense = expenses.some(e => e.date === fullDate);
+                  
+                  return (
+                    <div 
+                      key={d} 
+                      className={`calendar-cell ${selectedDate === fullDate ? 'active' : ''}`}
+                      onClick={() => setSelectedDate(fullDate)}
+                    >
+                      <span className="cell-number">{d}</span>
+                      {hasExpense && <div className="expense-dot"></div>}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {showAddExpense && (
               <div className="inline-add-form">
                 <input type="text" placeholder="Expense Name" value={newExpense.name} onChange={e => setNewExpense({...newExpense, name: e.target.value})} />
                 <input type="number" placeholder="Amount (RM)" value={newExpense.amount} onChange={e => setNewExpense({...newExpense, amount: e.target.value})} />
-                <input type="text" placeholder="Date (e.g. Next Friday)" value={newExpense.date} onChange={e => setNewExpense({...newExpense, date: e.target.value})} />
-                <button onClick={handleAddExpense}>Save Expense</button>
+                <button onClick={handleAddExpense}>Add to {selectedDate}</button>
               </div>
             )}
 
             <div className="expense-list">
-              {expenses.map(exp => (
+              {expenses.filter(e => e.date === selectedDate).length === 0 && !showAddExpense && (
+                <div className="empty-state">No planned expenses for {selectedDate}.</div>
+              )}
+              {expenses.filter(e => e.date === selectedDate).map(exp => (
                 <div key={exp.id} className="expense-item">
                   <div className="expense-icon">
                     {exp.iconType === "film" ? <Film size={20} /> : <Ticket size={20} />}
                   </div>
                   <div className="expense-info">
                     <strong>{exp.name}</strong>
-                    <span>{exp.date}</span>
                   </div>
                   <span className="expense-amount">RM {exp.amount}</span>
                 </div>

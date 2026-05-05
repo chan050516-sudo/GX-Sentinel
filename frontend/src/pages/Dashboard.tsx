@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Shield, Home, Calendar as CalendarIcon, Utensils, Wallet, Zap, TrendingDown, Hourglass, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Shield, Home, Calendar as CalendarIcon, Utensils, Wallet, Zap, TrendingDown, TrendingUp, Hourglass, X } from "lucide-react";
 import "./Dashboard.css";
 
 // Types for our mock data
@@ -21,10 +21,31 @@ type Section = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   // Mock State
   const [runwayDays, setRunwayDays] = useState(45.2);
   const [totalBalance, setTotalBalance] = useState(12500);
   const [nudgeMessage, setNudgeMessage] = useState<string | null>(null);
+  const [nudgeType, setNudgeType] = useState<"positive" | "negative" | null>(null);
+
+  useEffect(() => {
+    if (location.state && location.state.nudgeType) {
+      setNudgeMessage(location.state.message);
+      setNudgeType(location.state.nudgeType);
+      
+      if (location.state.runwayDrop) {
+        setRunwayDays(prev => +(Math.max(0, prev - location.state.runwayDrop)).toFixed(1));
+      }
+
+      const timer = setTimeout(() => {
+        setNudgeMessage(null);
+        setNudgeType(null);
+        // Clear history state to prevent re-trigger on refresh
+        window.history.replaceState({}, document.title);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
   
   // Custom Modal State
   const [showInjectModal, setShowInjectModal] = useState(false);
@@ -103,8 +124,12 @@ export default function Dashboard() {
     }, ...prev]);
 
     // Module 3: Micro-Nudge System
+    setNudgeType("negative");
     setNudgeMessage(`This purchase reduced your runway by ${runwayDrop} days. Resilience Score ↓ 1.3`);
-    setTimeout(() => setNudgeMessage(null), 4000);
+    setTimeout(() => {
+      setNudgeMessage(null);
+      setNudgeType(null);
+    }, 4000);
   };
 
   // SVG Gauge Calculations
@@ -227,8 +252,12 @@ export default function Dashboard() {
       </main>
 
       {/* MODULE 3: MICRO-NUDGE SYSTEM */}
-      <div className={`micro-nudge-toast ${nudgeMessage ? 'show' : ''}`}>
-        <TrendingDown size={24} className="nudge-icon" />
+      <div className={`micro-nudge-toast ${nudgeMessage ? 'show' : ''} ${nudgeType}`}>
+        {nudgeType === 'positive' ? (
+          <TrendingUp size={24} className="nudge-icon positive" />
+        ) : (
+          <TrendingDown size={24} className="nudge-icon negative" />
+        )}
         <p>{nudgeMessage}</p>
       </div>
 

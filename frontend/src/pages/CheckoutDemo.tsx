@@ -35,8 +35,12 @@ export default function CheckoutDemo() {
   }, [interceptorState, countdown]);
 
   const handleAbort = () => {
-    alert("Purchase Aborted! You gained +2.5 Resilience Score!");
-    navigate("/dashboard");
+    navigate("/dashboard", { 
+      state: { 
+        nudgeType: "positive", 
+        message: "Great job resisting! Resilience Score ↑ 2.5" 
+      } 
+    });
   };
 
   const handleConfirm = () => {
@@ -45,8 +49,12 @@ export default function CheckoutDemo() {
       return;
     }
     // Simulate AI audit
-    alert("AI Audit: Justification accepted. Purchase confirmed. Runway reduced.");
-    navigate("/dashboard");
+    navigate("/dashboard", { 
+      state: { 
+        nudgeType: "negative", 
+        message: "This purchase reduced your financial runway by 14 days. Resilience Score ↓ 1.3" 
+      } 
+    });
   };
 
   return (
@@ -100,8 +108,8 @@ export default function CheckoutDemo() {
       <div className={`toast-notification ${interceptorState === 'level1' ? 'show' : ''}`}>
         <div className="toast-icon"><AlertTriangle size={24} /></div>
         <div className="toast-content">
-          <strong>Observation</strong>
-          <p>You've bought 3 similar items this month. Just a heads-up!</p>
+          <strong>Context Recall</strong>
+          <p>High Impulse Score detected. We noticed repetition in purchasing similar products at night.</p>
         </div>
       </div>
 
@@ -113,6 +121,7 @@ export default function CheckoutDemo() {
           {interceptorState === "level2" && (
             <div className="friction-content">
               <h2><Hand size={32} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} /> Wait.</h2>
+              <div className="future-projection-tag">Future Projection</div>
               <p>This purchase will drop your Financial Runway by <strong>14 Days</strong>.</p>
               <div className="countdown-circle">
                 {countdown}
@@ -129,8 +138,8 @@ export default function CheckoutDemo() {
               </div>
               <div className="modal-body">
                 <div className="ai-feedback">
-                  <strong>AI Analysis:</strong>
-                  <p>This transaction contradicts your "Buy a Car" savings goal. Why do you need this keyboard today?</p>
+                  <strong>AI Audit:</strong>
+                  <p>This transaction contradicts your "Buy a Car" savings goal. Please provide your self-justification for this purchase.</p>
                 </div>
                 
                 <textarea 

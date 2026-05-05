@@ -17,7 +17,7 @@ export default function SocialCircle() {
 
   const handleClaimBonus = () => {
     setShowBonusAnimation(true);
-    setTimeout(() => setShowBonusAnimation(false), 3000);
+    setTimeout(() => setShowBonusAnimation(false), 3500);
   };
 
   return (
@@ -75,12 +75,31 @@ export default function SocialCircle() {
               className={`claim-btn ${showBonusAnimation ? 'animating' : ''}`} 
               onClick={handleClaimBonus}
             >
-              {showBonusAnimation ? 'Unlocking...' : 'Simulate Claim Bonus'}
+              {showBonusAnimation ? 'Syncing DB...' : 'Simulate DB Sync (Unlock Bonus)'}
             </button>
             
             {showBonusAnimation && (
               <div className="confetti-overlay">
-                <Sparkles size={24} /> RM 10 Cash Voucher Unlocked! <Sparkles size={24} />
+                <div className="confetti-particles">
+                  {[...Array(30)].map((_, i) => (
+                    <div 
+                      key={i} 
+                      className="particle" 
+                      style={{ 
+                        '--delay': `${Math.random() * 0.2}s`, 
+                        '--x': `${(Math.random() - 0.5) * 300}px`, 
+                        '--y': `${(Math.random() - 0.5) * 300}px`,
+                        '--color': i % 3 === 0 ? '#10b981' : i % 3 === 1 ? '#F8326D' : '#771FFF'
+                      } as React.CSSProperties}
+                    ></div>
+                  ))}
+                </div>
+                <div className="voucher-popup">
+                  <div className="voucher-glow"></div>
+                  <Gift size={50} className="voucher-icon" />
+                  <h4>DB SYNC COMPLETE</h4>
+                  <p className="voucher-text"><Sparkles size={18} /> RM 10 Cash Voucher Unlocked! <Sparkles size={18} /></p>
+                </div>
               </div>
             )}
           </div>

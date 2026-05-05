@@ -240,6 +240,19 @@
   box-shadow: 0 0 30px rgba(239, 68, 68, 0.3), inset 0 0 30px rgba(239, 68, 68, 0.3);
 }
 
+.future-projection-tag {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  display: inline-block;
+}
+
 .compound-loss {
   color: #94a3b8 !important;
   font-size: 1.1rem !important;

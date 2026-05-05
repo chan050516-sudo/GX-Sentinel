@@ -507,6 +507,86 @@
   color: #e2e8f0;
 }
 
+/* Full Month Calendar */
+.month-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+}
+
+.calendar-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.calendar-cell.empty {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+}
+
+.calendar-cell:not(.empty):hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.calendar-cell.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 4px 15px rgba(119, 31, 255, 0.4);
+}
+
+.cell-number {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.expense-dot {
+  width: 5px;
+  height: 5px;
+  background: #f43f5e;
+  border-radius: 50%;
+  margin-top: 0.2rem;
+}
+
+.calendar-cell.active .expense-dot {
+  background: white;
+}
+
+.empty-state {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.95rem;
+  padding: 2rem 0;
+  font-style: italic;
+}
+
 /* Slider Number Inputs */
 .slider-input-wrapper {
   display: flex;

@@ -464,8 +464,18 @@
   width: auto;
   max-width: 400px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(244, 63, 94, 0.2);
-  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, box-shadow 0.4s;
   z-index: 1000;
+}
+
+.micro-nudge-toast.positive {
+  border-color: rgba(16, 185, 129, 0.4);
+  border-left-color: #10b981;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.micro-nudge-toast.negative {
+  /* Default styles apply */
 }
 
 .micro-nudge-toast.show {
@@ -474,6 +484,10 @@
 
 .nudge-icon {
   color: #f43f5e;
+}
+
+.nudge-icon.positive {
+  color: #10b981;
 }
 
 .micro-nudge-toast p {

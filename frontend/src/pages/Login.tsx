@@ -25,54 +25,71 @@ export default function Login() {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="brand-section">
-          <div className="logo-icon">
-            <span className="gx-text">GX</span>
+    <div className="login-wrapper">
+      <div className="login-split-container">
+        
+        {/* Left Panel: Brand Showcase */}
+        <div className="login-left-panel">
+          <div className="left-panel-content">
+            <div className="brand-hero">
+              <img src="/GXBank-logo-Gradient-RGB.png" alt="GXBank Logo" className="hero-logo" />
+              <h2 className="hero-title">Behavioral Defense System</h2>
+              <p className="hero-subtitle">
+                Protecting your financial future through intelligent friction and contextual awareness.
+              </p>
+            </div>
           </div>
-          <h1 className="brand-title">GX-Sentinel</h1>
-          <p className="brand-subtitle">Behavioral Defense System</p>
         </div>
 
-        <form className="login-form" onSubmit={handleLogin}>
-          <div className="input-group">
-            <input
-              type="text"
-              className="input-field"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <svg className={`input-icon ${username ? 'active' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
+        {/* Right Panel: Interactive Login Area */}
+        <div className="login-right-panel">
+          <div className="login-form-container">
+            <div className="form-header">
+              <h3>Welcome Back</h3>
+              <p>Sign in to access your GX-Sentinel dashboard</p>
+            </div>
+
+            <form className="login-form" onSubmit={handleLogin}>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+                <svg className={`input-icon ${username ? 'active' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+
+              <div className="input-group">
+                <input
+                  type="password"
+                  className="input-field"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <svg className={`input-icon ${password ? 'active' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+
+              <button type="submit" className="login-button" disabled={loading}>
+                {loading ? "Authenticating..." : "Login"}
+              </button>
+            </form>
+
+            <div className="footer-text">
+              Protected by GX-Sentinel <br/>
+              <span>Forgot password?</span>
+            </div>
           </div>
-
-          <div className="input-group">
-            <input
-              type="password"
-              className="input-field"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <svg className={`input-icon ${password ? 'active' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-          </div>
-
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? "Authenticating..." : "Login"}
-          </button>
-        </form>
-
-        <div className="footer-text">
-          Protected by GX-Sentinel <br/>
-          <span>Forgot password?</span>
         </div>
+
       </div>
     </div>
   );
