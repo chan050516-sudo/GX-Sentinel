@@ -37,18 +37,26 @@ def check_goal_conflict(
     if not goals:
         return {"has_conflict": False, "conflict_message": "", "affected_goal": None}
     
+    # 1. Get unsettled goals
     active_goals = [g for g in goals if g.get("savedAmount", 0) < g.get("targetAmount", 0)]
     if not active_goals:
         return {"has_conflict": False, "conflict_message": "", "affected_goal": None}
     
-    # priority order
-    active_goals.sort(key=lambda x: x.get("priority", 999))
+    # 2. Goal Gradient Effect
+    # Descending order based on progress, the nearer the user approaching the target, the more pain he feels when ruined
+    active_goals.sort(key=lambda x: (x.get("savedAmount", 0) / max(1, x.get("targetAmount", 1))), reverse=True)
     top_goal = active_goals[0]
-    remaining = top_goal["targetAmount"] - top_goal.get("savedAmount", 0)
     
-    # 若消费金额超过剩余目标的 20% 或超过可变预算的 50%，则视为冲突
-    if transaction_amount > remaining * 0.2 or transaction_amount > current_variable_balance * 0.5:
-        conflict_msg = f"⚠️ This purchase would consume RM {transaction_amount:.0f} – that's {transaction_amount/remaining*100:.0f}% of your '{top_goal['title']}' goal (RM {remaining:.0f} left)."
+    target_amount = top_goal.get("targetAmount", 1)
+    
+    # 3. Calculate progress loss
+    progress_loss_percent = (transaction_amount / target_amount) * 100
+    
+    # Threshold：Consume progress > 2% or consume variable balance > 30%，interrupt
+    if progress_loss_percent > 2.0 or transaction_amount > current_variable_balance * 0.3:
+        conflict_msg = (
+            f"You are sacrificing {progress_loss_percent:.1f}% of your progress towards '{top_goal['title']}'."
+        )
         return {
             "has_conflict": True,
             "conflict_message": conflict_msg,

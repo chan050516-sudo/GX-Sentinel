@@ -16,6 +16,26 @@ from ..firebase.crud import (
 
 router = APIRouter(prefix="/interceptor", tags=["interceptor"])
 
+# Get the top risk observation in impulsive spending
+def get_top_risk_factors(factors: dict) -> str:
+    risk_map = {
+        "night_factor": "late-night impulsive decision window",
+        "amount_factor": "extreme deviation from average daily spending",
+        "liquidity_factor": "heavy depletion of available variable balance",
+        "frequency_factor": "consecutive stacking of similar purchases",
+        "necessity_score": "acquisition of non-essential/luxury items"
+    }
+    
+    sorted_factors = sorted(
+        [(k, v) for k, v in factors.items() if k in risk_map and isinstance(v, (int, float)) and v > 0],
+        key=lambda x: x[1],
+        reverse=True
+    )
+    top_2 = [risk_map[k] for k, v in sorted_factors[:2]]
+    return " and ".join(top_2) if top_2 else "impulsive buying patterns"
+
+
+
 @router.post("/analyze", response_model=InterceptorAnalyzeResponse)
 async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = Header("demo_user_01")):
     # 1. Get user financial status
@@ -26,6 +46,10 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
     avg_daily_spending = user_data.get("totalOutflow", 2000) / 30.0 if user_data.get("totalOutflow") else 50.0
     goals = get_user_goals(x_user_id)
     upcoming_expenses = get_calendar_upcoming_expenses(x_user_id, days=30)
+    # Psycological data
+    consecutive_safe_days = user_data.get("consecutiveSafeDays", 0)
+    resilience_score = user_data.get("resilienceScore", 0.0)
+    last_aborted_item = "Gaming keyboard (RM 299)"
 
     # 2. Get Similar Purchases Count，from transactions in DB
     product_desc = req.products[0].name if req.products else "item"
@@ -73,7 +97,42 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
         "goalConflict": conflict_info,
         "goalsSnapshot": goals,
         "upcomingExpenses": upcoming_expenses,
+        "behavioralContext": {
+            "consecutiveSafeDays": consecutive_safe_days,
+            "resilienceScore": resilience_score,
+            "lastAbortedItem": last_aborted_item
+        }
     }
+
+    top_risks = get_top_risk_factors(factors)
+    t1_msg = (
+        f"⚠️ Heads up: System detected {top_risks}. "
+        f"You are attempting to spend RM {req.totalAmount:.2f} while your remaining variable budget is only RM {current_variable_balance:.2f}."
+        f"You currently hold a {consecutive_safe_days}-day perfect saving streak. Are you sure you want to break it?"
+    )
+
+    # Tier 2 msg: 3 lines punch
+    # Line 1: Runway and Goal Conflict
+    s1 = f"🚨 Financial Crisis Warning: {conflict_info['conflict_message']} " if conflict_info.get("has_conflict") else "🚨 "
+    s1 += f"This transaction reduces your runway by {runway_info['runway_drop_days']} days and will heavily penalize your Resilience Score ({resilience_score})."
+
+    # Line 2: Relate to calendar event
+    s2 = ""
+    if upcoming_expenses and len(upcoming_expenses) > 0:
+        next_event = upcoming_expenses[0]
+        s2 = f" Wake up to reality: Your calendar shows an upcoming obligation of RM {next_event.get('estimatedCost', 0):.2f} for '{next_event.get('title', 'Pending Event')}' within the next 30 days."
+    
+    # Line 3: Transaction History
+    s3 = f" Furthermore, you have already purchased {similar_count} similar items in the past 30 days." if similar_count > 0 else ""
+    
+    t2_msg = f"{t1_msg}\n{s1}{s2}{s3}"
+
+    # Tier 3: Ask for Justification
+    t3_msg = (
+        f"{t2_msg}\n"
+        f"🛑 TRANSACTION INTERCEPTED AND FROZEN! "
+        f"Please provide an absolutely rational justification for why you MUST buy this right NOW. The AI Guardian will audit the logic of your statement."
+    )
     
     # Generate response based on tiers
     if tier == 0:
@@ -91,14 +150,11 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
     
     elif tier == 1:
         # Soft notification
-        msg = f"⚠️ Heads up! You've bought {similar_count} similar items this month."
-        if conflict_info["has_conflict"]:
-            msg += " " + conflict_info["conflict_message"]
         response = InterceptorAnalyzeResponse(
             triggerLevel="soft",
             auditId=audit_id,
             observations=observations,
-            softMessage=msg
+            softMessage=t1_msg
         )
         audit_data["triggerLevel"] = "soft"
         create_interceptor_audit(x_user_id, audit_data)
@@ -106,9 +162,6 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
     
     elif tier == 2:
         # Friction
-        msg = f"⏳ This purchase would reduce your financial runway by {runway_info['runway_drop_days']} days."
-        if conflict_info["has_conflict"]:
-            msg += " " + conflict_info["conflict_message"]
         response = InterceptorAnalyzeResponse(
             triggerLevel="friction",
             auditId=audit_id,
@@ -116,16 +169,13 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
             runwayDropDays=runway_info["runway_drop_days"],
             delaySeconds=5,
             compoundLossExample=runway_info["compound_loss_example"],
-            softMessage=msg
+            softMessage=t2_msg
         )
         audit_data["triggerLevel"] = "friction"
         create_interceptor_audit(x_user_id, audit_data)
         return response
     
     else:  # tier == 3
-        msg = f"❗ Critical: This purchase would reduce your runway by {runway_info['runway_drop_days']} days."
-        if conflict_info["has_conflict"]:
-            msg += " " + conflict_info["conflict_message"]
         response = InterceptorAnalyzeResponse(
             triggerLevel="critical",
             auditId=audit_id,
@@ -133,7 +183,7 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
             runwayDropDays=runway_info["runway_drop_days"],
             compoundLossExample=runway_info["compound_loss_example"],
             requireJustification=True,
-            softMessage=msg
+            softMessage=t3_msg
         )
         audit_data["triggerLevel"] = "critical"
         create_interceptor_audit(x_user_id, audit_data)
@@ -149,22 +199,26 @@ async def justify_purchase(
     if not audit:
         raise HTTPException(status_code=404, detail="Audit record not found")
         
-    # [新增防御]：大模型只处理高级别威胁
+    # Only handle critical tier
     if audit.get("triggerLevel") not in ["friction", "critical"]:
         raise HTTPException(
             status_code=400, 
             detail="Justification is only processed for Tier 2 or Tier 3 transactions."
         )
     
-    # 提取已有的缓存数据，拒绝重复计算
+    # Current data from /analyze
     product_desc = audit["products"][0]["name"] if audit.get("products") else "item"
     transaction_amount = audit["totalAmount"]
     observations = audit.get("observations", {})
+    behavioral_context = audit.get("behavioralContext", {})
     runway_info = audit.get("runwayInfo", {})
     goals = audit.get("goalsSnapshot", [])
     current_variable_balance = audit.get("observations", {}).get("currentVariableBalance")
+
+    goal_conflict = audit.get("goalConflict", {})
+    python_conflict_message = goal_conflict.get("conflict_message", "No severe goal conflict detected.")
     
-    # 把数据全部塞给 State
+    # Drop the data into State
     initial_state = GuardianState(
         user_id=x_user_id,
         product_description=product_desc,
@@ -176,7 +230,11 @@ async def justify_purchase(
             "current_runway": observations.get("currentRunwayDays"),
             "similar_purchases": observations.get("similarPurchasesCount"),
             "goals": goals,
-            "current_variable_balance": current_variable_balance
+            "current_variable_balance": current_variable_balance,
+            "python_conflict_message": python_conflict_message,
+            "consecutive_safe_days": behavioral_context.get("consecutiveSafeDays", 0),
+            "resilience_score": behavioral_context.get("resilienceScore", 0),
+            "last_aborted_item": behavioral_context.get("lastAbortedItem", "None")
         },
         verdict="", reasoning="", cognitive_message=""
     )

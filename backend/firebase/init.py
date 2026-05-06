@@ -12,6 +12,7 @@ _db: Optional[firestore.Client] = None
 
 def init_firebase():
     global _db
+    print(f"DEBUG: Looking for creds at: {cred_path}")
     if not firebase_admin._apps:
         # Check existence of credential
         if not os.path.exists(cred_path):
@@ -20,8 +21,15 @@ def init_firebase():
                 "Please download serviceAccountKey.json from Firebase Console and place it in backend/firebase/"
             )
         cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred)
-        print("Firebase Admin SDK initialized successfully.")
+        import json
+        with open(cred_path) as f:
+            project_id = json.load(f).get("project_id")
+        firebase_admin.initialize_app(cred, {
+            'projectId': project_id,
+        })
+        print(f"Firebase Admin SDK initialized for project: {project_id}")
+        # firebase_admin.initialize_app(cred)
+        # print("Firebase Admin SDK initialized successfully.")
     _db = firestore.client()
     print("Firestore client ready.")
 
