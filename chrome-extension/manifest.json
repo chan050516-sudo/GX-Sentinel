@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "GX-Sentinel: Behavioral Defense",
+  "version": "1.0",
+  "description": "Intercepting financial impulse at the moment of decision.",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*.shopee.com.my/*",
+    "http://localhost:8000/*" 
+],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.shopee.com.my/*",
+        "https://*.lazada.com.my/*"
+      ],
+      "js": ["dist/content-script.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_title": "GX-Sentinel Status"
+  }
+}
