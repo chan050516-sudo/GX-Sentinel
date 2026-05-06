@@ -12,7 +12,6 @@ export default function Sidebar() {
 
   const navItems = [
     { path: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
-    { path: "/allocator", icon: <Coins size={20} />, label: "Smart Allocator" },
     { path: "/tracking", icon: <Activity size={20} />, label: "Risk Profile" },
     { path: "/chat", icon: <Bot size={20} />, label: "AI Mentor" },
     { path: "/social", icon: <Users size={20} />, label: "Social Circle" },
