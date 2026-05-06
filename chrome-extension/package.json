@@ -1,0 +1,14 @@
+{
+  "name": "gx-sentinel-extension",
+  "version": "1.0.0",
+  "description": "GX-Sentinel: A Real-time Behavioral Defense System",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.40",
+    "chrome-types": "^0.1.28",
+    "typescript": "^5.0.0"
+  }
+}

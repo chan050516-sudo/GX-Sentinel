@@ -1,15 +1,40 @@
 import os
-from typing import Optional, Dict, Any
+import firebase_admin
+from firebase_admin import credentials, firestore
+from typing import Optional
 
-# Later update
-_firestore_client = None
+# Get serviceAccountKey.json path
+base_dir = os.path.dirname(os.path.abspath(__file__))
+cred_path = os.path.join(base_dir, "serviceAccountKey.json")
+
+# Global Firestore Instance
+_db: Optional[firestore.Client] = None
 
 def init_firebase():
-    global _firestore_client
-    # TODO: 实际初始化
-    print("Firebase init stub (replace with real init)")
-    _firestore_client = {}
+    global _db
+    print(f"DEBUG: Looking for creds at: {cred_path}")
+    if not firebase_admin._apps:
+        # Check existence of credential
+        if not os.path.exists(cred_path):
+            raise FileNotFoundError(
+                f"Firebase credentials not found at {cred_path}. "
+                "Please download serviceAccountKey.json from Firebase Console and place it in backend/firebase/"
+            )
+        cred = credentials.Certificate(cred_path)
+        import json
+        with open(cred_path) as f:
+            project_id = json.load(f).get("project_id")
+        firebase_admin.initialize_app(cred, {
+            'projectId': project_id,
+        })
+        print(f"Firebase Admin SDK initialized for project: {project_id}")
+        # firebase_admin.initialize_app(cred)
+        # print("Firebase Admin SDK initialized successfully.")
+    _db = firestore.client()
+    print("Firestore client ready.")
 
-def get_firestore_client():
-    """返回 Firestore 客户端（空壳）"""
-    return _firestore_client
+# Return instance
+def get_firestore_client() -> firestore.Client:
+    if _db is None:
+        init_firebase()
+    return _db

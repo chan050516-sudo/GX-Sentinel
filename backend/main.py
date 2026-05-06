@@ -1,20 +1,32 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers import user, allocator, interceptor, chat, social, transaction, calendar
-from backend.firebase.init import init_firebase
+from routers import allocator, interceptor, chat, social, transaction
+from firebase.init import init_firebase
+
+# Pre-load
+from services.classifier import classify_necessity
+classify_necessity("dummy")
 
 app = FastAPI(title="GX-Sentinel API")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
+# 只需要保留这一组 CORS 配置即可
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许 Chrome Extension 跨域访问
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 init_firebase()
 
-app.include_router(user.router)
+# app.include_router(user.router)
 app.include_router(allocator.router)
-app.include_router(interceptor.router)
+app.include_router(interceptor.router) # 你的拦截器逻辑在这里
 app.include_router(chat.router)
 app.include_router(social.router)
 app.include_router(transaction.router)
-app.include_router(calendar.router)
+# app.include_router(calendar.router)
 
 @app.get("/")
 async def root():
