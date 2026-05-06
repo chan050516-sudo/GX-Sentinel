@@ -37,10 +37,25 @@ Expected JSON schema:
 }
 """
 
+def serialize_goal(goal: dict) -> dict:
+    """Convert datetime objects to ISO format strings for JSON serialization."""
+    serialized = {}
+    for key, value in goal.items():
+        if hasattr(value, 'isoformat'):
+            serialized[key] = value.isoformat()
+        else:
+            serialized[key] = value
+    return serialized
+
+
 def direct_audit_node(state: GuardianState):
     context = state['context_data']
     goals = context.get('goals', [])
-    goals_text = json.dumps(goals, ensure_ascii=False) if goals else "No active goals."
+    if goals:
+        serializable_goals = [serialize_goal(g) for g in goals]
+        goals_text = json.dumps(serializable_goals, ensure_ascii=False)
+    else:
+        goals_text = "No active goals."
     
     human_content = f"""
     [TRANSACTION DETAILS]
@@ -81,7 +96,7 @@ def direct_audit_node(state: GuardianState):
             "verdict": data.get("verdict", "invalid"),
             "reasoning": data.get("reasoning", "Parsed default reasoning"),
             "cognitive_message": data.get("cognitive_message", "Purchase interception enforced."),
-            "advice": data.get("advice", "Focus on maintaining your financial runway.") # <--- 新增提取
+            "advice": data.get("advice", "Focus on maintaining your financial runway.")
         }
     except Exception as e:
         print(f"JSON Parse Error: {e}")
@@ -89,7 +104,7 @@ def direct_audit_node(state: GuardianState):
             "verdict": "invalid",
             "reasoning": "System error parsing justification.",
             "cognitive_message": "Invalid logic structure detected. Please reconsider the purchase.",
-            "advice": "Please review your financial goals before proceeding." # <--- 新增
+            "advice": "Please review your financial goals before proceeding."
         }
 
 # Single Node State Machine

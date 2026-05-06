@@ -34,3 +34,8 @@ GX-SENTINEL
 │
 ├── .gitignore                 # 忽略文件配置 (禁止上传 .env 或 venv)
 └── README.md                  # 项目说明文档
+
+
+
+Swagger UI Testing:
+http://localhost:8000/docs

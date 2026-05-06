@@ -107,7 +107,11 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
         "upcomingExpensesTotal": upcoming_expenses_total,
         # Save most recent 3 events
         "upcomingEventsPreview": [
-            {"title": e["title"], "cost": e["estimatedCost"], "days": (e["date"] - datetime.now()).days}
+            {
+                "title": e["title"], 
+                "cost": e["estimatedCost"], 
+                "days": max(0, (e["date"] - datetime.now().astimezone()).days)
+            }
             for e in upcoming_events[:3]
         ],
         "currentVariableBalance": current_variable_balance, 
@@ -134,7 +138,7 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
     s2 = ""
     if upcoming_events:
         next_event = upcoming_events[0]
-        days_until = max(0, (next_event['date'] - datetime.now()).days)
+        days_until = max(0, (next_event['date'] - datetime.now().astimezone()).days)
         s2 = (
             f" Wake up to reality: Your next scheduled expense is '{next_event['title']}' "
             f"(RM {next_event['estimatedCost']:.2f}) in {days_until} day(s)."
