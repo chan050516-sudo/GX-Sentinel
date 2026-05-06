@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Header
 import uuid
 from datetime import datetime
-from ..model.models import ManualTransactionRequest, ManualTransactionResponse, UserDashboardResponse
+from ..model.models import ManualTransactionRequest, ManualTransactionResponse, UserDashboardResponse , FinancialSections
+
+# 引入数据库接口以实现数据联动
+from ..firebase.database import get_user, update_user
 
 router = APIRouter(prefix="/transaction", tags=["transaction"])
 
@@ -20,17 +23,17 @@ async def get_dashboard(x_user_id: str = Header("demo_user_01")):
     """
     前端 Web Dashboard 启动时调用的第一个接口。
     """
+
+    user_data = get_user(x_user_id)
+
     # 队友后续会通过 Firebase 获取真实数据并计算
     return UserDashboardResponse(
-        runwayDays=45.2,          # 核心 C 位指标：跑道天数
-        resilienceScore=68.5,     # 韧性分数
-        sectionsBalances={        # 五大分区余额
-            "emergencyFund": 1200.0,
-            "fixedExpenses": 450.0,
-            "futureExpenses": 300.0,
-            "variableBudget": 150.0,
-            "savingsPockets": 500.0
-        },
-        recentTransactions=[]     # 最近流水[cite: 1]
+        # 对应 User Summary 中的核心指标
+        runwayDays=user_data.get("currentRunwayDays", 45.2),
+        resilienceScore=user_data.get("resilienceScore", 68.5),
+        
+        # 将数据库字典映射到 FinancialSections 模型
+        sectionsBalances=FinancialSections(**user_data["financialSections"]),
+        recentTransactions=[] 
     )
 
