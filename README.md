@@ -6,7 +6,8 @@ GX-SENTINEL
 │   │   ├── graph_allocator.py # Module 1: 收入分配 Agent 状态机
 │   │   ├── graph_guardian.py  # Module 2: 消费拦截/审计 Agent 状态机
 │   │   ├── graph_mentor.py    # Module 4: 财务导师/周报生成 Agent
-│   │   ├── state.py           # 定义 LangGraph 各节点的共享状态 (TypedDict)
+│   │   ├── state.py           # 
+ (TypedDict)
 │   │   └── tools.py           # 供 Agent 调用的外部工具
 │   ├── 📂 firebase            # Firebase 管理逻辑
 │   │   ├── crud.py            # 封装数据库的增删改查 (Create, Read, Update, Delete)
@@ -34,3 +35,8 @@ GX-SENTINEL
 │
 ├── .gitignore                 # 忽略文件配置 (禁止上传 .env 或 venv)
 └── README.md                  # 项目说明文档
+
+
+
+Swagger UI Testing:
+http://localhost:8000/docs

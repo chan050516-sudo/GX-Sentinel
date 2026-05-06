@@ -110,6 +110,7 @@ class InterceptorJustifyResponse(BaseModel):
     verdict: Literal["valid", "invalid"]
     reasoning: str
     cognitiveMessage: str
+    advice: Optional[str] = None
 
 
 class InterceptorOutcomeRequest(BaseModel):
