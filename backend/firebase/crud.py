@@ -18,7 +18,7 @@ def get_user(user_id: str) -> Optional[Dict[str, Any]]:
         "totalOutflow": 2300,
         "consecutiveSafeDays": 3,
     }
-
+ 
 def update_user(user_id: str, updates: Dict[str, Any]) -> bool:
     """更新用户（队友实现）"""
     pass
