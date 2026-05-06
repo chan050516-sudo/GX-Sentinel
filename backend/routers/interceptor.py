@@ -1,16 +1,19 @@
 from fastapi import APIRouter, Header, HTTPException
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
-from ..model.models import (
+from model.models import (
     InterceptorAnalyzeRequest, InterceptorAnalyzeResponse,
     InterceptorObservations, InterceptorJustifyRequest, InterceptorJustifyResponse,
     InterceptorOutcomeRequest, InterceptorOutcomeResponse,
 )
-from ..services.impulse_scorer import calculate_impulse_score, determine_tier
-from ..services.runway import calculate_runway_impact, check_goal_conflict
-from ..agents.graph_guardian import guardian_graph, GuardianState
-from ..firebase.crud import (
-    get_user, get_similar_purchases_count, get_user_goals, get_calendar_upcoming_expenses,
+from services.impulse_scorer import calculate_impulse_score, determine_tier
+from services.runway import calculate_runway_impact, check_goal_conflict
+from agents.graph_guardian import guardian_graph, GuardianState
+from firebase.crud import (
+    get_user, get_similar_purchases_count, get_user_goals,
+    get_upcoming_events,
+    get_last_aborted_transaction,
+    create_user_if_not_exists,
     create_interceptor_audit, update_interceptor_audit, get_interceptor_audit
 )
 
@@ -40,16 +43,21 @@ def get_top_risk_factors(factors: dict) -> str:
 async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = Header("demo_user_01")):
     # 1. Get user financial status
     user_data = get_user(x_user_id)
+    if not user_data:
+        create_user_if_not_exists(x_user_id)
+        user_data = get_user(x_user_id)
     financial_sections = user_data.get("financialSections", {})
     current_variable_balance = financial_sections.get("variableBudget", 0.0)
     current_runway = user_data.get("currentRunwayDays", 30.0)
     avg_daily_spending = user_data.get("totalOutflow", 2000) / 30.0 if user_data.get("totalOutflow") else 50.0
     goals = get_user_goals(x_user_id)
-    upcoming_expenses = get_calendar_upcoming_expenses(x_user_id, days=30)
+    upcoming_events = get_upcoming_events(x_user_id, days=30)
+    upcoming_expenses_total = sum(e["estimatedCost"] for e in upcoming_events)
     # Psycological data
     consecutive_safe_days = user_data.get("consecutiveSafeDays", 0)
     resilience_score = user_data.get("resilienceScore", 0.0)
-    last_aborted_item = "Gaming keyboard (RM 299)"
+    last_aborted_item = get_last_aborted_transaction(x_user_id) or "None"
+    # last_aborted_item = "Gaming keyboard (RM 299)"
 
     # 2. Get Similar Purchases Count，from transactions in DB
     product_desc = req.products[0].name if req.products else "item"
@@ -96,7 +104,13 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
         "runwayInfo": runway_info,
         "goalConflict": conflict_info,
         "goalsSnapshot": goals,
-        "upcomingExpenses": upcoming_expenses,
+        "upcomingExpensesTotal": upcoming_expenses_total,
+        # Save most recent 3 events
+        "upcomingEventsPreview": [
+            {"title": e["title"], "cost": e["estimatedCost"], "days": (e["date"] - datetime.now()).days}
+            for e in upcoming_events[:3]
+        ],
+        "currentVariableBalance": current_variable_balance, 
         "behavioralContext": {
             "consecutiveSafeDays": consecutive_safe_days,
             "resilienceScore": resilience_score,
@@ -118,9 +132,15 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
 
     # Line 2: Relate to calendar event
     s2 = ""
-    if upcoming_expenses and len(upcoming_expenses) > 0:
-        next_event = upcoming_expenses[0]
-        s2 = f" Wake up to reality: Your calendar shows an upcoming obligation of RM {next_event.get('estimatedCost', 0):.2f} for '{next_event.get('title', 'Pending Event')}' within the next 30 days."
+    if upcoming_events:
+        next_event = upcoming_events[0]
+        days_until = max(0, (next_event['date'] - datetime.now()).days)
+        s2 = (
+            f" Wake up to reality: Your next scheduled expense is '{next_event['title']}' "
+            f"(RM {next_event['estimatedCost']:.2f}) in {days_until} day(s)."
+        )
+    elif upcoming_expenses_total > 0:
+        s2 = f" Reminder: You have RM {upcoming_expenses_total:.2f} of upcoming financial obligations."
     
     # Line 3: Transaction History
     s3 = f" Furthermore, you have already purchased {similar_count} similar items in the past 30 days." if similar_count > 0 else ""
@@ -213,8 +233,8 @@ async def justify_purchase(
     behavioral_context = audit.get("behavioralContext", {})
     runway_info = audit.get("runwayInfo", {})
     goals = audit.get("goalsSnapshot", [])
-    current_variable_balance = audit.get("observations", {}).get("currentVariableBalance")
-
+    current_variable_balance = audit.get("currentVariableBalance", 0.0)
+    upcoming_events_preview = audit.get("upcomingEventsPreview", [])
     goal_conflict = audit.get("goalConflict", {})
     python_conflict_message = goal_conflict.get("conflict_message", "No severe goal conflict detected.")
     
@@ -234,7 +254,8 @@ async def justify_purchase(
             "python_conflict_message": python_conflict_message,
             "consecutive_safe_days": behavioral_context.get("consecutiveSafeDays", 0),
             "resilience_score": behavioral_context.get("resilienceScore", 0),
-            "last_aborted_item": behavioral_context.get("lastAbortedItem", "None")
+            "last_aborted_item": behavioral_context.get("lastAbortedItem", "None"),
+            "upcoming_events": upcoming_events_preview
         },
         verdict="", reasoning="", cognitive_message=""
     )
@@ -255,8 +276,37 @@ async def justify_purchase(
     return InterceptorJustifyResponse(
         verdict=final_state["verdict"],
         reasoning=final_state["reasoning"],
-        cognitiveMessage=final_state["cognitive_message"]
+        cognitiveMessage=final_state["cognitive_message"],
+        advice=final_state.get("advice")
     )
+
+
+# @router.post("/outcome", response_model=InterceptorOutcomeResponse)
+# async def interceptor_outcome(req: InterceptorOutcomeRequest, x_user_id: str = Header("demo_user_01")):
+#     # 1. 获取审计记录和用户当前状态
+#     audit = get_interceptor_audit(x_user_id, req.auditId)
+#     if not audit:
+#         raise HTTPException(404, "Audit not found")
+    
+#     user_data = get_user(x_user_id)
+#     if not user_data:
+#         raise HTTPException(404, "User not found")
+    
+#     # 2. 根据 action 执行更新
+#     result = apply_outcome(x_user_id, audit, req.userAction, user_data)
+    
+#     # 3. 更新审计最终结果
+#     update_interceptor_audit(x_user_id, req.auditId, {
+#         "userAction": req.userAction,
+#         "finalOutcome": "aborted" if req.userAction == "abort" else "allowed"
+#     })
+    
+#     return InterceptorOutcomeResponse(
+#         success=True,
+#         resilienceDelta=result["resilience_delta"],
+#         runwayDrop=result["runway_drop"],
+#         newResilienceScore=result["new_resilience_score"]
+#     )
 
 
 @router.post("/outcome", response_model=InterceptorOutcomeResponse)

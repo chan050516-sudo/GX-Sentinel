@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Header
 import uuid
-from ..model.models import (
+from model.models import (
     AllocatorAnalyzeRequest, AllocatorAnalyzeResponse,
     AllocatorConfirmRequest, AllocatorConfirmResponse,
     FinancialSections,

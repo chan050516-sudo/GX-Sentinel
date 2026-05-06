@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Header
 from datetime import datetime
-from ..model.models import LeaderboardResponse, LeaderboardEntry, BonusStatusResponse
+from model.models import LeaderboardResponse, LeaderboardEntry, BonusStatusResponse
 
 router = APIRouter(prefix="/social", tags=["social"])
 

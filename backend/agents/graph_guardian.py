@@ -3,7 +3,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from typing import TypedDict, Dict, Any
 import json
 import re
-from ..core.llm import get_gemini_llm
+from core.llm import get_gemini_llm
 
 class GuardianState(TypedDict):
     user_id: str
@@ -55,6 +55,7 @@ def direct_audit_node(state: GuardianState):
     Variable Budget Left: RM {context.get('current_variable_balance', 'N/A')}
     Similar items bought this month: {context.get('similar_purchases', 0)}
     Active Goals: {goals_text}
+    Upcoming Events: {context.get('upcoming_events', 'None')}
 
     [BEHAVIORAL & GAMIFICATION DATA]
     Current Safe Spending Streak: {context.get('consecutive_safe_days', 0)} days

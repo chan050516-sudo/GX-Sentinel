@@ -1,6 +1,7 @@
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
-from google.cloud.firestore import SERVER_TIMESTAMP, ArrayUnion, CollectionReference, DocumentReference
+from google.cloud.firestore import CollectionReference, DocumentReference
+from firebase_admin import firestore
 from .init import get_firestore_client
 
 # ========== 辅助函数 ==========
@@ -144,6 +145,17 @@ def get_similar_purchases_count(user_id: str, product_keyword: str, days: int = 
             count += 1
     return count
 
+def get_last_aborted_transaction(user_id: str) -> Optional[str]:
+    """返回最近一条 aborted=True 的交易描述，如果没有则返回 None"""
+    col_ref = _get_transactions_col(user_id)
+    docs = col_ref.where("aborted", "==", True).order_by("timestamp", direction=firestore.Query.DESCENDING).limit(1).stream()
+    for doc in docs:
+        data = doc.to_dict()
+        desc = data.get("description", "")
+        amount = data.get("amount", 0)
+        return f"{desc} (RM {amount:.0f})"
+    return None
+
 # ========== 拦截审计日志 ==========
 def create_interceptor_audit(user_id: str, audit_data: Dict[str, Any]) -> str:
     """
@@ -203,19 +215,34 @@ def create_goal(user_id: str, goal_data: Dict[str, Any]) -> str:
     return goal_id
 
 # ========== 日历事件 ==========
-def get_calendar_upcoming_expenses(user_id: str, days: int = 30) -> float:
+def get_upcoming_events(user_id: str, days: int = 30) -> List[Dict[str, Any]]:
     """
-    计算未来 days 天内日历事件的预计支出总和。
+    返回未来 days 天内日历事件的列表（包含 title, estimatedCost, date, eventId）。
+    按日期升序排列。
     """
     now = datetime.now()
     future = now + timedelta(days=days)
     col_ref = _get_calendar_events_col(user_id)
-    docs = col_ref.where("date", ">=", now).where("date", "<=", future).stream()
-    total = 0.0
+    docs = col_ref.where("date", ">=", now).where("date", "<=", future).order_by("date").stream()
+    events = []
     for doc in docs:
         data = doc.to_dict()
-        total += data.get("estimatedCost", 0.0)
-    return total
+        events.append({
+            "eventId": doc.id,
+            "title": data.get("title", "Unknown"),
+            "estimatedCost": data.get("estimatedCost", 0.0),
+            "date": data.get("date"),
+            "isRecurring": data.get("isRecurring", False),
+            "subscriptionDetection": data.get("subscriptionDetection", False),
+        })
+    return events
+
+def get_calendar_upcoming_expenses(user_id: str, days: int = 30) -> float:
+    """
+    计算未来 days 天内日历事件的预计支出总和（复用 get_upcoming_events）。
+    """
+    events = get_upcoming_events(user_id, days)
+    return sum(event["estimatedCost"] for event in events)
 
 def create_calendar_event(user_id: str, event_data: Dict[str, Any]) -> str:
     """创建日历事件，返回 eventId"""

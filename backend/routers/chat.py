@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Header
 import uuid
 import datetime
-from ..model.models import ChatMessageRequest, ChatMessageResponse, ChatHistoryResponse, WeeklyReportResponse
+from model.models import ChatMessageRequest, ChatMessageResponse, ChatHistoryResponse, WeeklyReportResponse
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 

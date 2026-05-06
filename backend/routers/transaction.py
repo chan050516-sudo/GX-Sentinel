@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Header
 import uuid
 from datetime import datetime
-from ..model.models import ManualTransactionRequest, ManualTransactionResponse
+from model.models import ManualTransactionRequest, ManualTransactionResponse
 
 router = APIRouter(prefix="/transaction", tags=["transaction"])
 

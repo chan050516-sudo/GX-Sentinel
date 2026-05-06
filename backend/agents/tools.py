@@ -1,6 +1,5 @@
-# backend/agents/tools.py
 from langchain_core.tools import tool
-from ..firebase.crud import get_user, get_user_goals, get_calendar_upcoming_expenses, get_recent_transactions
+from firebase.crud import get_user, get_user_goals, get_calendar_upcoming_expenses, get_recent_transactions
 
 @tool
 def get_current_runway(user_id: str) -> float:
