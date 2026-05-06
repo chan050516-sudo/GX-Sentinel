@@ -27,6 +27,13 @@ def get_similar_purchases_count(user_id: str, product_name: str, days: int = 30)
     return db_count(user_id, product_name, days)
 
 @tool
+def get_upcoming_calendar_expenses(user_id: str) -> list:
+    """获取用户未来30天内的日历支出预估（如房租、牙医、聚餐等）。如果有，必须预留资金。"""
+    expenses = get_calendar_upcoming_expenses(user_id, days=30)
+    return [{"event": e.get("title"), "cost": e.get("estimatedCost"), "date": str(e.get("date"))} 
+            for e in expenses]
+
+@tool
 def calculate_runway_impact(transaction_amount: float, user_id: str) -> dict:
     """计算一笔交易会对财务跑道产生多大影响，返回减少天数及复利损失示例"""
     user = get_user(user_id)

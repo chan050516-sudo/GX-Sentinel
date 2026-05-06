@@ -3,7 +3,7 @@ from datetime import datetime
 from model.models import LeaderboardResponse, LeaderboardEntry, BonusStatusResponse
 
 # 引入数据库接口以获取真实连续安全天数
-from ..firebase.database import get_user
+from firebase.crud import get_user
 
 router = APIRouter(prefix="/social", tags=["social"])
 

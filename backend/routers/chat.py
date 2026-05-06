@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Header
 import uuid
 from datetime import datetime
-from ..model.models import ChatMessageRequest, ChatMessageResponse, ChatHistoryResponse, WeeklyReportResponse
-from ..model.models import ChatMessageRequest, ChatMessageResponse, ChatHistoryResponse, WeeklyReportResponse
+from model.models import ChatMessageRequest, ChatMessageResponse, ChatHistoryResponse, WeeklyReportResponse
+from model.models import ChatMessageRequest, ChatMessageResponse, ChatHistoryResponse, WeeklyReportResponse
 # 导入你刚刚写的 Agent 逻辑
-from ..agents.graph_mentor import run_mentor_agent
+from agents.graph_mentor import run_mentor_agent
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 

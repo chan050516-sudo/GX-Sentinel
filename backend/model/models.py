@@ -47,13 +47,23 @@ class RecommendedAllocation(BaseModel):
     savingsPockets: AllocationRange
 
 
-class AllocatorAnalyzeRequest(BaseModel):
-    amount: float
-    source: Literal["salary", "ptptn", "scholarship", "refund"]
+# class AllocatorAnalyzeRequest(BaseModel):
+#     amount: float
+#     source: Literal["salary", "ptptn", "scholarship", "refund"]
 
+class PendingIncomeItem(BaseModel):
+    injectionId: str
+    amount: float
+    source: str
+    description: Optional[str] = None
+
+class AllocatorAnalyzeRequest(BaseModel):
+    pendingIncomes: List[PendingIncomeItem]
 
 class AllocatorAnalyzeResponse(BaseModel):
-    recommendedAllocation: RecommendedAllocation
+    isSmartMode: bool
+    totalAmount: float
+    recommendedAllocation: Optional['RecommendedAllocation'] = None
     adviceText: str
     investmentSuggestion: Optional[str] = None
 
