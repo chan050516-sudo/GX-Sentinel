@@ -218,3 +218,20 @@ __marimo__/
 .streamlit/secrets.toml
 
 backend/firebase/serviceAccountKey.json
+
+# 忽略 Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 忽略虚拟环境
+.venv/
+venv/
+env/
+
+# 忽略环境变量
+.env
+
+# 忽略你的 Firebase 私钥
+serviceAccountKey.json
