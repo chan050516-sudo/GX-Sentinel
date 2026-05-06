@@ -145,43 +145,55 @@ async def justify_purchase(
     req: InterceptorJustifyRequest,
     x_user_id: str = Header("demo_user_01")
 ):
-    # 1. 从 Firestore 获取之前的审计记录（/analyze 时创建的）
     audit = get_interceptor_audit(x_user_id, req.auditId)
     if not audit:
         raise HTTPException(status_code=404, detail="Audit record not found")
+        
+    # [新增防御]：大模型只处理高级别威胁
+    if audit.get("triggerLevel") not in ["friction", "critical"]:
+        raise HTTPException(
+            status_code=400, 
+            detail="Justification is only processed for Tier 2 or Tier 3 transactions."
+        )
     
-    # 2. 提取必要信息
+    # 提取已有的缓存数据，拒绝重复计算
     product_desc = audit["products"][0]["name"] if audit.get("products") else "item"
     transaction_amount = audit["totalAmount"]
-    transaction_time = audit["observations"]["timeOfDay"]
+    observations = audit.get("observations", {})
+    runway_info = audit.get("runwayInfo", {})
+    goals = audit.get("goalsSnapshot", [])
+    current_variable_balance = audit.get("observations", {}).get("currentVariableBalance")
     
-    # 3. 调用 Guardian Agent（工具化）
+    # 把数据全部塞给 State
     initial_state = GuardianState(
         user_id=x_user_id,
         product_description=product_desc,
         transaction_amount=float(transaction_amount),
-        transaction_time=transaction_time,
+        transaction_time=observations.get("timeOfDay", "Unknown"),
         user_justification=req.justification,
-        messages=[],  # 会在 agent_node 中初始化
-        verdict="",
-        reasoning="",
-        cognitive_message=""
+        context_data={
+            "runway_drop_days": runway_info.get("runway_drop_days"),
+            "current_runway": observations.get("currentRunwayDays"),
+            "similar_purchases": observations.get("similarPurchasesCount"),
+            "goals": goals,
+            "current_variable_balance": current_variable_balance
+        },
+        verdict="", reasoning="", cognitive_message=""
     )
+    
     final_state = guardian_graph.invoke(initial_state)
     
-    # 4. 存储 justification 和 AI 结果到数据库
     update_interceptor_audit(
         user_id=x_user_id,
         audit_id=req.auditId,
         updates={
             "justification": req.justification,
-            "aiAuditResponse": final_state["reasoning"],   # AI 的详细推理
-            "aiVerdict": final_state["verdict"],           # valid / invalid
-            "finalOutcome": None  # 等待 outcome 接口更新
+            "aiAuditResponse": final_state["reasoning"],
+            "aiVerdict": final_state["verdict"],
+            "finalOutcome": None
         }
     )
     
-    # 5. 返回给 Chrome 扩展 / 前端
     return InterceptorJustifyResponse(
         verdict=final_state["verdict"],
         reasoning=final_state["reasoning"],

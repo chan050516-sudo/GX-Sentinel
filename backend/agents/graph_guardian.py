@@ -1,146 +1,97 @@
 from langgraph.graph import StateGraph, END
-from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage
-from typing import TypedDict, Annotated, List, Literal
-import operator
+from langchain_core.messages import HumanMessage, SystemMessage
+from typing import TypedDict, Dict, Any
 import json
+import re
 from ..core.llm import get_gemini_llm
-from .tools import (
-    get_current_runway, get_variable_balance, get_active_goals,
-    get_similar_purchases, calculate_runway_impact
-)
 
-# 定义状态
+# 1. 扁平化状态定义 (去除了复杂的 messages 和 tools)
 class GuardianState(TypedDict):
     user_id: str
     product_description: str
     transaction_amount: float
     transaction_time: str
     user_justification: str
-    messages: Annotated[List, operator.add]   # 对话历史
+    context_data: Dict[str, Any]  # 接收后端传来的绝对事实
     verdict: str
     reasoning: str
     cognitive_message: str
+    advice: str
 
-# 绑定工具
-tools = [
-    get_current_runway, get_variable_balance, get_active_goals,
-    get_similar_purchases, calculate_runway_impact
-]
-llm = get_gemini_llm(temperature=0.2)
-llm_with_tools = llm.bind_tools(tools)
+llm = get_gemini_llm(temperature=0.0)
 
-# 系统提示
-SYSTEM_PROMPT = """You are a financial guardian agent. You have tools to fetch the user's financial data.
-Your task: Evaluate whether the purchase justification is rational. Follow these steps:
+SYSTEM_PROMPT = """You are a highly rational, unyielding financial guardian AI. 
+Evaluate if the user's purchase justification is logically sound based on their strict financial reality.
 
-1. **Gather necessary data** using the available tools. You MUST at least get:
-   - current runway
-   - variable balance
-   - active goals
-   - similar purchases count (call with product_keyword = the product description)
-   - runway impact of this transaction
+CRITICAL RULES:
+1. Ignore emotional pleading. Focus only on math, runway impact, and goals.
+2. If time is between 23:00 and 03:00, strongly consider it impulsive.
+3. If the purchase consumes >30% of their variable budget or delays a goal, reject it.
+4. Output STRICTLY in JSON format.
 
-2. **Analyze** based on the following rules:
-   - If transaction time is between 23:00 and 03:00, strongly consider as impulsive.
-   - If justification is weak (e.g., "I want it", "just because", "to feel good"), lean towards invalid.
-   - If the purchase would consume >30% of remaining variable budget, consider invalid.
-   - If it conflicts with any active goal (especially high priority), consider invalid.
-
-3. **Decide** verdict: "valid" (rational purchase) or "invalid" (impulsive).
-
-4. **Output** a JSON with the following structure:
+Expected JSON schema:
 {
   "verdict": "valid" or "invalid",
-  "reasoning": "detailed explanation for your decision",
-  "cognitive_message": "short, persuasive message to show to the user to discourage the purchase (if invalid) or encourage (if valid)"
+  "reasoning": "Logical breakdown of the decision.",
+  "cognitive_message": "A short, sharp, and persuasive message to display to the user.",
+  "advice": "Actionable financial advice based on their runway drop and goals. (e.g., 'Save this RM 500 and you will reach your MacBook goal 2 weeks earlier.')"
 }
-
-Always output only the JSON, no other text.
 """
 
-def agent_node(state: GuardianState):
-    messages = state.get("messages", [])
-    if not messages:
-        # Generate basic prompt in first entry
-        initial_messages = [
-            SystemMessage(content=SYSTEM_PROMPT),
-            HumanMessage(content=f"Product: {state['product_description']}...")
-        ]
-        response = llm_with_tools.invoke(initial_messages)
-        # First time return all initial message and AI response
-        return {"messages": initial_messages + [response]}
-    else:
-        # Subsequent iteration use current state to trigger LLM
-        response = llm_with_tools.invoke(messages)
-        return {"messages": [response]}
-
-def should_continue(state: GuardianState) -> Literal["tools", "finalize"]:
-    """判断是否需要继续调用工具"""
-    last_message = state["messages"][-1]
-    if hasattr(last_message, "tool_calls") and last_message.tool_calls:
-        return "tools"
-    return "finalize"
-
-def tools_node(state: GuardianState):
-    """执行工具调用并返回结果"""
-    last_message = state["messages"][-1]
-    tool_results = []
-    for tc in last_message.tool_calls:
-        tool_name = tc["name"]
-        tool_args = tc["args"]
-        # 自动注入 user_id（如果工具需要且未提供）
-        if "user_id" in tool_args or "user_id" in [p.name for p in tools if p.name == tool_name]:
-            # 某些工具可能需要 user_id，如果没有传递则自动补上
-            if "user_id" not in tool_args:
-                tool_args["user_id"] = state["user_id"]
-        # 查找对应工具
-        for tool in tools:
-            if tool.name == tool_name:
-                result = tool.invoke(tool_args)
-                tool_results.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
-                break
-    # 将工具结果添加到历史
-    updated_messages = state["messages"] + tool_results
-    return {"messages": updated_messages}
-
-def finalize_node(state: GuardianState):
-    """聚合所有信息，生成最终裁决"""
-    last_ai = next((m for m in reversed(state["messages"]) if isinstance(m, AIMessage) and not m.tool_calls), None)
-    if last_ai and last_ai.content:
-        try:
-            content = last_ai.content
-            # 提取 JSON 内容
-            if "```json" in content:
-                content = content.split("```json")[1].split("```")[0]
-            elif "```" in content:
-                content = content.split("```")[1].split("```")[0]
-            data = json.loads(content)
-            return {
-                "verdict": data.get("verdict", "invalid"),
-                "reasoning": data.get("reasoning", ""),
-                "cognitive_message": data.get("cognitive_message", "Please reconsider.")
-            }
-        except Exception as e:
-            print(f"Error parsing AI response: {e}")
-            pass
-    return {
-        "verdict": "invalid",
-        "reasoning": "System unable to evaluate, default to invalid.",
-        "cognitive_message": "We couldn't verify your justification. Please reconsider the purchase."
-    }
-
-def build_guardian_graph():
-    workflow = StateGraph(GuardianState)
-    workflow.add_node("agent", agent_node)
-    workflow.add_node("tools", tools_node)
-    workflow.add_node("finalize", finalize_node)
+def direct_audit_node(state: GuardianState):
+    context = state['context_data']
+    goals = context.get('goals', [])
+    goals_text = json.dumps(goals, ensure_ascii=False) if goals else "No active goals."
     
-    workflow.set_entry_point("agent")
-    workflow.add_conditional_edges("agent", should_continue, {"tools": "tools", "finalize": "finalize"})
-    workflow.add_edge("tools", "agent")
-    workflow.add_edge("finalize", END)
-    
-    return workflow.compile()
+    # 将业务事实直接格式化为强上下文，让模型无从反驳
+    human_content = f"""
+    [TRANSACTION DETAILS]
+    Product: {state['product_description']}
+    Amount: RM {state['transaction_amount']}
+    Time: {state['transaction_time']}
 
-# 全局编译 graph（避免重复编译）
-guardian_graph = build_guardian_graph()
+    [FINANCIAL REALITY]
+    Current Runway: {context.get('current_runway', 'N/A')} days
+    Runway Drop if purchased: -{context.get('runway_drop_days', 'N/A')} days
+    Variable Budget Left: RM {context.get('current_variable_balance', 'N/A')}
+    Similar items bought this month: {context.get('similar_purchases', 0)}
+    Active Goals: {goals_text}
+
+    [USER'S EXCUSE]
+    "{state['user_justification']}"
+    """
+    messages = [
+        SystemMessage(content=SYSTEM_PROMPT),
+        HumanMessage(content=human_content)
+    ]
+    
+    response = llm.invoke(messages)
+    
+    # 鲁棒的 JSON 提取
+    try:
+        content = response.content
+        cleaned_content = re.sub(r"```[a-zA-Z]*", "", content).replace("```", "").strip()
+        data = json.loads(cleaned_content)
+        
+        return {
+            "verdict": data.get("verdict", "invalid"),
+            "reasoning": data.get("reasoning", "Parsed default reasoning"),
+            "cognitive_message": data.get("cognitive_message", "Purchase interception enforced."),
+            "advice": data.get("advice", "Focus on maintaining your financial runway.") # <--- 新增提取
+        }
+    except Exception as e:
+        print(f"JSON Parse Error: {e}")
+        return {
+            "verdict": "invalid",
+            "reasoning": "System error parsing justification.",
+            "cognitive_message": "Invalid logic structure detected. Please reconsider the purchase.",
+            "advice": "Please review your financial goals before proceeding." # <--- 新增
+        }
+
+# 构建单节点状态机
+workflow = StateGraph(GuardianState)
+workflow.add_node("audit", direct_audit_node)
+workflow.set_entry_point("audit")
+workflow.add_edge("audit", END)
+
+guardian_graph = workflow.compile()
