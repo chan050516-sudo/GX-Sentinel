@@ -1,39 +1,27 @@
 from fastapi import APIRouter, Header
-import uuid
-from datetime import datetime
-from ..model.models import ManualTransactionRequest, ManualTransactionResponse, UserDashboardResponse , FinancialSections
+from ..model.models import ManualTransactionRequest, ManualTransactionResponse, UserDashboardResponse
 
-# 引入数据库接口以实现数据联动
-from ..firebase.database import get_user, update_user
+# 引入刚刚写好的 service
+from ..services import transaction_service
 
 router = APIRouter(prefix="/transaction", tags=["transaction"])
 
 @router.post("/manual", response_model=ManualTransactionResponse)
 async def manual_transaction(req: ManualTransactionRequest, x_user_id: str = Header("demo_user_01")):
-    # 队友实现扣除余额、更新韧性分数
-    return ManualTransactionResponse(
-        transactionId=str(uuid.uuid4()),
-        runwayDrop=5.0,
-        resilienceDelta=-2.0,
-    )
+    """
+    前端调用此接口模拟用户花钱，触发 Real-time Micro-Nudge。
+    具体逻辑已交由 Service 层处理。
+    """
+    # 将前端传来的用户 ID 和消费金额，交给 service 处理
+    return transaction_service.process_manual_transaction(x_user_id, req.amount)
 
-# --- 新增：Module 3 核心 Dashboard 接口 ---
+
+# --- Module 3 核心 Dashboard 接口 ---
 @router.get("/dashboard", response_model=UserDashboardResponse)
 async def get_dashboard(x_user_id: str = Header("demo_user_01")):
     """
     前端 Web Dashboard 启动时调用的第一个接口。
+    获取最新的核心指标和账户余额。
     """
-
-    user_data = get_user(x_user_id)
-
-    # 队友后续会通过 Firebase 获取真实数据并计算
-    return UserDashboardResponse(
-        # 对应 User Summary 中的核心指标
-        runwayDays=user_data.get("currentRunwayDays", 45.2),
-        resilienceScore=user_data.get("resilienceScore", 68.5),
-        
-        # 将数据库字典映射到 FinancialSections 模型
-        sectionsBalances=FinancialSections(**user_data["financialSections"]),
-        recentTransactions=[] 
-    )
-
+    # 直接调用 service 获取打包好的 Dashboard 数据
+    return transaction_service.get_user_dashboard_data(x_user_id)
