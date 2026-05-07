@@ -67,6 +67,7 @@ INCOME_INJECTIONS = [
         "amount": 4200.0,
         "source": "salary",
         "date": INJ_APR_DATE,
+        "status": "allocated",
         "allocatorUsed": True,
         "allocatorRecommendation": {
             "recommendedAmounts": {
@@ -91,6 +92,7 @@ INCOME_INJECTIONS = [
         "amount": 1500.0,
         "source": "scholarship",
         "date": INJ_MAY_DATE,
+        "status": "allocated",
         "allocatorUsed": True,
         "allocatorRecommendation": {
             "recommendedAmounts": {
@@ -260,7 +262,6 @@ GOALS = [
         "targetAmount": 6000.0,
         "savedAmount": 1850.0,
         "deadline": GOAL_EMERGENCY_DEADLINE,
-        "priority": 1,
         "createdAt": CREATED_AT,
     },
     {
@@ -269,7 +270,6 @@ GOALS = [
         "targetAmount": 3000.0,
         "savedAmount": 800.0,
         "deadline": GOAL_VACATION_DEADLINE,
-        "priority": 2,
         "createdAt": datetime(2026, 3, 10, 8, 30, 0),
     },
 ]

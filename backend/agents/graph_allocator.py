@@ -89,7 +89,7 @@ def finalize_node(state: AllocatorState):
     total_amount = state["total_amount"]
     last_ai = next((m for m in reversed(state["messages"]) if isinstance(m, AIMessage) and not m.tool_calls), None)
     
-    # 默认兜底结构
+    # Default fallback
     recommendation = {}
     advice_text = "System fallback: Default allocation applied."
     
@@ -102,7 +102,7 @@ def finalize_node(state: AllocatorState):
             percents = data.get("percentages", {})
             advice_text = data.get("advice", "Allocation complete.")
             
-            # 安全计算：通过 Python 将百分比转化为绝对金额与上下限 (防御 AI 数学幻觉)
+            # Deterministic calculation to prevent LLM hallucination
             for pocket in ["emergencyFund", "fixedExpenses", "futureExpenses", "variableBudget", "savingsPockets"]:
                 p = float(percents.get(pocket, 0.2)) 
                 best_val = total_amount * p

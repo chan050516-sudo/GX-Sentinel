@@ -72,12 +72,16 @@ class AllocatorConfirmRequest(BaseModel):
     injectionId: str
     allocationMap: Dict[str, float]  # {"emergencyFund": 200}
 
+class AllocatorConfirmRequest(BaseModel):
+    injectionIds: List[str]                  # Confirm multiple pending transaction at once
+    allocationMap: Dict[str, float]          # e.g. {"emergencyFund": 200}
+    # goalAllocations: Optional[Dict[str, float]] = None
 
 class AllocatorConfirmResponse(BaseModel):
     success: bool
     newBalances: FinancialSections
     runwayRecalc: float
-
+    
 
 # ========== Module 2: Interceptor ==========
 class ProductInfo(BaseModel):
