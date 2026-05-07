@@ -67,11 +67,6 @@ class AllocatorAnalyzeResponse(BaseModel):
     adviceText: str
     investmentSuggestion: Optional[str] = None
 
-
-class AllocatorConfirmRequest(BaseModel):
-    injectionId: str
-    allocationMap: Dict[str, float]  # {"emergencyFund": 200}
-
 class AllocatorConfirmRequest(BaseModel):
     injectionIds: List[str]                  # Confirm multiple pending transaction at once
     allocationMap: Dict[str, float]          # e.g. {"emergencyFund": 200}
@@ -102,6 +97,7 @@ class InterceptorAnalyzeRequest(BaseModel):
     products: List[ProductInfo]
     totalAmount: float
     isCheckoutPage: bool = True
+    paymentSource: Literal["variableBudget", "emergencyFund", "savingsPockets", "fixedExpenses", "futureExpenses"] = "variableBudget"
 
 
 class InterceptorAnalyzeResponse(BaseModel):
@@ -109,6 +105,7 @@ class InterceptorAnalyzeResponse(BaseModel):
     auditId: str
     observations: InterceptorObservations
     softMessage: Optional[str] = None
+    intentAlert: Optional[str] = None   # For Internal Audit
     runwayDropDays: Optional[float] = None
     delaySeconds: Optional[int] = None
     compoundLossExample: Optional[str] = None

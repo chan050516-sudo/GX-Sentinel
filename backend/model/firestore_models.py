@@ -27,6 +27,8 @@ class FirestoreInterceptorAudit(BaseModel):
     timestamp: datetime
     platform: str
     products: List[ProductInfo]
+    paymentSource: str
+    intentAlert: Optional[str] = None
     totalAmount: float
     triggerLevel: str
     observations: InterceptorObservations

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Header, HTTPException
 from datetime import datetime, timedelta
+from langchain_core.messages import HumanMessage
 import uuid
 from model.models import (
     InterceptorAnalyzeRequest, InterceptorAnalyzeResponse,
@@ -16,8 +17,10 @@ from firebase.crud import (
     create_user_if_not_exists,
     create_interceptor_audit, update_interceptor_audit, get_interceptor_audit
 )
+from core.llm import get_gemini_llm
 
 router = APIRouter(prefix="/interceptor", tags=["interceptor"])
+fast_llm = get_gemini_llm(temperature=0.0)
 
 # Get the top risk observation in impulsive spending
 def get_top_risk_factors(factors: dict) -> str:
@@ -37,6 +40,18 @@ def get_top_risk_factors(factors: dict) -> str:
     top_2 = [risk_map[k] for k, v in sorted_factors[:2]]
     return " and ".join(top_2) if top_2 else "impulsive buying patterns"
 
+async def check_semantic_intent(product_name: str, reserved_titles: list) -> tuple[bool, str]:
+    if not reserved_titles:
+        return False, "No specific reserved purpose found."
+    prompt = (
+        f"Product/Service: '{product_name}'. "
+        f"Reserved Fund Purposes: {reserved_titles}. "
+        f"Does this product DIRECTLY fulfill any of these reserved purposes? "
+        f"Answer STRICTLY with one word 'YES' or 'NO'."
+    )
+    response = await fast_llm.invoke([HumanMessage(content=prompt)]).content.strip().upper()
+    is_match = response.startswith("YES")
+    return is_match, "Matched" if is_match else "Mismatch"
 
 
 @router.post("/analyze", response_model=InterceptorAnalyzeResponse)
@@ -96,6 +111,8 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
         "auditId": audit_id,
         "timestamp": transaction_time,
         "platform": req.platform,
+        "paymentSource": req.paymentSource,
+        "intentAlert": None,
         "products": [p.dict() for p in req.products],
         "totalAmount": req.totalAmount,
         "observations": observations.dict(),
@@ -157,6 +174,34 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
         f"🛑 TRANSACTION INTERCEPTED AND FROZEN! "
         f"Please provide an absolutely rational justification for why you MUST buy this right NOW. The AI Guardian will audit the logic of your statement."
     )
+
+
+    intent_alert = None
+    
+    if req.paymentSource != "variableBudget":
+        if req.paymentSource == "emergencyFund":
+            tier = 3
+            intent_alert = "🛑 Emergency Fund Access"
+            t3_msg = f"⚠️ ATTEMPTING TO DRAIN EMERGENCY FUND for '{product_desc}'!\n\n{t2_msg}\n\n🛑 Please provide a critical justification to unlock your life-line fund."
+        else:
+            # fixedExpenses, futureExpenses, savingsPockets
+            reserved_titles = []
+            if req.paymentSource == "savingsPockets":
+                reserved_titles = [g['title'] for g in goals if g.get('savedAmount', 0) < g.get('targetAmount', 0)]
+            else:
+                reserved_titles = [e['title'] for e in upcoming_events]
+            
+            is_match, reason = await check_semantic_intent(product_desc, reserved_titles)
+            
+            if is_match:
+                intent_alert = "✅ Verified: Matches reserved obligations."
+            else:
+                tier = 3
+                intent_alert = "⚠️ Misappropriation of Funds Detected."
+                t3_msg = f"⚠️ INTENT MISMATCH: This pocket is reserved for specific obligations. Why are you diverting it for '{product_desc}'?\n\n{t2_msg}\n🛑 TRANSACTION FROZEN! Please justify."
+    
+    audit_data["intentAlert"] = intent_alert
+
     
     # Generate response based on tiers
     if tier == 0:
@@ -165,6 +210,7 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
             triggerLevel="soft",   # Simply response but will be skipped by frontend
             auditId=audit_id,
             observations=observations,
+            intentAlert=intent_alert,
             softMessage="✅ Transaction seems reasonable. No action needed."
         )
         audit_data["triggerLevel"] = "soft"
@@ -178,6 +224,7 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
             triggerLevel="soft",
             auditId=audit_id,
             observations=observations,
+            intentAlert=intent_alert,
             softMessage=t1_msg
         )
         audit_data["triggerLevel"] = "soft"
@@ -193,6 +240,7 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
             runwayDropDays=runway_info["runway_drop_days"],
             delaySeconds=5,
             compoundLossExample=runway_info["compound_loss_example"],
+            intentAlert=intent_alert,
             softMessage=t2_msg
         )
         audit_data["triggerLevel"] = "friction"
@@ -207,6 +255,7 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
             runwayDropDays=runway_info["runway_drop_days"],
             compoundLossExample=runway_info["compound_loss_example"],
             requireJustification=True,
+            intentAlert=intent_alert,
             softMessage=t3_msg
         )
         audit_data["triggerLevel"] = "critical"
@@ -250,6 +299,8 @@ async def justify_purchase(
         transaction_time=observations.get("timeOfDay", "Unknown"),
         user_justification=req.justification,
         context_data={
+            "payment_source": audit.get("paymentSource", "variableBudget"),
+            "intent_alert": audit.get("intentAlert"),
             "runway_drop_days": runway_info.get("runway_drop_days"),
             "current_runway": observations.get("currentRunwayDays"),
             "similar_purchases": observations.get("similarPurchasesCount"),

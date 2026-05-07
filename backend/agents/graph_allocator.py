@@ -5,7 +5,7 @@ import re
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage
 from core.llm import get_gemini_llm
-from tools import (
+from .tools import (
     get_current_runway, 
     get_variable_balance, 
     get_active_goals, 

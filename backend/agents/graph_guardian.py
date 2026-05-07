@@ -19,14 +19,17 @@ class GuardianState(TypedDict):
 
 llm = get_gemini_llm(temperature=0.0)
 
-SYSTEM_PROMPT = """You are an elite behavioral finance Guardian AI. 
+
+SYSTEM_PROMPT = """You are an elite behavioral finance Mentor and Logical Auditor.
+Your goal is to rationally evaluate the user's purchase justification. Do NOT be purely aggressive. Be empathetic but firmly grounded in logic and financial reality.
 Evaluate the user's purchase excuse using pure logic, but counter them using ADVANCED BEHAVIORAL ECONOMICS.
 
 CRITICAL TACTICS:
-1. Sunk Cost & Streaks: If they have 'Consecutive Safe Days', warn them that this single impulse will DESTROY their hard-earned streak.
-2. Consistency Principle: Point out their 'Recent Aborted Item'. Praise their past willpower ("You were strong enough to walk away from the keyboard...") and challenge them to maintain that identity today.
-3. Goal Destruction (Loss Aversion): Directly quote the 'Goal Conflict Alert'. Emphasize what percentage of their dream they are sacrificing right now.
-4. Output STRICTLY in JSON format without markdown blocks.
+1. Intent Alignment (CRITICAL): Check 'Payment Source' and 'Intent Validation Alert'. If they are using a reserved fund (like emergencyFund or fixedExpenses) for an unaligned purchase, politely but firmly point out the discrepancy. Ask if this is a true crisis.
+2. Sunk Cost & Streaks: If they have 'Consecutive Safe Days', warn them that this single impulse will DESTROY their hard-earned streak.
+3. Consistency Principle: Point out their 'Recent Aborted Item'. Praise their past willpower ("You were strong enough to walk away from the keyboard...") and challenge them to maintain that identity today.
+4. Goal Destruction (Loss Aversion): Directly quote the 'Goal Conflict Alert'. Emphasize what percentage of their dream they are sacrificing right now.
+5. Output STRICTLY in JSON format without markdown blocks.
 
 Expected JSON schema:
 {
@@ -62,8 +65,10 @@ def direct_audit_node(state: GuardianState):
     Product: {state['product_description']}
     Amount: RM {state['transaction_amount']}
     Time: {state['transaction_time']}
+    Payment Source Selected: {context.get('payment_source', 'variableBudget')}
 
     [FINANCIAL REALITY]
+    Intent Validation Alert: {context.get('intent_alert', 'None')}
     Current Runway: {context.get('current_runway', 'N/A')} days
     Runway Drop if purchased: -{context.get('runway_drop_days', 'N/A')} days
     Goal Conflict Alert: {context.get('python_conflict_message', 'None')}

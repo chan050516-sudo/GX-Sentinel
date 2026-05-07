@@ -1,7 +1,7 @@
 from transformers import pipeline
 from typing import Literal
 
-# Zero Shot Classifier Model (DeBERTa-v3-xsmall-mnli-xnli)
+# Zero Shot Classifier Model (typeform/distilbert-base-uncased-mnli)
 classifier = pipeline(
     "zero-shot-classification",
     model="typeform/distilbert-base-uncased-mnli",

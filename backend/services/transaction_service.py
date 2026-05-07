@@ -1,6 +1,6 @@
 import uuid
-from ..model.models import ManualTransactionResponse, UserDashboardResponse, FinancialSections
-from ..firebase.crud import get_user, update_user
+from model.models import ManualTransactionResponse, UserDashboardResponse, FinancialSections
+from firebase.crud import get_user, update_user
 
 def process_manual_transaction(user_id: str, amount: float) -> ManualTransactionResponse:
     """
