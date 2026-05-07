@@ -1,0 +1,384 @@
+.allocator-container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--bg, #0C0121);
+  background-image: 
+    radial-gradient(circle at 50% 0%, var(--primary-glow), transparent 40%),
+    radial-gradient(circle at 100% 100%, var(--secondary-glow), transparent 40%);
+  font-family: 'Outfit', sans-serif;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.allocator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  background: rgba(12, 1, 33, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.allocator-header h2 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+}
+
+/* Main Layout */
+.allocator-main {
+  flex: 1;
+  padding: 2rem 3rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Top Section: Allocator Card */
+.allocator-card {
+  background: rgba(12, 1, 33, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 2.5rem;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.locked-income-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.locked-income-display h2 {
+  color: #10b981;
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.ai-recommendation-banner {
+  background: linear-gradient(90deg, rgba(119, 31, 255, 0.15), rgba(248, 50, 109, 0.15));
+  border: 1px solid rgba(119, 31, 255, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ai-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ai-icon {
+  font-size: 2rem;
+}
+
+.ai-info h4 {
+  margin: 0 0 0.3rem 0;
+  color: #e2e8f0;
+  font-size: 1.1rem;
+}
+
+.ai-info p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.one-click-btn {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.5rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+.one-click-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--secondary-glow);
+}
+
+.sliders-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-name {
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.slider-value {
+  font-weight: 700;
+  color: var(--secondary);
+  font-size: 1.1rem;
+}
+
+/* Custom CSS Range Slider */
+.custom-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  outline: none;
+}
+
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--primary);
+  cursor: pointer;
+  transition: transform 0.1s;
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.custom-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--primary);
+  cursor: pointer;
+}
+
+.custom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.slider-hints {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.hint-ai {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.hint-range {
+  color: #64748b;
+}
+
+.total-check-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.total-check-info span {
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+.remaining-amount {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  transition: color 0.3s;
+}
+
+.remaining-amount.balanced {
+  color: #10b981; /* Green */
+}
+
+.remaining-amount.over, .remaining-amount.under {
+  color: #f43f5e; /* Red */
+}
+
+.confirm-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.confirm-btn:disabled {
+  background: #334155;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.confirm-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--primary-glow);
+}
+
+
+
+/* Slider Number Inputs */
+.slider-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+}
+
+.slider-input-wrapper span {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.slider-number-input {
+  background: transparent;
+  border: none;
+  color: #10b981;
+  font-size: 1.1rem;
+  font-weight: 700;
+  width: 60px;
+  outline: none;
+  font-family: inherit;
+  text-align: right;
+}
+
+.slider-number-input::-webkit-outer-spin-button,
+.slider-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* =============================================
+   RESPONSIVE — ALLOCATOR
+   ============================================= */
+@media (max-width: 768px) {
+  .allocator-header {
+    padding: 1rem 1rem;
+    padding-top: 4rem;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: flex-start;
+  }
+
+  .allocator-main {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .allocator-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .locked-income-display h2 {
+    font-size: 2rem;
+  }
+
+  .ai-recommendation-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .ai-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .one-click-btn {
+    width: 100%;
+  }
+
+  .total-check-section {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .remaining-amount {
+    font-size: 1.5rem;
+  }
+
+  .confirm-btn {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .slider-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
+
