@@ -9,7 +9,7 @@ type Section = { id: string; name: string; amount: number; aiRecommended: number
 export default function Allocator() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Enforce access control: only via Dashboard pending > 300
   const initialAmount = location.state?.amount;
 
@@ -20,7 +20,7 @@ export default function Allocator() {
   }, [initialAmount, navigate]);
 
   const [incomeAmount, setIncomeAmount] = useState<number>(initialAmount || 0);
-  
+
   const [sections, setSections] = useState<Section[]>([
     { id: "s1", name: "Emergency Fund", amount: 0, aiRecommended: 500, min: 200, max: 1000 },
     { id: "s2", name: "Fixed Expenses", amount: 0, aiRecommended: 1000, min: 800, max: 1500 },
@@ -51,8 +51,21 @@ export default function Allocator() {
       alert("Please allocate exactly the injected income amount.");
       return;
     }
-    // Complete the allocation, send user back to Dashboard
-    navigate("/dashboard", { state: { allocated: true, allocatedAmount: incomeAmount } });
+
+    // 1. 根据当前 sliders 的值，生成具体的分配明细字典
+    const allocatedMap: Record<string, number> = {};
+    sections.forEach(sec => {
+      allocatedMap[sec.name] = sec.amount;
+    });
+
+    // 2. 携带这个明细字典，跳回 Dashboard
+    navigate("/dashboard", {
+      state: {
+        allocated: true,
+        allocatedAmount: incomeAmount,
+        allocatedMap: allocatedMap // <--- 关键在这里！把明细传过去
+      }
+    });
   };
 
 
@@ -93,18 +106,18 @@ export default function Allocator() {
                   <span className="slider-name">{sec.name}</span>
                   <div className="slider-input-wrapper">
                     <span>RM</span>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       className="slider-number-input"
                       value={sec.amount}
                       onChange={(e) => handleSliderChange(sec.id, Number(e.target.value))}
                     />
                   </div>
                 </div>
-                <input 
-                  type="range" 
-                  min={0} 
-                  max={incomeAmount} 
+                <input
+                  type="range"
+                  min={0}
+                  max={incomeAmount}
                   value={sec.amount}
                   onChange={(e) => handleSliderChange(sec.id, Number(e.target.value))}
                   className="custom-slider"
@@ -124,8 +137,8 @@ export default function Allocator() {
                 RM {remaining}
               </h3>
             </div>
-            <button 
-              className="confirm-btn" 
+            <button
+              className="confirm-btn"
               onClick={handleConfirm}
               disabled={remaining !== 0}
             >

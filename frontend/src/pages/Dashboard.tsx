@@ -1,9 +1,10 @@
+//Dashboard.tsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
-  Shield, Home, Calendar as CalendarIcon, Utensils, Wallet, 
-  Hourglass, Plus, ScanLine, ArrowRight, Eye, ChevronDown, 
-  ChevronRight, ArrowDownLeft, CheckCircle2, Info, Target, RefreshCw
+import {
+  Shield, Home, Calendar as CalendarIcon, Utensils, Wallet,
+  Hourglass, Plus, ScanLine, ArrowRight, Eye, ChevronDown,
+  ChevronRight, ChevronLeft, ArrowDownLeft, CheckCircle2, Info, Target, RefreshCw
 } from "lucide-react";
 import "./Dashboard.css";
 
@@ -35,7 +36,6 @@ export default function Dashboard() {
   const location = useLocation();
 
   const [runwayDays, setRunwayDays] = useState(45.2);
-  const [totalBalance, setTotalBalance] = useState(12500);
   const [nudgeMessage, setNudgeMessage] = useState<string | null>(null);
   const [nudgeType, setNudgeType] = useState<"positive" | "negative" | null>(null);
 
@@ -71,7 +71,7 @@ export default function Dashboard() {
   const [qrAmount, setQrAmount] = useState<number | "">("");
   const [qrCategory, setQrCategory] = useState("");
   const [qrDesc, setQrDesc] = useState("");
-  const [qrMerchantId] = useState(() => `MID-${Math.random().toString(36).slice(2,10).toUpperCase()}`);
+  const [qrMerchantId] = useState(() => `MID-${Math.random().toString(36).slice(2, 10).toUpperCase()}`);
   const [qrTraceId, setQrTraceId] = useState(() => `TRC-${Date.now().toString(36).toUpperCase()}`);
 
   // Send Money Modal
@@ -80,8 +80,14 @@ export default function Dashboard() {
   const [sendAccount, setSendAccount] = useState("");
   const [sendAmount, setSendAmount] = useState<number | "">("");
   const [sendDesc, setSendDesc] = useState("");
-  const [sendMerchantId] = useState(() => `MID-${Math.random().toString(36).slice(2,10).toUpperCase()}`);
+  const [sendMerchantId] = useState(() => `MID-${Math.random().toString(36).slice(2, 10).toUpperCase()}`);
   const [sendTraceId, setSendTraceId] = useState(() => `TRC-${Date.now().toString(36).toUpperCase()}`);
+
+  // Scan QR Modal 相关的 State 下面增加这一行：
+  const [qrPocket, setQrPocket] = useState("s4");
+
+  // Send Money Modal 相关的 State 下面增加这一行：
+  const [sendPocket, setSendPocket] = useState("s4");
 
   // Shared Interceptor State
   const [interceptor, setInterceptor] = useState<InterceptorState>({
@@ -95,13 +101,14 @@ export default function Dashboard() {
   const [newGoal, setNewGoal] = useState({ name: "", target: "", deadline: "" });
 
   // Future Planning: Calendar Logic
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  // Future Planning: Calendar Logic (支持切换月份)
+  const [viewDate, setViewDate] = useState(new Date()); // 新增：控制当前日历看到的月份
+  const currentMonth = viewDate.getMonth();
+  const currentYear = viewDate.getFullYear();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay(); // 0 is Sunday
   const startOffset = firstDayIndex === 0 ? 6 : firstDayIndex - 1; // Align to Mon-Sun
-  
+
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const currentMonthName = monthNames[currentMonth];
   const weekDaysHeader = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -111,22 +118,47 @@ export default function Dashboard() {
   for (let i = 1; i <= daysInMonth; i++) calendarDays.push(i);
   while (calendarDays.length % 7 !== 0) calendarDays.push(null);
 
-  const [selectedDate, setSelectedDate] = useState<string>(`${currentDate.getDate()} ${currentMonthName.substring(0,3)}`);
+  const [selectedDate, setSelectedDate] = useState<string>(`${new Date().getDate()} ${monthNames[new Date().getMonth()].substring(0, 3)}`);
+
+  // 切换月份的函数
+  const changeMonth = (offset: number) => {
+    const newDate = new Date(currentYear, currentMonth + offset, 1);
+    setViewDate(newDate);
+    // 切换月份时，默认选中那一个月的 1 号
+    setSelectedDate(`1 ${monthNames[newDate.getMonth()].substring(0, 3)}`);
+  };
 
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([
-    { id: "e1", title: "Movie Date", category: "movie", estimatedCost: 85, date: `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-16`, isRecurring: false, subscriptionDetection: false },
-    { id: "e2", title: "Netflix Subscription", category: "subscription", estimatedCost: 55, date: `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-13`, isRecurring: true, subscriptionDetection: true },
+    { id: "e1", title: "Movie Date", category: "movie", estimatedCost: 85, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-16`, isRecurring: false, subscriptionDetection: false },
+    { id: "e2", title: "Netflix Subscription", category: "subscription", estimatedCost: 55, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-13`, isRecurring: true, subscriptionDetection: true },
   ]);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: "", category: "movie", estimatedCost: "", isRecurring: false, subscriptionDetection: false });
 
   const pendingTotal = pendingAllocations.reduce((sum, item) => sum + item.amount, 0);
+  const totalBalance = sections.reduce((sum, sec) => sum + sec.amount, 0) + pendingTotal;
 
   useEffect(() => {
-    // If returning from Smart Allocator successfully
+    // 监听从 Smart Allocator 页面成功返回
     if (location.state && location.state.allocated) {
-      setPendingAllocations([]);
-      setTotalBalance(prev => prev + location.state.allocatedAmount);
+      console.log("Returned from Allocator with state:", location.state);
+
+      setPendingAllocations([]); // 清空 Pending
+
+      if (location.state.allocatedMap) {
+        // 更新各个 Pocket 的金额
+        setSections(prev => prev.map(sec => ({
+          ...sec,
+          amount: sec.amount + (location.state.allocatedMap[sec.name] || 0)
+        })));
+      } else if (location.state.allocatedAmount) {
+        console.warn("No allocatedMap found, falling back to first pocket.");
+        setSections(prev => prev.map((sec, idx) =>
+          idx === 0 ? { ...sec, amount: sec.amount + location.state.allocatedAmount } : sec
+        ));
+      }
+
+      // 清除路由状态，防止刷新页面重复加钱
       window.history.replaceState({}, document.title);
     }
 
@@ -149,18 +181,41 @@ export default function Dashboard() {
   const handleSimulateInflow = (e: React.FormEvent) => {
     e.preventDefault();
     const amount = Number(simAmount);
-    if (isNaN(amount) || amount <= 0) return;
 
-    const newPending: PendingAllocation = {
-      id: Date.now().toString(),
-      amount,
+    // Debug: 检查是否读取到了金额
+    console.log("Simulating Inflow:", amount);
+
+    if (isNaN(amount) || amount <= 0) {
+      alert("⚠️ 请输入有效的金额！");
+      return;
+    }
+
+    const newId = Date.now().toString();
+
+    // 1. 进入 Pending 缓冲池
+    setPendingAllocations(prev => [{
+      id: newId,
+      amount: amount,
       method: simMethod,
       description: simDesc || "Inbound Transfer",
       date: "Just now"
-    };
+    }, ...prev]);
 
-    setPendingAllocations(prev => [newPending, ...prev]);
+    // 3. 立刻写入 Recent Transactions
+    setTransactions(prev => [
+      {
+        id: newId,
+        type: "income",
+        amount: amount,
+        date: "Just now",
+        description: simDesc || `Inbound from ${simMethod}`
+      },
+      ...prev
+    ]);
+
+    // 关闭弹窗并清空输入框
     setShowSimulateModal(false);
+    setShowAddMoneyModal(false);
     setSimAmount("");
     setSimDesc("");
   };
@@ -181,22 +236,16 @@ export default function Dashboard() {
     const selectedSection = sections.find(s => s.id === miniAllocSectionId);
     if (!selectedSection) return;
 
+    // 获取当前待分配的总额
+    const amountToAllocate = pendingTotal;
+    console.log(`Allocating RM${amountToAllocate} to ${selectedSection.name}`);
+
+    // 1. 钱正式进入对应的 Pocket
     setSections(prev => prev.map(sec =>
-      sec.id === miniAllocSectionId ? { ...sec, amount: sec.amount + pendingTotal } : sec
+      sec.id === miniAllocSectionId ? { ...sec, amount: sec.amount + amountToAllocate } : sec
     ));
-    setTotalBalance(prev => prev + pendingTotal);
 
-    setTransactions(prev => [
-      {
-        id: Date.now().toString(),
-        type: "income",
-        amount: pendingTotal,
-        date: "Just now",
-        description: `Allocated to ${selectedSection.name}`
-      },
-      ...prev
-    ]);
-
+    // 2. 清空待分配列表
     setPendingAllocations([]);
     setShowMiniAllocModal(false);
   };
@@ -218,7 +267,7 @@ export default function Dashboard() {
     if (!newEvent.title || !newEvent.estimatedCost) return;
     // Map selectedDate ("6 May") back to a date string for the current year/month
     const day = selectedDate.split(" ")[0].padStart(2, "0");
-    const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${day}`;
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${day}`;
     setCalendarEvents(prev => [...prev, {
       id: Date.now().toString(),
       title: newEvent.title,
@@ -329,8 +378,17 @@ export default function Dashboard() {
     const amount = Number(qrAmount);
     if (!amount || !qrDesc) return;
     await runInterceptor(amount, qrDesc, () => {
-      setTotalBalance(prev => prev - amount);
-      setTransactions(prev => [{ id: Date.now().toString(), type: "expense", amount, date: "Just now", description: `QR: ${qrDesc}` }, ...prev]);
+      setSections(prev => prev.map(sec =>
+        sec.id === qrPocket ? { ...sec, amount: sec.amount - amount } : sec
+      ));
+      setTransactions(prev => [{
+        id: Date.now().toString(),
+        type: "expense",
+        amount,
+        date: "Just now",
+        description: `QR: ${qrDesc} (MID: ${qrMerchantId}, Trace: ${qrTraceId})`
+      }, ...prev]);
+
       setShowScanQRModal(false);
       setQrAmount(""); setQrCategory(""); setQrDesc("");
       setQrTraceId(`TRC-${Date.now().toString(36).toUpperCase()}`);
@@ -341,8 +399,17 @@ export default function Dashboard() {
     const amount = Number(sendAmount);
     if (!amount || !sendAccount || !sendDesc) return;
     await runInterceptor(amount, sendDesc, () => {
-      setTotalBalance(prev => prev - amount);
-      setTransactions(prev => [{ id: Date.now().toString(), type: "expense", amount, date: "Just now", description: `Transfer to ${sendBank}: ${sendDesc}` }, ...prev]);
+      setSections(prev => prev.map(sec =>
+        sec.id === sendPocket ? { ...sec, amount: sec.amount - amount } : sec
+      ));
+      setTransactions(prev => [{
+        id: Date.now().toString(),
+        type: "expense",
+        amount,
+        date: "Just now",
+        description: `Transfer to ${sendBank}: ${sendDesc} (MID: ${sendMerchantId}, Trace: ${sendTraceId})`
+      }, ...prev]);
+
       setShowSendMoneyModal(false);
       setSendAmount(""); setSendAccount(""); setSendDesc("");
       setSendTraceId(`TRC-${Date.now().toString(36).toUpperCase()}`);
@@ -525,21 +592,21 @@ export default function Dashboard() {
         </section>
 
         <h3 className="section-title">Future Planning</h3>
-        
+
         {/* Bottom Section: Goals & Planned Expenses */}
         <div className="bottom-layout">
           <section className="bottom-card goals-card">
             <div className="card-header">
               <h3 className="flex-align"><Target size={20} /> Long-term Goals</h3>
-              <button className="add-btn-small" onClick={() => setShowAddGoal(!showAddGoal)}><Plus size={16}/></button>
+              <button className="add-btn-small" onClick={() => setShowAddGoal(!showAddGoal)}><Plus size={16} /></button>
             </div>
-            
+
             {showAddGoal && (
               <div className="inline-add-form">
-                <input type="text" placeholder="Goal Name" value={newGoal.name} onChange={e => setNewGoal({...newGoal, name: e.target.value})} />
-                <input type="number" placeholder="Target Amount (RM)" value={newGoal.target} onChange={e => setNewGoal({...newGoal, target: e.target.value})} />
-                <label style={{color:'#94a3b8',fontSize:'0.85rem'}}>Deadline</label>
-                <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({...newGoal, deadline: e.target.value})} />
+                <input type="text" placeholder="Goal Name" value={newGoal.name} onChange={e => setNewGoal({ ...newGoal, name: e.target.value })} />
+                <input type="number" placeholder="Target Amount (RM)" value={newGoal.target} onChange={e => setNewGoal({ ...newGoal, target: e.target.value })} />
+                <label style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Deadline</label>
+                <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({ ...newGoal, deadline: e.target.value })} />
                 <button onClick={handleAddGoal}>Save Goal</button>
               </div>
             )}
@@ -551,11 +618,11 @@ export default function Dashboard() {
                   <span>RM {goal.target.toLocaleString()}</span>
                 </div>
                 <div className="progress-bar-bg">
-                  <div className="progress-bar-fill" style={{ width: `${Math.min(100,(goal.saved / goal.target) * 100)}%` }}></div>
+                  <div className="progress-bar-fill" style={{ width: `${Math.min(100, (goal.saved / goal.target) * 100)}%` }}></div>
                 </div>
                 <div className="goal-footer">
                   <span className="goal-saved">RM {goal.saved.toLocaleString()} Saved</span>
-                  <span className="goal-date">📅 {goal.deadline ? new Date(goal.deadline).toLocaleDateString('en-MY', {day:'numeric',month:'short',year:'numeric'}) : 'No deadline'}</span>
+                  <span className="goal-date">📅 {goal.deadline ? new Date(goal.deadline).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No deadline'}</span>
                 </div>
               </div>
             ))}
@@ -563,8 +630,13 @@ export default function Dashboard() {
 
           <section className="bottom-card expenses-card">
             <div className="card-header">
-              <h3 className="flex-align"><CalendarIcon size={20} /> {currentMonthName} {currentYear}</h3>
-              <button className="add-btn-small" onClick={() => setShowAddEvent(!showAddEvent)}><Plus size={16}/></button>
+              <h3 className="flex-align">
+                <CalendarIcon size={20} />
+                <button className="month-nav-btn" onClick={() => changeMonth(-1)}><ChevronLeft size={18} /></button>
+                <span style={{ minWidth: "100px", textAlign: "center" }}>{currentMonthName} {currentYear}</span>
+                <button className="month-nav-btn" onClick={() => changeMonth(1)}><ChevronRight size={18} /></button>
+              </h3>
+              <button className="add-btn-small" onClick={() => setShowAddEvent(!showAddEvent)}><Plus size={16} /></button>
             </div>
 
             {/* Full Month Calendar Grid */}
@@ -575,9 +647,9 @@ export default function Dashboard() {
               <div className="calendar-grid">
                 {calendarDays.map((d, idx) => {
                   if (!d) return <div key={`empty-${idx}`} className="calendar-cell empty"></div>;
-                  const fullDate = `${d} ${currentMonthName.substring(0,3)}`;
-                  const dayStr = String(d).padStart(2,'0');
-                  const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${dayStr}`;
+                  const fullDate = `${d} ${currentMonthName.substring(0, 3)}`;
+                  const dayStr = String(d).padStart(2, '0');
+                  const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${dayStr}`;
                   const hasEvent = calendarEvents.some(e => e.date === dateStr);
                   return (
                     <div key={d} className={`calendar-cell ${selectedDate === fullDate ? 'active' : ''}`} onClick={() => setSelectedDate(fullDate)}>
@@ -591,18 +663,18 @@ export default function Dashboard() {
 
             {showAddEvent && (
               <div className="inline-add-form">
-                <input type="text" placeholder="Title (e.g. Movie Night)" value={newEvent.title} onChange={e => setNewEvent({...newEvent, title: e.target.value})} />
-                <select value={newEvent.category} onChange={e => setNewEvent({...newEvent, category: e.target.value})}>
+                <input type="text" placeholder="Title (e.g. Movie Night)" value={newEvent.title} onChange={e => setNewEvent({ ...newEvent, title: e.target.value })} />
+                <select value={newEvent.category} onChange={e => setNewEvent({ ...newEvent, category: e.target.value })}>
                   <option value="movie">🎬 Movie</option>
                   <option value="dinner">🍽️ Dinner</option>
                   <option value="travel">✈️ Travel</option>
                   <option value="subscription">📱 Subscription</option>
                   <option value="other">📌 Other</option>
                 </select>
-                <input type="number" placeholder="Estimated Cost (RM)" value={newEvent.estimatedCost} onChange={e => setNewEvent({...newEvent, estimatedCost: e.target.value})} />
+                <input type="number" placeholder="Estimated Cost (RM)" value={newEvent.estimatedCost} onChange={e => setNewEvent({ ...newEvent, estimatedCost: e.target.value })} />
                 <div className="toggle-row">
-                  <label><input type="checkbox" checked={newEvent.isRecurring} onChange={e => setNewEvent({...newEvent, isRecurring: e.target.checked})} /> Recurring</label>
-                  <label><input type="checkbox" checked={newEvent.subscriptionDetection} onChange={e => setNewEvent({...newEvent, subscriptionDetection: e.target.checked})} /> Subscription</label>
+                  <label><input type="checkbox" checked={newEvent.isRecurring} onChange={e => setNewEvent({ ...newEvent, isRecurring: e.target.checked })} /> Recurring</label>
+                  <label><input type="checkbox" checked={newEvent.subscriptionDetection} onChange={e => setNewEvent({ ...newEvent, subscriptionDetection: e.target.checked })} /> Subscription</label>
                 </div>
                 <button onClick={handleAddEvent}>Add to {selectedDate}</button>
               </div>
@@ -610,8 +682,8 @@ export default function Dashboard() {
 
             <div className="expense-list">
               {(() => {
-                const dayStr = selectedDate.split(" ")[0].padStart(2,'0');
-                const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${dayStr}`;
+                const dayStr = selectedDate.split(" ")[0].padStart(2, '0');
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${dayStr}`;
                 const dayEvents = calendarEvents.filter(e => e.date === dateStr);
                 if (dayEvents.length === 0 && !showAddEvent) return <div className="empty-state">No events for {selectedDate}.</div>;
                 return dayEvents.map(ev => (
@@ -666,7 +738,7 @@ export default function Dashboard() {
             )}
             {interceptor.tier === "soft" && (
               <>
-                <div className="interceptor-header warning"><Shield size={28}/> <h3>Heads Up</h3></div>
+                <div className="interceptor-header warning"><Shield size={28} /> <h3>Heads Up</h3></div>
                 <p className="interceptor-msg">{interceptor.message}</p>
                 <div className="modal-actions">
                   <button className="btn-secondary" onClick={handleInterceptorAbort}>Abort</button>
@@ -676,7 +748,7 @@ export default function Dashboard() {
             )}
             {interceptor.tier === "friction" && (
               <>
-                <div className="interceptor-header friction"><Shield size={28}/> <h3>Financial Warning</h3></div>
+                <div className="interceptor-header friction"><Shield size={28} /> <h3>Financial Warning</h3></div>
                 <p className="interceptor-msg">{interceptor.message}</p>
                 {interceptor.runwayDrop && <div className="runway-drop-badge">📉 Runway -{interceptor.runwayDrop?.toFixed(1)} days</div>}
                 {interceptor.compoundLoss && <div className="compound-loss">{interceptor.compoundLoss}</div>}
@@ -690,10 +762,10 @@ export default function Dashboard() {
             )}
             {interceptor.tier === "critical" && (
               <>
-                <div className="interceptor-header critical"><Shield size={28}/> <h3>🛑 Transaction Frozen</h3></div>
+                <div className="interceptor-header critical"><Shield size={28} /> <h3>🛑 Transaction Frozen</h3></div>
                 <p className="interceptor-msg">{interceptor.message}</p>
                 {interceptor.runwayDrop && <div className="runway-drop-badge">📉 Runway -{interceptor.runwayDrop?.toFixed(1)} days</div>}
-                <textarea className="justification-input" placeholder="Provide a rational justification for this purchase…" value={interceptor.justification} onChange={e => setInterceptor(prev => ({...prev, justification: e.target.value}))} rows={4} />
+                <textarea className="justification-input" placeholder="Provide a rational justification for this purchase…" value={interceptor.justification} onChange={e => setInterceptor(prev => ({ ...prev, justification: e.target.value }))} rows={4} />
                 <div className="modal-actions">
                   <button className="btn-secondary" onClick={handleInterceptorAbort}>Abort</button>
                   <button className="btn-primary gx-primary-btn" onClick={handleInterceptorJustify} disabled={!interceptor.justification.trim()}>Submit to AI</button>
@@ -703,7 +775,7 @@ export default function Dashboard() {
             {interceptor.tier === "verdict" && (
               <>
                 <div className={`interceptor-header ${interceptor.verdict === "APPROVED" ? "warning" : "critical"}`}>
-                  {interceptor.verdict === "APPROVED" ? <CheckCircle2 size={28}/> : <Shield size={28}/>}
+                  {interceptor.verdict === "APPROVED" ? <CheckCircle2 size={28} /> : <Shield size={28} />}
                   <h3>AI Verdict: {interceptor.verdict}</h3>
                 </div>
                 <p className="interceptor-msg">{interceptor.reasoning}</p>
@@ -759,15 +831,18 @@ export default function Dashboard() {
               <p>Pay via DuitNow QR code.</p>
             </div>
             <div className="modal-form">
-              <div className="auto-id-row">
-                <span className="auto-id-label">Merchant ID</span><span className="auto-id-value">{qrMerchantId}</span>
-              </div>
-              <div className="auto-id-row">
-                <span className="auto-id-label">Trace ID</span><span className="auto-id-value">{qrTraceId}</span>
+              {/* 【新增】选择扣款的 Pocket */}
+              <div className="input-group">
+                <label>Pay from Pocket</label>
+                <select value={qrPocket} onChange={e => setQrPocket(e.target.value)}>
+                  {sections.map(sec => (
+                    <option key={sec.id} value={sec.id}>{sec.name} (RM {sec.amount.toFixed(2)})</option>
+                  ))}
+                </select>
               </div>
               <div className="input-group">
                 <label>Amount (RM)</label>
-                <input type="number" value={qrAmount} onChange={e => setQrAmount(Number(e.target.value)||"")} placeholder="e.g. 45.90" autoFocus />
+                <input type="number" value={qrAmount} onChange={e => setQrAmount(Number(e.target.value) || "")} placeholder="e.g. 45.90" autoFocus />
               </div>
               <div className="input-group">
                 <label>Category</label>
@@ -795,11 +870,14 @@ export default function Dashboard() {
               <p>Transfer to a bank or eWallet.</p>
             </div>
             <div className="modal-form">
-              <div className="auto-id-row">
-                <span className="auto-id-label">Merchant ID</span><span className="auto-id-value">{sendMerchantId}</span>
-              </div>
-              <div className="auto-id-row">
-                <span className="auto-id-label">Trace ID</span><span className="auto-id-value">{sendTraceId}</span>
+              {/* 【新增】选择扣款的 Pocket */}
+              <div className="input-group">
+                <label>Pay from Pocket</label>
+                <select value={sendPocket} onChange={e => setSendPocket(e.target.value)}>
+                  {sections.map(sec => (
+                    <option key={sec.id} value={sec.id}>{sec.name} (RM {sec.amount.toFixed(2)})</option>
+                  ))}
+                </select>
               </div>
               <div className="input-group">
                 <label>Recipient Bank / eWallet</label>
@@ -815,7 +893,7 @@ export default function Dashboard() {
               </div>
               <div className="input-group">
                 <label>Amount (RM)</label>
-                <input type="number" value={sendAmount} onChange={e => setSendAmount(Number(e.target.value)||"")} placeholder="e.g. 200" />
+                <input type="number" value={sendAmount} onChange={e => setSendAmount(Number(e.target.value) || "")} placeholder="e.g. 200" />
               </div>
               <div className="input-group">
                 <label>Description</label>

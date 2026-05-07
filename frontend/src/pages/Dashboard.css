@@ -1,4 +1,4 @@
-/* Dashboard.css Rewrite */
+/* Dashboard.css */
 .dashboard-container.gx-theme {
   min-height: 100vh;
   width: 100%;
@@ -12,7 +12,7 @@
 .gx-header {
   background: linear-gradient(180deg, #371280 0%, #0C0121 100%);
   padding: 1.5rem 3rem 2rem;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .gx-top-row {
@@ -29,7 +29,7 @@
 }
 
 .badge-tag {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
   font-size: 0.7rem;
@@ -56,7 +56,8 @@
   gap: 1rem;
 }
 
-.simulate-btn, .demo-btn {
+.simulate-btn,
+.demo-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
@@ -188,8 +189,15 @@
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .section-title-row {
@@ -209,7 +217,7 @@
 }
 
 .pending-card {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 16px;
   padding: 1.5rem;
@@ -226,7 +234,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   padding: 1rem;
   border-radius: 12px;
 }
@@ -279,7 +287,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 1.5rem;
 }
 
@@ -330,9 +338,10 @@
   gap: 2rem;
 }
 
-.main-account-card, .pockets-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
+.main-account-card,
+.pockets-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 24px;
   padding: 2.5rem;
 }
@@ -366,7 +375,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   padding: 1rem;
   border-radius: 12px;
 }
@@ -406,7 +415,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   padding: 1.2rem;
   border-radius: 16px;
 }
@@ -448,14 +457,22 @@
   font-size: 1.1rem;
 }
 
-.tx-amount.income { color: #10b981; }
-.tx-amount.expense { color: #f43f5e; }
+.tx-amount.income {
+  color: #10b981;
+}
+
+.tx-amount.expense {
+  color: #f43f5e;
+}
 
 /* Modals */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.8);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(5px);
   display: flex;
   justify-content: center;
@@ -465,7 +482,7 @@
 
 .gx-modal {
   background: #1e1b4b;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 2rem;
   width: 100%;
@@ -495,10 +512,11 @@
   display: block;
 }
 
-.modal-form input, .modal-form select {
+.modal-form input,
+.modal-form select {
   width: 100%;
-  background: rgba(0,0,0,0.2);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
   padding: 0.8rem;
   border-radius: 8px;
@@ -514,7 +532,7 @@
 
 .btn-secondary {
   flex: 1;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   border: none;
   padding: 0.8rem;
@@ -537,16 +555,28 @@
   color: white;
   font-weight: 600;
   z-index: 100;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.global-toast.positive { background: #059669; }
-.global-toast.negative { background: #e11d48; }
+.global-toast.positive {
+  background: #059669;
+}
+
+.global-toast.negative {
+  background: #e11d48;
+}
 
 @keyframes slideUpFade {
-  0% { transform: translate(-50%, 50px); opacity: 0; }
-  100% { transform: translate(-50%, 0); opacity: 1; }
+  0% {
+    transform: translate(-50%, 50px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
 }
 
 /* Gauge */
@@ -885,9 +915,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0.8rem;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   margin-bottom: 0.5rem;
 }
 
@@ -913,12 +943,14 @@
   color: #94a3b8;
   padding: 0.3rem 0;
 }
+
 .toggle-row label {
   display: flex;
   align-items: center;
   gap: 0.4rem;
   cursor: pointer;
 }
+
 .toggle-row input[type="checkbox"] {
   accent-color: var(--primary);
   width: 16px;
@@ -937,13 +969,26 @@
   align-items: center;
   gap: 0.8rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 1rem;
 }
-.interceptor-header h3 { margin: 0; font-size: 1.3rem; }
-.interceptor-header.warning { color: #f59e0b; }
-.interceptor-header.friction { color: #f97316; }
-.interceptor-header.critical { color: #f43f5e; }
+
+.interceptor-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.interceptor-header.warning {
+  color: #f59e0b;
+}
+
+.interceptor-header.friction {
+  color: #f97316;
+}
+
+.interceptor-header.critical {
+  color: #f43f5e;
+}
 
 .interceptor-msg {
   font-size: 0.95rem;
@@ -970,7 +1015,7 @@
 .compound-loss {
   font-size: 0.85rem;
   color: #94a3b8;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 0.8rem;
   margin-bottom: 1rem;
@@ -979,8 +1024,8 @@
 
 .justification-input {
   width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   color: white;
   font-family: inherit;
@@ -991,7 +1036,10 @@
   margin-bottom: 1rem;
   box-sizing: border-box;
 }
-.justification-input:focus { border-color: var(--primary); }
+
+.justification-input:focus {
+  border-color: var(--primary);
+}
 
 .interceptor-loading {
   display: flex;
@@ -1003,8 +1051,204 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.spin-icon { animation: spin 1s linear infinite; color: var(--primary); }
+  from {
+    transform: rotate(0deg);
+  }
 
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+  color: var(--primary);
+}
+
+/* --- 高级定制版 Select 框 --- */
+.modal-form select {
+  /* 1. 杀掉浏览器原生的丑陋箭头 */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* 2. 注入现代感的背景和边框 */
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  /* 更圆润的边角 */
+  padding: 1rem 1.2rem;
+  color: white;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  /* 增加丝滑的动画过渡 */
+
+  /* 3. 用 CSS 魔法画一个极简高级的向下箭头 */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  /* 箭头靠右对齐 */
+  background-size: 1.2em;
+}
+
+/* 鼠标悬浮时的微光反馈 */
+.modal-form select:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* 点击/聚焦时的品牌色高亮 */
+.modal-form select:focus {
+  border-color: var(--primary, #771FFF);
+  box-shadow: 0 0 0 3px rgba(119, 31, 255, 0.25);
+  outline: none;
+}
+
+/* 下拉选项的基础颜色 (受限于操作系统，只能改基础色和字体) */
+.modal-form select option {
+  background-color: #1e1b4b;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* --- 彻底隐藏数字输入框的原生丑陋箭头 (最高级的做法) --- */
+
+/* 针对 Chrome, Safari, Edge, Opera */
+.modal-form input[type="number"]::-webkit-outer-spin-button,
+.modal-form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 针对 Firefox */
+.modal-form input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* add money, scan qr, send money, simulate inflow 这上面的盾牌删掉，后面浅紫色的删掉 不要多一个格子 */
+/* --- 彻底扁平化 Modal Header，去掉多余的格子和背景 --- */
+.modal-header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* 调整标题和副标题的间距，让它看起来更清爽 */
+.modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.4rem 0 !important;
+  font-size: 1.3rem;
+}
+
+.modal-header p {
+  color: #94a3b8;
+  margin: 0 !important;
+  font-size: 0.9rem;
+}
+
+/* --- 强制屏蔽潜伏在 Header 里的幽灵盾牌和背景 --- */
+
+/* 1. 强制清理背景和边框 (提高优先级) */
+.gx-theme .modal-header,
+.modal-overlay .modal-header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* 2. 强制隐藏标题旁边的任何 SVG 图标或注入的伪元素图标 */
+.modal-header h3 svg,
+.modal-header h3 img,
+.modal-header h3::before {
+  display: none !important;
+}
+
+/* --- 修复日历 (Date Input) 样式与弹窗 --- */
+
+/* 1. 强制浏览器使用原生暗黑模式的日历弹窗 */
+.inline-add-form input[type="date"] {
+  color-scheme: dark;
+  font-family: inherit;
+}
+
+/* 2. 彻底替换自带的丑陋图标，换成高级的灰白色 SVG 日历图标 */
+.inline-add-form input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+  /* 清除反转魔法，直接用我们画的图标 */
+  filter: none;
+}
+
+/* 鼠标悬浮时让图标亮起 */
+.inline-add-form input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* --- 统一 inline-add-form 里的 input 和 select 样式 --- */
+.inline-add-form input,
+.inline-add-form select {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.8rem;
+  border-radius: 8px;
+  color: white;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inline-add-form input:focus,
+.inline-add-form select:focus {
+  border-color: var(--primary);
+}
+
+/* 移除 select 的丑陋原生箭头，换成高级 SVG 箭头 */
+.inline-add-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em;
+  cursor: pointer;
+}
+
+/* 下拉菜单里的选项使用深色背景 */
+.inline-add-form select option {
+  background-color: #1e1b4b;
+  color: #ffffff;
+}
+
+/* --- 月份切换按钮的样式 (给第二步用的) --- */
+.month-nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.month-nav-btn:hover {
+  background: var(--primary);
+}

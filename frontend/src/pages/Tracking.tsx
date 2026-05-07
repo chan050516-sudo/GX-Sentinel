@@ -10,8 +10,8 @@ export default function Tracking() {
   const metrics = [
     { label: "Runway Stability", value: 0.8 },
     { label: "Impulse Control", value: 0.9 },
-    { label: "Savings Const.", value: 0.7 },
-    { label: "Volatility Control", value: 0.85 }
+    { label: "Savings Discipline", value: 0.7 },
+    { label: "Spending Stability", value: 0.85 }
   ];
 
   const getCoordinatesForAngle = (angle: number, value: number) => {
@@ -38,7 +38,7 @@ export default function Tracking() {
       <main className="tracking-main">
         <div className="radar-card">
           <h3>Resilience Index Radar</h3>
-          
+
           <div className="radar-wrapper">
             <svg viewBox="0 0 300 300" className="radar-svg">
               {/* Draw Grid Polygons */}
@@ -56,11 +56,11 @@ export default function Tracking() {
                 const end = getCoordinatesForAngle(angle, 1);
                 const [ex, ey] = end.split(",");
                 return (
-                  <line 
-                    key={i} 
-                    x1={center} y1={center} 
-                    x2={ex} y2={ey} 
-                    className="radar-axis" 
+                  <line
+                    key={i}
+                    x1={center} y1={center}
+                    x2={ex} y2={ey}
+                    className="radar-axis"
                   />
                 );
               })}
@@ -83,36 +83,36 @@ export default function Tracking() {
             <div className="radar-labels">
               <span className="label top">Runway Stability (80%)</span>
               <span className="label right">Impulse Control (90%)</span>
-              <span className="label bottom">Savings Const. (70%)</span>
-              <span className="label left">Volatility Control (85%)</span>
+              <span className="label bottom">Savings Discipline (70%)</span>
+              <span className="label left">Spending Stability (85%)</span>
             </div>
           </div>
         </div>
 
         <div className="metrics-column">
           <div className="metric-card highlight">
-            <h3>I_fr (Resilience Index)</h3>
+            <h3>Resilience Index</h3>
             <div className="index-value">84.2</div>
             <p>Your current index is <strong>Strong</strong>. You have effectively defended against 3 impulse transactions this month.</p>
           </div>
 
           <div className="breakdown-card">
-            <h3>Model Breakdown</h3>
+            <h3>Score Contributors</h3>
             <div className="breakdown-list">
               <div className="breakdown-item">
-                <span>W1 * Runway Stability</span>
+                <span>Runway Stability</span>
                 <strong>+ 32.0</strong>
               </div>
               <div className="breakdown-item">
-                <span>W2 * (1 - Impulse Ratio)</span>
+                <span>Impulse Control</span>
                 <strong>+ 28.5</strong>
               </div>
               <div className="breakdown-item">
-                <span>W3 * Savings Consistency</span>
+                <span>Savings Discipline</span>
                 <strong>+ 25.1</strong>
               </div>
               <div className="breakdown-item negative">
-                <span>- W4 * Spending Volatility</span>
+                <span>Spending Stability</span>
                 <strong>- 1.4</strong>
               </div>
               <div className="breakdown-item total">

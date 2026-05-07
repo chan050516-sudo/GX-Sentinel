@@ -85,26 +85,76 @@
   stroke-width: 2;
 }
 
+/* --- 雷达图 Labels 样式升级版 --- */
 .radar-labels {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   pointer-events: none;
 }
 
 .radar-labels .label {
   position: absolute;
-  font-size: 0.85rem;
-  color: #cbd5e1;
-  font-weight: 600;
-  background: rgba(12, 1, 33, 0.8);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  /* 让文字上下排列 */
+  align-items: center;
+  /* 居中对齐 */
+  background: rgba(12, 1, 33, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* 加上精致的边框 */
+  padding: 0.5rem 0.8rem;
+  border-radius: 12px;
+  /* 更圆滑的角 */
+  backdrop-filter: blur(8px);
+  /* 毛玻璃背景 */
 }
 
-.label.top { top: 0; left: 50%; transform: translateX(-50%); }
-.label.bottom { bottom: 0; left: 50%; transform: translateX(-50%); }
-.label.right { top: 50%; right: -20px; transform: translateY(-50%); }
-.label.left { top: 50%; left: -20px; transform: translateY(-50%); }
+/* 标签名字 (例如: Runway Stability) */
+.label-title {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  /* 确保文字不会自己换行 */
+}
+
+/* 百分比数字 (例如: 80%) */
+.label-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary, #771FFF);
+  /* 使用你的主题紫色高亮 */
+  letter-spacing: 0.5px;
+}
+
+/* 调整它们的位置，给雷达图留出更多呼吸空间 */
+.label.top {
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.label.bottom {
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.label.right {
+  top: 50%;
+  right: -100px;
+  transform: translateY(-50%);
+}
+
+.label.left {
+  top: 50%;
+  left: -100px;
+  transform: translateY(-50%);
+}
 
 
 /* Metrics Column */
