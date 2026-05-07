@@ -6,6 +6,10 @@ def process_manual_transaction(user_id: str, amount: float) -> ManualTransaction
     """
     处理消费扣款与微干预 (Micro-Nudge) 惩罚逻辑
     """
+
+    if amount <= 0:
+        raise ValueError("Expense amount must be greater than zero.")
+
     # 1. 读取数据库数据
     user_data = get_user(user_id) or {}
     current_balances = user_data.get("financialSections", {})
@@ -41,7 +45,7 @@ def process_manual_transaction(user_id: str, amount: float) -> ManualTransaction
 
 def get_user_dashboard_data(user_id: str) -> UserDashboardResponse:
     """
-    获取最新的仪表盘数据
+    Upload the new data
     """
     user_data = get_user(user_id) or {}
 
