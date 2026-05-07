@@ -1,29 +1,21 @@
 from fastapi import APIRouter, Header
-from datetime import datetime
-from model.models import LeaderboardResponse, LeaderboardEntry, BonusStatusResponse
-
-# 引入数据库接口以获取真实连续安全天数
-from firebase.crud import get_user
+from ..model.models import LeaderboardResponse, BonusStatusResponse, StreakChallengeResponse
+from ..services import social_service 
 
 router = APIRouter(prefix="/social", tags=["social"])
 
 @router.get("/leaderboard", response_model=LeaderboardResponse)
 async def get_leaderboard(x_user_id: str = Header("demo_user_01")):
-    return LeaderboardResponse(
-        weekly=[LeaderboardEntry(anonymizedHandle="Saver1", resilienceScore=85.2, rank=1)],
-        monthly=[LeaderboardEntry(anonymizedHandle="Saver1", resilienceScore=85.2, rank=1)],
-    )
+    """
+    获得混合排行榜：包含 1 个真实用户的数据和 2 个固定好友
+    """
+    # 将 x_user_id 传给 service 进行动态排序
+    return social_service.get_leaderboard_data(x_user_id)
 
 @router.get("/bonus-status", response_model=BonusStatusResponse)
 async def bonus_status(x_user_id: str = Header("demo_user_01")):
-    
-    # 从数据库读取用户的真实数据
-    user_data = get_user(x_user_id)
-    safe_days = user_data.get("consecutiveSafeDays", 0) # 获取连续安全天数
+    return social_service.get_user_bonus_status(x_user_id)
 
-    return BonusStatusResponse(
-        bonusPoints=100.0,
-        lastBonusDate=datetime.now(),
-        nextBonusThreshold=f"Safe Streak: {safe_days}/7 days to earn bonus points!"   
-        )
-
+@router.get("/streak-challenge", response_model=StreakChallengeResponse)
+async def get_streak_challenge(x_user_id: str = Header("demo_user_01")):
+    return social_service.get_friends_streak_challenge(x_user_id)

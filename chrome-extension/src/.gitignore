@@ -1,0 +1,12 @@
+# 忽略 Python 虚拟环境
+backend/venv/
+backend/__pycache__/
+
+# 忽略前端依赖包 (这个最占空间，一定要忽略)
+chrome-extension/node_modules/
+
+# 忽略前端编译结果
+chrome-extension/dist/
+
+# 忽略本地编辑器配置
+.vscode/
