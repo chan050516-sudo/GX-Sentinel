@@ -9,7 +9,7 @@
   ],
   "host_permissions": [
     "https://*.shopee.com.my/*",
-    "http://localhost:8000/*" 
+    "http://127.0.0.1:8000/*" 
 ],
   "content_scripts": [
     {
@@ -18,7 +18,7 @@
         "https://*.lazada.com.my/*"
       ],
       "js": ["dist/content-script.js"],
-      "run_at": "document_end"
+      "run_at": "document_start"
     }
   ],
   "action": {

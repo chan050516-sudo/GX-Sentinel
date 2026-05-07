@@ -7,8 +7,8 @@ from model.models import (
 )
 
 # 1. 导入你的 AI Agent 和数据库操作
-from ..agents.graph_allocator import run_allocator_agent
-from ..firebase.database import get_user, update_user
+from agents.graph_allocator import run_allocator_agent
+from firebase.crud import get_user, update_user
 
 router = APIRouter(prefix="/allocator", tags=["allocator"])
 
