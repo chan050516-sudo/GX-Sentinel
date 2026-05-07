@@ -175,6 +175,13 @@ class StreakChallengeResponse(BaseModel):
     currentUser: FriendStreak # 你自己的打卡进度
     friends: List[FriendStreak] # 另外两个固定好友的打卡进度
 
+class SupportRequest(BaseModel):
+    targetHandle: str  # 前端传过来的名字，例如 "@ZenBudget"
+
+class SupportResponse(BaseModel):
+    message: str
+    success: bool
+
 # ========== Manual Transaction & Calendar/Goals ==========
 class ManualTransactionRequest(BaseModel):
     amount: float
