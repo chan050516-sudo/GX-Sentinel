@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from google.cloud.firestore import CollectionReference, DocumentReference
 from firebase_admin import firestore
 from .init import get_firestore_client
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 # ========== 辅助函数 ==========
 def _get_user_ref(user_id: str) -> DocumentReference:
@@ -101,6 +102,29 @@ def update_income_injection(user_id: str, injection_id: str, updates: Dict[str, 
     doc_ref = _get_income_injections_col(user_id).document(injection_id)
     doc_ref.update(updates)
 
+def create_income_injection(user_id: str, injection_data: Dict[str, Any]) -> str:
+
+    col_ref = _get_income_injections_col(user_id)
+
+    inj_id = injection_data.get("injectionId")
+    if inj_id:
+        doc_ref = col_ref.document(inj_id)
+    else:
+        doc_ref = col_ref.document()
+        inj_id = doc_ref.id
+        injection_data["injectionId"] = inj_id
+    
+    # Default value
+    if "date" not in injection_data:
+        injection_data["date"] = firestore.SERVER_TIMESTAMP
+    if "status" not in injection_data:
+        injection_data["status"] = "pending"
+    if "allocatorUsed" not in injection_data:
+        injection_data["allocatorUsed"] = False
+
+    doc_ref.set(injection_data)
+    return inj_id
+
 
 # ========== Transaction ==========
 def create_transaction(user_id: str, transaction_data: Dict[str, Any]) -> str:
@@ -155,7 +179,7 @@ def get_last_aborted_transaction(user_id: str) -> Optional[str]:
         return f"{desc} (RM {amount:.0f})"
     return None
 
-# ========== INterceptor Audit ==========
+# ========== Interceptor Audit ==========
 def create_interceptor_audit(user_id: str, audit_data: Dict[str, Any]) -> str:
     col_ref = _get_interceptor_audit_col(user_id)
     doc_ref = col_ref.document()
@@ -214,7 +238,14 @@ def get_upcoming_events(user_id: str, days: int = 30) -> List[Dict[str, Any]]:
     now = datetime.now()
     future = now + timedelta(days=days)
     col_ref = _get_calendar_events_col(user_id)
-    docs = col_ref.where("date", ">=", now).where("date", "<=", future).order_by("date").stream()
+    
+    # 【修复方案】：将 .filter(filter=...) 改回 .where(filter=...)
+    # 这样既能使用 FieldFilter 消除警告，也能兼容旧版本的 CollectionReference 对象
+    query = col_ref.where(filter=FieldFilter("date", ">=", now)) \
+                   .where(filter=FieldFilter("date", "<=", future)) \
+                   .order_by("date")
+    
+    docs = query.stream()
     events = []
     for doc in docs:
         data = doc.to_dict()

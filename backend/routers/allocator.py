@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Header
-import uuid, datetime
+import uuid
+from datetime import datetime
 from model.models import (
     AllocatorAnalyzeRequest, AllocatorAnalyzeResponse,
     AllocatorConfirmRequest, AllocatorConfirmResponse,
     FinancialSections,
 )
 from agents.graph_allocator import allocator_graph
-from firebase.crud import get_user, update_user, get_user_goals, update_user_goal
+from firebase.crud import get_user, update_user, get_user_goals, update_user_goal, create_income_injection
 from services.runway import calculate_auto_goal_allocations
 
 router = APIRouter(prefix="/allocator", tags=["allocator"])
@@ -16,6 +17,17 @@ async def analyze_allocation(req: AllocatorAnalyzeRequest, x_user_id: str = Head
 
     total_amount = sum(item.amount for item in req.pendingIncomes)
     sources = [item.source for item in req.pendingIncomes]
+
+    for item in req.pendingIncomes:
+        create_income_injection(x_user_id, {
+            "injectionId": item.injectionId,
+            "amount": item.amount,
+            "source": item.source,
+            "description": item.description,
+            "status": "pending",
+            "createdAt": datetime.now(),
+            "allocatorUsed": False
+        })
     
     # Threshold = 300 for smart allocation
     if total_amount < 300:

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any
 
 def calculate_runway_impact(
@@ -73,7 +73,7 @@ def calculate_auto_goal_allocations(amount_to_add: float, active_goals: List[Dic
     if amount_to_add <= 0 or not active_goals:
         return {}
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     goal_allocations = {}
     remaining_amount = amount_to_add
 
@@ -97,7 +97,12 @@ def calculate_auto_goal_allocations(amount_to_add: float, active_goals: List[Dic
         for g, gap in pending_goals:
             deadline = g.get('deadline')
             # Default as 30 if no deadline mentioned
-            days_left = max((deadline - now).days, 1) if deadline else 30
+            if deadline:
+                if deadline.tzinfo is None:
+                    deadline = deadline.replace(tzinfo=timezone.utc)
+                days_left = max((deadline - now).days, 1)
+            else:
+                days_left = 30
             
             # Formula：Gap / Days remaining to deadline
             weight = gap / days_left 
