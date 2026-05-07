@@ -878,3 +878,133 @@
   padding: 2rem 0;
   font-style: italic;
 }
+
+/* Auto-ID rows in modals */
+.auto-id-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 0.5rem;
+}
+
+.auto-id-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.auto-id-value {
+  font-size: 0.82rem;
+  color: #771FFF;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Toggle row for checkboxes */
+.toggle-row {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  padding: 0.3rem 0;
+}
+.toggle-row label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+.toggle-row input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+}
+
+/* Interceptor Modal */
+.interceptor-modal {
+  max-width: 500px;
+  border: 1px solid rgba(248, 50, 109, 0.3);
+  box-shadow: 0 0 40px rgba(248, 50, 109, 0.15);
+}
+
+.interceptor-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 1rem;
+}
+.interceptor-header h3 { margin: 0; font-size: 1.3rem; }
+.interceptor-header.warning { color: #f59e0b; }
+.interceptor-header.friction { color: #f97316; }
+.interceptor-header.critical { color: #f43f5e; }
+
+.interceptor-msg {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding-right: 0.5rem;
+}
+
+.runway-drop-badge {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f43f5e;
+  margin-bottom: 0.8rem;
+}
+
+.compound-loss {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.justification-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: white;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 1rem;
+  resize: vertical;
+  outline: none;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+.justification-input:focus { border-color: var(--primary); }
+
+.interceptor-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: #94a3b8;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-icon { animation: spin 1s linear infinite; color: var(--primary); }
+
