@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Target, AlertTriangle, Send } from "lucide-react";
+import { Bot, Target, AlertTriangle, Send, FileText } from "lucide-react";
 import "./ChatAssistant.css";
 
 type Message = { id: string; role: "user" | "assistant"; content: string; timestamp: string };
 
-export default function ChatAssistant() {
+export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -47,6 +47,27 @@ export default function ChatAssistant() {
       };
       setMessages(prev => [...prev, aiMsg]);
     }, 1500);
+  };
+
+  const handleGenerateReport = () => {
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: "Generate Weekly Report",
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => [...prev, userMsg]);
+
+    // Simulate Report Generation
+    setTimeout(() => {
+      const aiMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "📊 Weekly Resilience Report Generated!\n\n• Resilience Index: 84.2 (↑ 4.2%)\n• Impulse Purchases Stopped: 2\n• Savings Goal: 'Buy a Car' is on track (Dec 2027)\n• Warning: 3 inactive subscriptions detected (RM 45/mo).",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, aiMsg]);
+    }, 1000);
   };
 
   return (
@@ -105,6 +126,15 @@ export default function ChatAssistant() {
             ))}
             <div ref={chatEndRef} />
           </div>
+
+          {isPopup && (
+            <div className="quick-actions">
+              <button className="quick-action-btn" onClick={handleGenerateReport}>
+                <FileText size={16} />
+                <span>Generate Weekly Report</span>
+              </button>
+            </div>
+          )}
 
           <div className="input-area">
             <input 

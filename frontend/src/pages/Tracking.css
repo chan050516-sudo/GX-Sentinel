@@ -253,3 +253,122 @@
   color: white;
   font-size: 1.2rem;
 }
+
+/* =============================================
+   RESPONSIVE — TRACKING
+   ============================================= */
+@media (max-width: 1024px) {
+  .tracking-container {
+    padding: 2rem;
+  }
+
+  .tracking-main {
+    grid-template-columns: 1fr;
+  }
+
+  .radar-wrapper {
+    width: 350px;
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tracking-container {
+    padding: 1rem;
+    padding-top: 4rem;
+  }
+
+  .tracking-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .radar-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .radar-wrapper {
+    width: 280px;
+    height: 280px;
+  }
+
+  .radar-svg {
+    width: 220px;
+    height: 220px;
+  }
+
+  .label.right {
+    right: -60px;
+  }
+
+  .label.left {
+    left: -60px;
+  }
+
+  .label.top {
+    top: 20px;
+  }
+
+  .label.bottom {
+    bottom: 20px;
+  }
+
+  .label-title {
+    font-size: 0.7rem;
+  }
+
+  .label-value {
+    font-size: 0.9rem;
+  }
+
+  .metric-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .index-value {
+    font-size: 2.5rem;
+  }
+
+  .breakdown-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .breakdown-item {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .radar-wrapper {
+    width: 240px;
+    height: 240px;
+  }
+
+  .radar-svg {
+    width: 180px;
+    height: 180px;
+  }
+
+  .label.right {
+    right: -45px;
+  }
+
+  .label.left {
+    left: -45px;
+  }
+
+  .radar-labels .label {
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+  }
+
+  .label-title {
+    font-size: 0.65rem;
+  }
+
+  .label-value {
+    font-size: 0.8rem;
+  }
+}

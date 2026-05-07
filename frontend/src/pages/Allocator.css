@@ -319,3 +319,66 @@
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* =============================================
+   RESPONSIVE — ALLOCATOR
+   ============================================= */
+@media (max-width: 768px) {
+  .allocator-header {
+    padding: 1rem 1rem;
+    padding-top: 4rem;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: flex-start;
+  }
+
+  .allocator-main {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .allocator-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .locked-income-display h2 {
+    font-size: 2rem;
+  }
+
+  .ai-recommendation-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .ai-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .one-click-btn {
+    width: 100%;
+  }
+
+  .total-check-section {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .remaining-amount {
+    font-size: 1.5rem;
+  }
+
+  .confirm-btn {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .slider-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
+

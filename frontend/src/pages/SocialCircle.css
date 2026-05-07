@@ -481,3 +481,105 @@
   font-size: 0.85rem;
   color: #94a3b8;
 }
+
+/* =============================================
+   RESPONSIVE — SOCIAL CIRCLE
+   ============================================= */
+@media (max-width: 1024px) {
+  .social-container {
+    padding: 2rem;
+  }
+
+  .social-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .social-container {
+    padding: 1rem;
+    padding-top: 4rem;
+  }
+
+  .social-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .social-header p {
+    font-size: 0.9rem;
+  }
+
+  .squad-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .card-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .squad-member {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .member-action-area {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .system-nudge-box {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .system-nudge-box p {
+    font-size: 0.85rem;
+  }
+
+  .bonus-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .bonus-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .claim-btn {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .stats-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .voucher-text {
+    font-size: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

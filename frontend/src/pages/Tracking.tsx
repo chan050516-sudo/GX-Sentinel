@@ -81,10 +81,22 @@ export default function Tracking() {
 
             {/* Labels overlay */}
             <div className="radar-labels">
-              <span className="label top">Runway Stability (80%)</span>
-              <span className="label right">Impulse Control (90%)</span>
-              <span className="label bottom">Savings Discipline (70%)</span>
-              <span className="label left">Spending Stability (85%)</span>
+              <div className="label top">
+                <span className="label-title">Runway Stability</span>
+                <span className="label-value">80%</span>
+              </div>
+              <div className="label right">
+                <span className="label-title">Impulse Control</span>
+                <span className="label-value">90%</span>
+              </div>
+              <div className="label bottom">
+                <span className="label-title">Savings Discipline</span>
+                <span className="label-value">70%</span>
+              </div>
+              <div className="label left">
+                <span className="label-title">Spending Stability</span>
+                <span className="label-value">85%</span>
+              </div>
             </div>
           </div>
         </div>

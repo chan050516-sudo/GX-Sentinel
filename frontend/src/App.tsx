@@ -7,6 +7,7 @@ import Tracking from "./pages/Tracking";
 import ChatAssistant from "./pages/ChatAssistant";
 import SocialCircle from "./pages/SocialCircle";
 import Sidebar from "./components/Sidebar";
+import FloatingMentor from "./components/FloatingMentor";
 import "./App.css";
 
 // Wrapper to handle layout based on route
@@ -17,6 +18,7 @@ function AppLayout() {
   return (
     <div className={`app-wrapper ${hideSidebar ? 'no-sidebar' : ''}`}>
       <Sidebar />
+      <FloatingMentor />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<Login />} />
