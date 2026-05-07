@@ -163,6 +163,17 @@ class BonusStatusResponse(BaseModel):
     lastBonusDate: Optional[datetime]
     nextBonusThreshold: str
 
+class FriendStreak(BaseModel):
+    name: str                 # 名字
+    resilienceScore: float    # 当前分数
+    currentStreak: int        # 连续大于 80 分的天数
+    rewardStatus: str         # 奖励状态描述 (例如：解锁/还差几天)
+    isEligible: bool          # 当前分数是否大于 80 (决定是否能累计天数)
+
+class StreakChallengeResponse(BaseModel):
+    challengeTitle: str       # 挑战的名称
+    currentUser: FriendStreak # 你自己的打卡进度
+    friends: List[FriendStreak] # 另外两个固定好友的打卡进度
 
 # ========== Manual Transaction & Calendar/Goals ==========
 class ManualTransactionRequest(BaseModel):
