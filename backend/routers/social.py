@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Header
-from model.models import LeaderboardResponse, BonusStatusResponse, StreakChallengeResponse
+from model.models import LeaderboardResponse, BonusStatusResponse, StreakChallengeResponse, SupportResponse, SupportRequest
 from services import social_service 
 
 router = APIRouter(prefix="/social", tags=["social"])

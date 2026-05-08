@@ -1,5 +1,5 @@
 from datetime import datetime
-from model.models import LeaderboardResponse, LeaderboardEntry, BonusStatusResponse, StreakChallengeResponse, FriendStreak
+from model.models import LeaderboardResponse, LeaderboardEntry, BonusStatusResponse, StreakChallengeResponse, FriendStreak, SupportRequest, SupportResponse
 from firebase.crud import get_user
 
 def get_leaderboard_data(user_id: str) -> LeaderboardResponse:
