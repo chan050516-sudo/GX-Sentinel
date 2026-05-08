@@ -1,5 +1,5 @@
 // ==========================================
-// 1. 动态注入 CSS (Looi-Style + WhatsApp Chat Style)
+// 1. Dynamic CSS (Looi-Style + WhatsApp Chat Style + Drag/Resize)
 // ==========================================
 const style = document.createElement('style');
 style.textContent = `
@@ -20,7 +20,7 @@ style.textContent = `
     opacity: 1;
   }
   
-  /* Looi 风格的基础外壳 */
+  /* LOOI Style Outline */
   .gx-pet-container {
     position: relative;
     width: 70px;
@@ -30,39 +30,46 @@ style.textContent = `
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(119, 31, 255, 0.2);
     pointer-events: all;
-    cursor: pointer;
+    cursor: grab;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: box-shadow 0.4s, border-color 0.4s;
   }
-
+  .gx-pet-container:active {
+    cursor: grabbing;
+  }
   .gx-pet-container:hover {
-    transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(119, 31, 255, 0.4), inset 0 0 20px rgba(119, 31, 255, 0.4);
   }
 
-  /* 生物图层 */
+  /* Pet Layer */
   .gx-pet-breather {
     width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; gap: 8px;
     transform-origin: bottom center;
   }
   .gx-eye-wrap { display: flex; justify-content: center; align-items: center; transition: all 0.4s ease; }
+  
+  /* Eye Inner Layer */
   .gx-eye-inner {
     width: 14px; height: 32px; background: #e2e8f0; border-radius: 10px;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transform: translate(var(--eye-x, 0px), var(--eye-y, 0px));
+    transition: width 0.3s, height 0.3s, background 0.3s, border-radius 0.3s;
   }
 
-  /* 动画组 */
+  /* Animation Effect */
   @keyframes bioBreathe { 0%, 100% { transform: scale(1, 1) translateY(0); } 50% { transform: scale(1.04, 0.94) translateY(2px); } }
   @keyframes bioBreatheFast { 0%, 100% { transform: scale(1, 1) translateY(0); } 50% { transform: scale(1.06, 0.92) translateY(3px); } }
-  @keyframes bioBlink { 0%, 88%, 100% { transform: scaleY(1); } 90% { transform: scaleY(0.1); } 92% { transform: scaleY(1); } 94% { transform: scaleY(0.1); } 96% { transform: scaleY(1); } }
-  @keyframes bioLookAround { 0%, 100% { transform: translate(0, 0); } 15%, 25% { transform: translate(-6px, 2px); } 45%, 55% { transform: translate(6px, 0); } 75%, 85% { transform: translate(0, -4px); } }
+  @keyframes bioBlink { 0%, 88%, 100% { transform: scaleY(1) translate(var(--eye-x, 0px), var(--eye-y, 0px)); } 90% { transform: scaleY(0.1) translate(var(--eye-x, 0px), var(--eye-y, 0px)); } 92% { transform: scaleY(1) translate(var(--eye-x, 0px), var(--eye-y, 0px)); } 94% { transform: scaleY(0.1) translate(var(--eye-x, 0px), var(--eye-y, 0px)); } 96% { transform: scaleY(1) translate(var(--eye-x, 0px), var(--eye-y, 0px)); } }
   @keyframes bioShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
   @keyframes gxPopIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+  
+  /* Click for jumping */
+  @keyframes petPoke { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(0.95, 1.05); } }
+  .gx-pet-container.poked .gx-pet-breather { animation: petPoke 0.3s ease; }
+  .gx-pet-container.poked .gx-eye-inner { transform: scaleY(0.1) translate(var(--eye-x, 0px), var(--eye-y, 0px)) !important; }
 
-  /* 状态机 */
+  /* State Machine */
   .gx-pet-container.idle .gx-pet-breather { animation: bioBreathe 4s infinite ease-in-out; }
-  .gx-pet-container.idle .gx-eye-wrap { animation: bioLookAround 8s infinite; }
   .gx-pet-container.idle .gx-eye-inner { animation: bioBlink 6s infinite; }
 
   .gx-pet-container.analyzing { border-color: #771FFF; box-shadow: 0 0 30px rgba(119, 31, 255, 0.6), inset 0 0 20px rgba(119, 31, 255, 0.5); }
@@ -78,17 +85,30 @@ style.textContent = `
 
   .gx-pet-container.suggesting { border-color: #10b981; box-shadow: 0 0 30px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(16, 185, 129, 0.2); }
   .gx-pet-container.suggesting .gx-pet-breather { animation: bioBreathe 4s infinite ease-in-out; }
-  .gx-pet-container.suggesting .gx-eye-inner { height: 16px; background: #10b981; box-shadow: 0 0 15px #10b981; border-radius: 20px 20px 4px 4px; transform: translateY(-4px); animation: bioBlink 7s infinite; }
+  .gx-pet-container.suggesting .gx-eye-inner { height: 16px; background: #10b981; box-shadow: 0 0 15px #10b981; border-radius: 20px 20px 4px 4px; transform: translate(var(--eye-x, 0px), calc(var(--eye-y, 0px) - 4px)); animation: bioBlink 7s infinite; }
 
-  /* 气泡样式 */
+  /* Bubble Style */
   #gx-bubble {
     background: rgba(12, 1, 33, 0.95); backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1); padding: 1.2rem;
     border-radius: 16px 16px 4px 16px; width: 340px; color: white;
     pointer-events: all; transform-origin: bottom right;
     animation: gxPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none;
+    
+    /* Allow user to adjust size */
+    resize: both;
+    overflow: auto;
+    min-width: 280px;
+    min-height: 120px;
+    max-width: 600px;
+    max-height: 500px;
   }
+  
+  /* Scrollbar */
+  #gx-bubble::-webkit-scrollbar { width: 6px; height: 6px; }
+  #gx-bubble::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+  
   #gx-bubble.show { display: block; }
   #gx-bubble.analyzing { border-left: 3px solid #771FFF; }
   #gx-bubble.warning { border-left: 3px solid #f59e0b; }
@@ -118,7 +138,7 @@ style.textContent = `
 document.head.appendChild(style);
 
 // ==========================================
-// 2. 构建 DOM 结构
+// 2. Construct DOM Structure
 // ==========================================
 const wrapper = document.createElement('div');
 wrapper.id = 'gx-ambient-wrapper';
@@ -142,7 +162,7 @@ wrapper.appendChild(petContainer);
 document.body.appendChild(wrapper);
 
 // ==========================================
-// 3. 场景字典与核心逻辑 (全英文)
+// 3. Scenarios Dictionary
 // ==========================================
 const scenarios = {
     tiktok: {
@@ -198,13 +218,12 @@ function triggerStandardScenario(scenarioKey: 'tiktok' | 'agoda' | 'coding') {
 }
 
 // ==========================================
-// 4. WhatsApp-Style 互动对话演示 (Alt + 4)
+// 4. WhatsApp-Style Chat (Alt + 4)
 // ==========================================
 function triggerDialogueScenario() {
     clearTimeout(analysisTimeout);
     wrapper.classList.add('visible');
     
-    // Step 1: Initial Warning & Input Request
     petContainer.className = 'gx-pet-container warning';
     bubble.className = 'show warning';
     bubble.innerHTML = `
@@ -218,11 +237,9 @@ function triggerDialogueScenario() {
         </div>
     `;
 
-    // Bind Event
     document.getElementById('gx-demo-send')!.onclick = () => {
         const userText = (document.getElementById('gx-demo-input') as HTMLInputElement).value;
         
-        // Step 2: Show User Message & AI Thinking
         petContainer.className = 'gx-pet-container analyzing';
         bubble.className = 'show analyzing';
         bubble.innerHTML = `
@@ -232,7 +249,6 @@ function triggerDialogueScenario() {
             </div>
         `;
 
-        // Step 3: AI Verdict Reply
         setTimeout(() => {
             petContainer.className = 'gx-pet-container warning';
             bubble.className = 'show warning';
@@ -260,7 +276,78 @@ function hideSentinel() {
 }
 
 // ==========================================
-// 5. 全局快捷键劫持控制器
+// 5. Interaction
+// ==========================================
+
+// A. Eyes Follow Cursor
+window.addEventListener('mousemove', (e: MouseEvent) => {
+    if (!wrapper.classList.contains('visible')) return;
+    
+    const rect = petContainer.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Max deviation 6px
+    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    const distance = Math.min(6, Math.hypot(e.clientX - centerX, e.clientY - centerY) / 25);
+    
+    const eyeX = Math.cos(angle) * distance;
+    const eyeY = Math.sin(angle) * distance;
+    
+    petContainer.style.setProperty('--eye-x', `${eyeX}px`);
+    petContainer.style.setProperty('--eye-y', `${eyeY}px`);
+});
+
+// B. Draggable Wrapper
+let isDragging = false;
+let dragStartX = 0, dragStartY = 0;
+let initialLeft = 0, initialTop = 0;
+
+petContainer.addEventListener('mousedown', (e: MouseEvent) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    
+    // Set bottom/right into top/left absolute positioning
+    const rect = wrapper.getBoundingClientRect();
+    wrapper.style.right = 'auto';
+    wrapper.style.bottom = 'auto';
+    wrapper.style.left = `${rect.left}px`;
+    wrapper.style.top = `${rect.top}px`;
+    
+    initialLeft = rect.left;
+    initialTop = rect.top;
+    
+    e.preventDefault(); // Prevent select on text accidentally
+});
+
+window.addEventListener('mousemove', (e: MouseEvent) => {
+    if (isDragging) {
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        wrapper.style.left = `${initialLeft + dx}px`;
+        wrapper.style.top = `${initialTop + dy}px`;
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    isDragging = false;
+});
+
+// C. Click to Poke
+petContainer.addEventListener('click', (e: MouseEvent) => {
+    // Differentiatie between Click or Drag
+    if (Math.abs(e.clientX - dragStartX) < 5 && Math.abs(e.clientY - dragStartY) < 5) {
+        petContainer.classList.add('poked');
+        setTimeout(() => {
+            petContainer.classList.remove('poked');
+        }, 300);
+    }
+});
+
+
+// ==========================================
+// 6. Keyboard Control for Demo
 // ==========================================
 window.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.altKey && e.key === '0') hideSentinel();
@@ -270,4 +357,4 @@ window.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.altKey && e.key === '4') triggerDialogueScenario();         // Interactive Chat
 });
 
-console.log("GX-Sentinel (Looi x Chat Edition) active. Keys: Alt+1 (TikTok), Alt+2 (Agoda), Alt+3 (Utility), Alt+4 (Chat Demo), Alt+0 (Hide).");
+console.log("GX-Sentinel (Interactive Looi Edition) active. Keys: Alt+1 (TikTok), Alt+2 (Agoda), Alt+3 (Utility), Alt+4 (Chat Demo), Alt+0 (Hide).");
