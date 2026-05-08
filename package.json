@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "@react-google-maps/api": "^2.20.8"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.2"
   }
 }
