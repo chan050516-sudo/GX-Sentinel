@@ -160,32 +160,11 @@ export default function SocialCircle() {
 
   return (
     <div className="social-container gx-theme">
-      <header className="social-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      {/* --- Main Header: Buttons Removed from here --- */}
+      <header className="social-header">
         <div>
           <h2>Social Resilience Circle</h2>
           <p>Discipline is no longer individual. It's socially reinforced.</p>
-        </div>
-        
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button 
-            onClick={handleAddPoints} 
-            style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #fbbf24', background: 'rgba(251, 191, 36, 0.1)', color: '#fbbf24', cursor: 'pointer', fontWeight: 'bold' }}
-          >
-            + 100 PTS
-          </button>
-          
-          <button 
-            onClick={handleAddDay} 
-            style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #10b981', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', cursor: 'pointer', fontWeight: 'bold' }}
-          >
-            + Add Day
-          </button>
-          <button 
-            onClick={handleNextWeek} 
-            style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #771FFF', background: 'rgba(119, 31, 255, 0.1)', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}
-          >
-            ⏩ Next Week (Reset)
-          </button>
         </div>
       </header>
 
@@ -246,10 +225,25 @@ export default function SocialCircle() {
         {/* Right Side: Bonus, Stats & Rewards */}
         <div className="bonus-stats-column">
           <div className="bonus-card">
-            <div className="bonus-header">
+            
+            {/* --- MODIFIED: Weekly Squad Bonus Header --- */}
+            {/* Moved "Add Day" and "Next Week" buttons here, vertically stacked */}
+            <div className="bonus-header" style={{ alignItems: 'flex-start' }}>
                <h3><Gift size={20} className="header-icon" /> Weekly Squad Bonus</h3>
-               <div className="points-pill">
-                  <Sparkles size={14} /> {points} PTS
+               
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                 <button 
+                   onClick={handleAddDay} 
+                   style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid #10b981', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
+                 >
+                   + Add Day
+                 </button>
+                 <button 
+                   onClick={handleNextWeek} 
+                   style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid #771FFF', background: 'rgba(119, 31, 255, 0.1)', color: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
+                 >
+                   ⏩ Next Week
+                 </button>
                </div>
             </div>
             
@@ -317,8 +311,23 @@ export default function SocialCircle() {
 
           {/* Reward Redemption Vault */}
           <div className="stats-card reward-vault">
-            <div className="card-header-row">
-                <h3><ShoppingBag size={18} className="header-icon" /> GX Reward</h3>
+            
+            {/* --- MODIFIED: GX Reward Header --- */}
+            {/* Moved "+ 100 PTS" and "Points Pill" here, aligned to the right side */}
+            <div className="card-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0 }}><ShoppingBag size={18} className="header-icon" /> GX Reward</h3>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <button 
+                    onClick={handleAddPoints} 
+                    style={{ padding: '0.4rem 0.6rem', borderRadius: '8px', border: '1px solid #fbbf24', background: 'rgba(251, 191, 36, 0.1)', color: '#fbbf24', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
+                  >
+                    + 100 PTS
+                  </button>
+                  <div className="points-pill" style={{ margin: 0 }}>
+                    <Sparkles size={14} /> {points} PTS
+                  </div>
+                </div>
             </div>
             
             <div className="reward-list-scrollable">
@@ -372,7 +381,7 @@ export default function SocialCircle() {
                 The weekly squad bonus has been forfeited.
               </p>
               <button className="claim-now-btn" onClick={() => setShowFailurePopup(false)} style={{ background: 'linear-gradient(135deg, #475569, #334155)', marginTop: '2rem' }}>
-                Confirm
+                Acknowledge
               </button>
             </div>
           </div>
