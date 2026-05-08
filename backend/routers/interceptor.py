@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Header, HTTPException
 from datetime import datetime, timedelta
+from langchain_core.messages import HumanMessage
 import uuid
 from model.models import (
     InterceptorAnalyzeRequest, InterceptorAnalyzeResponse,
@@ -16,8 +17,10 @@ from firebase.crud import (
     create_user_if_not_exists,
     create_interceptor_audit, update_interceptor_audit, get_interceptor_audit
 )
+from core.llm import get_gemini_llm
 
 router = APIRouter(prefix="/interceptor", tags=["interceptor"])
+fast_llm = get_gemini_llm(temperature=0.0)
 
 # Get the top risk observation in impulsive spending
 def get_top_risk_factors(factors: dict) -> str:
@@ -37,6 +40,19 @@ def get_top_risk_factors(factors: dict) -> str:
     top_2 = [risk_map[k] for k, v in sorted_factors[:2]]
     return " and ".join(top_2) if top_2 else "impulsive buying patterns"
 
+async def check_semantic_intent(product_name: str, reserved_titles: list) -> tuple[bool, str]:
+    if not reserved_titles:
+        return False, "No specific reserved purpose found."
+    prompt = (
+        f"Product/Service: '{product_name}'. "
+        f"Reserved Fund Purposes: {reserved_titles}. "
+        f"Does this product DIRECTLY fulfill any of these reserved purposes? "
+        f"Answer STRICTLY with one word 'YES' or 'NO'."
+    )
+    response_msg = await fast_llm.ainvoke([HumanMessage(content=prompt)])
+    response = response_msg.content.strip().upper()
+    is_match = response.startswith("YES")
+    return is_match, "Matched" if is_match else "Mismatch"
 
 
 @router.post("/analyze", response_model=InterceptorAnalyzeResponse)
@@ -62,40 +78,137 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
     # 2. Get Similar Purchases Count，from transactions in DB
     product_desc = req.products[0].name if req.products else "item"
     similar_count = get_similar_purchases_count(x_user_id, product_desc, days=30)
+    
 
     # 3. Calculate impulse score and tier
     transaction_time = datetime.now()
     hour = transaction_time.hour
     is_night = (hour >= 23 or hour < 5)
-    impulse_score, necessity_score, factors = calculate_impulse_score(
-        product_name=product_desc,
-        transaction_amount=req.totalAmount,
-        transaction_time=transaction_time,
-        user_variable_balance=current_variable_balance,
-        avg_daily_spending=avg_daily_spending,
-        similar_purchases_count=similar_count
-    )
-    tier = determine_tier(impulse_score)
-    
-
     runway_info = calculate_runway_impact(current_runway, req.totalAmount, avg_daily_spending, current_variable_balance)
-    conflict_info = check_goal_conflict(req.totalAmount, goals, current_variable_balance)
-    
-    # Default response
-    audit_id = str(uuid.uuid4())
-    observations = InterceptorObservations(
-        similarPurchasesCount=similar_count,
-        timeOfDay=transaction_time.strftime("%H:%M"),
-        currentRunwayDays=current_runway,
-        transactionVariance=factors.get("amount_factor", 0.5),
-        isNightTime=is_night
-    )
+
+
+    tier = 0
+    intent_alert = None
+    soft_message = ""
+    require_justification = False
+    observations = None
+    impulse_score = 0.0
+    factors = {}
+    conflict_info = {"has_conflict": False, "conflict_message": ""}
+
+    if req.paymentSource == "variableBudget":
+        impulse_score, necessity_score, factors = calculate_impulse_score(
+            product_name=product_desc,
+            transaction_amount=req.totalAmount,
+            transaction_time=transaction_time,
+            user_variable_balance=current_variable_balance,
+            avg_daily_spending=avg_daily_spending,
+            similar_purchases_count=similar_count
+        )
+        tier = determine_tier(impulse_score)
+        
+        conflict_info = check_goal_conflict(req.totalAmount, goals, current_variable_balance)
+        
+        # Default response
+        observations = InterceptorObservations(
+            similarPurchasesCount=similar_count,
+            timeOfDay=transaction_time.strftime("%H:%M"),
+            currentRunwayDays=current_runway,
+            transactionVariance=factors.get("amount_factor", 0.5),
+            isNightTime=is_night
+        )
+
+        top_risks = get_top_risk_factors(factors)
+        t1_msg = (
+            f"⚠️ Heads up: System detected {top_risks}. "
+            f"You are attempting to spend RM {req.totalAmount:.2f} while your remaining variable budget is only RM {current_variable_balance:.2f}."
+            f"You currently hold a {consecutive_safe_days}-day perfect saving streak. Are you sure you want to break it?"
+        )
+
+        s1 = f"🚨 Financial Crisis Warning: {conflict_info['conflict_message']} " if conflict_info.get("has_conflict") else "🚨 "
+        s1 += f"This transaction reduces your runway by {runway_info['runway_drop_days']} days and will heavily penalize your Resilience Score ({resilience_score})."
+
+        s2 = ""
+        if upcoming_events:
+            next_event = upcoming_events[0]
+            days_until = max(0, (next_event['date'] - datetime.now().astimezone()).days)
+            s2 = f" Wake up to reality: Your next scheduled expense is '{next_event['title']}' (RM {next_event['estimatedCost']:.2f}) in {days_until} day(s)."
+        elif upcoming_expenses_total > 0:
+            s2 = f" Reminder: You have RM {upcoming_expenses_total:.2f} of upcoming financial obligations."
+        
+        s3 = f" Furthermore, you have already purchased {similar_count} similar items in the past 30 days." if similar_count > 0 else ""
+        t2_msg = f"{t1_msg}\n{s1}{s2}{s3}"
+
+        t3_msg = (
+            f"{t2_msg}\n"
+            f"🛑 TRANSACTION INTERCEPTED AND FROZEN! "
+            f"Please provide an absolutely rational justification for why you MUST buy this right NOW. The AI Guardian will audit the logic of your statement."
+        )
+
+        if tier == 0:
+            soft_message = "✅ Transaction seems reasonable. No action needed."
+        elif tier == 1:
+            soft_message = t1_msg
+        elif tier == 2:
+            soft_message = t2_msg
+        else:
+            soft_message = t3_msg
+            require_justification = True
+
+    else:
+        # =====================================================================
+        # 路径 B：专款专用 (完全避开旧有逻辑，纯看语义意图)
+        # =====================================================================
+        observations = InterceptorObservations(
+            similarPurchasesCount=similar_count,
+            timeOfDay=transaction_time.strftime("%H:%M"),
+            currentRunwayDays=current_runway,
+            transactionVariance=0.5, # 不算冲动，给个默认值
+            isNightTime=is_night
+        )
+        
+        if req.paymentSource == "emergencyFund":
+            tier = 3
+            intent_alert = "🛑 Emergency Fund Access"
+            require_justification = True
+            soft_message = f"⚠️ ATTEMPTING TO DRAIN EMERGENCY FUND for '{product_desc}'!\n🛑 Please provide a critical justification (e.g., medical, urgent repair) to unlock your life-line fund."
+        else:
+            reserved_titles = []
+            if req.paymentSource == "fixedExpenses":
+                # 显式加入房租等通用固定支出，协助 LLM 判定
+                reserved_titles = ["Monthly Rent / Rental / Housing", "Insurance Premiums", "Utilities", "Loans"]
+            elif req.paymentSource == "savingsPockets":
+                reserved_titles = [g['title'] for g in goals]
+            elif req.paymentSource == "futureExpenses":
+                reserved_titles = [e['title'] for e in upcoming_events]
+            
+            is_match, reason = await check_semantic_intent(product_desc, reserved_titles)
+            
+            if is_match:
+                tier = 0
+                intent_alert = "✅ Verified: Matches reserved obligations."
+                soft_message = f"✅ Proceeding with reserved '{req.paymentSource}' for '{product_desc}'."
+            else:
+                tier = 3
+                intent_alert = "⚠️ Misappropriation of Funds Detected."
+                require_justification = True
+                display_titles = reserved_titles[:2] if reserved_titles else ["this specific purpose"]
+                soft_message = f"⚠️ INTENT MISMATCH: Your {req.paymentSource} is reserved for {display_titles}. Why are you diverting it for '{product_desc}'?\n🛑 TRANSACTION FROZEN! Please justify."
+
+    # -------------------------------------------------------------------------
+    # 构建返回值与存储
+    # -------------------------------------------------------------------------
+    tier_map = {0: "soft", 1: "soft", 2: "friction", 3: "critical"}
+    final_tier_str = tier_map[tier]
     
     # Save goals snapshot and runway_info
+    audit_id = str(uuid.uuid4())
     audit_data = {
         "auditId": audit_id,
         "timestamp": transaction_time,
         "platform": req.platform,
+        "paymentSource": req.paymentSource,
+        "intentAlert": None,
         "products": [p.dict() for p in req.products],
         "totalAmount": req.totalAmount,
         "observations": observations.dict(),
@@ -122,96 +235,25 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
         }
     }
 
-    top_risks = get_top_risk_factors(factors)
-    t1_msg = (
-        f"⚠️ Heads up: System detected {top_risks}. "
-        f"You are attempting to spend RM {req.totalAmount:.2f} while your remaining variable budget is only RM {current_variable_balance:.2f}."
-        f"You currently hold a {consecutive_safe_days}-day perfect saving streak. Are you sure you want to break it?"
-    )
-
-    # Tier 2 msg: 3 lines punch
-    # Line 1: Runway and Goal Conflict
-    s1 = f"🚨 Financial Crisis Warning: {conflict_info['conflict_message']} " if conflict_info.get("has_conflict") else "🚨 "
-    s1 += f"This transaction reduces your runway by {runway_info['runway_drop_days']} days and will heavily penalize your Resilience Score ({resilience_score})."
-
-    # Line 2: Relate to calendar event
-    s2 = ""
-    if upcoming_events:
-        next_event = upcoming_events[0]
-        days_until = max(0, (next_event['date'] - datetime.now().astimezone()).days)
-        s2 = (
-            f" Wake up to reality: Your next scheduled expense is '{next_event['title']}' "
-            f"(RM {next_event['estimatedCost']:.2f}) in {days_until} day(s)."
-        )
-    elif upcoming_expenses_total > 0:
-        s2 = f" Reminder: You have RM {upcoming_expenses_total:.2f} of upcoming financial obligations."
-    
-    # Line 3: Transaction History
-    s3 = f" Furthermore, you have already purchased {similar_count} similar items in the past 30 days." if similar_count > 0 else ""
-    
-    t2_msg = f"{t1_msg}\n{s1}{s2}{s3}"
-
-    # Tier 3: Ask for Justification
-    t3_msg = (
-        f"{t2_msg}\n"
-        f"🛑 TRANSACTION INTERCEPTED AND FROZEN! "
-        f"Please provide an absolutely rational justification for why you MUST buy this right NOW. The AI Guardian will audit the logic of your statement."
-    )
-    
-    # Generate response based on tiers
     if tier == 0:
-        # No Action
-        response = InterceptorAnalyzeResponse(
-            triggerLevel="soft",   # Simply response but will be skipped by frontend
-            auditId=audit_id,
-            observations=observations,
-            softMessage="✅ Transaction seems reasonable. No action needed."
-        )
-        audit_data["triggerLevel"] = "soft"
         audit_data["finalOutcome"] = "allowed"
-        create_interceptor_audit(x_user_id, audit_data)
-        return response
+
+    create_interceptor_audit(x_user_id, audit_data)
+
+    return InterceptorAnalyzeResponse(
+        triggerLevel=final_tier_str,
+        auditId=audit_id,
+        observations=observations,
+        runwayDropDays=runway_info["runway_drop_days"] if tier > 1 else None,
+        delaySeconds=5 if final_tier_str == "friction" else None,
+        compoundLossExample=runway_info["compound_loss_example"] if tier > 1 else None,
+        requireJustification=require_justification,
+        intentAlert=intent_alert,
+        softMessage=soft_message
+    )
+
     
-    elif tier == 1:
-        # Soft notification
-        response = InterceptorAnalyzeResponse(
-            triggerLevel="soft",
-            auditId=audit_id,
-            observations=observations,
-            softMessage=t1_msg
-        )
-        audit_data["triggerLevel"] = "soft"
-        create_interceptor_audit(x_user_id, audit_data)
-        return response
     
-    elif tier == 2:
-        # Friction
-        response = InterceptorAnalyzeResponse(
-            triggerLevel="friction",
-            auditId=audit_id,
-            observations=observations,
-            runwayDropDays=runway_info["runway_drop_days"],
-            delaySeconds=5,
-            compoundLossExample=runway_info["compound_loss_example"],
-            softMessage=t2_msg
-        )
-        audit_data["triggerLevel"] = "friction"
-        create_interceptor_audit(x_user_id, audit_data)
-        return response
-    
-    else:  # tier == 3
-        response = InterceptorAnalyzeResponse(
-            triggerLevel="critical",
-            auditId=audit_id,
-            observations=observations,
-            runwayDropDays=runway_info["runway_drop_days"],
-            compoundLossExample=runway_info["compound_loss_example"],
-            requireJustification=True,
-            softMessage=t3_msg
-        )
-        audit_data["triggerLevel"] = "critical"
-        create_interceptor_audit(x_user_id, audit_data)
-        return response
 
 
 @router.post("/justify", response_model=InterceptorJustifyResponse)
@@ -250,6 +292,8 @@ async def justify_purchase(
         transaction_time=observations.get("timeOfDay", "Unknown"),
         user_justification=req.justification,
         context_data={
+            "payment_source": audit.get("paymentSource", "variableBudget"),
+            "intent_alert": audit.get("intentAlert"),
             "runway_drop_days": runway_info.get("runway_drop_days"),
             "current_runway": observations.get("currentRunwayDays"),
             "similar_purchases": observations.get("similarPurchasesCount"),

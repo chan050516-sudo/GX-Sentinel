@@ -47,27 +47,36 @@ class RecommendedAllocation(BaseModel):
     savingsPockets: AllocationRange
 
 
-class AllocatorAnalyzeRequest(BaseModel):
-    amount: float
-    source: Literal["salary", "ptptn", "scholarship", "refund"]
+# class AllocatorAnalyzeRequest(BaseModel):
+#     amount: float
+#     source: Literal["salary", "ptptn", "scholarship", "refund"]
 
+class PendingIncomeItem(BaseModel):
+    injectionId: str
+    amount: float
+    source: str
+    description: Optional[str] = None
+
+class AllocatorAnalyzeRequest(BaseModel):
+    pendingIncomes: List[PendingIncomeItem]
 
 class AllocatorAnalyzeResponse(BaseModel):
-    recommendedAllocation: RecommendedAllocation
+    isSmartMode: bool
+    totalAmount: float
+    recommendedAllocation: Optional['RecommendedAllocation'] = None
     adviceText: str
     investmentSuggestion: Optional[str] = None
 
-
 class AllocatorConfirmRequest(BaseModel):
-    injectionId: str
-    allocationMap: Dict[str, float]  # {"emergencyFund": 200}
-
+    injectionIds: List[str]                  # Confirm multiple pending transaction at once
+    allocationMap: Dict[str, float]          # e.g. {"emergencyFund": 200}
+    # goalAllocations: Optional[Dict[str, float]] = None
 
 class AllocatorConfirmResponse(BaseModel):
     success: bool
     newBalances: FinancialSections
     runwayRecalc: float
-
+    
 
 # ========== Module 2: Interceptor ==========
 class ProductInfo(BaseModel):
@@ -88,6 +97,7 @@ class InterceptorAnalyzeRequest(BaseModel):
     products: List[ProductInfo]
     totalAmount: float
     isCheckoutPage: bool = True
+    paymentSource: Literal["variableBudget", "emergencyFund", "savingsPockets", "fixedExpenses", "futureExpenses"] = "variableBudget"
 
 
 class InterceptorAnalyzeResponse(BaseModel):
@@ -95,6 +105,7 @@ class InterceptorAnalyzeResponse(BaseModel):
     auditId: str
     observations: InterceptorObservations
     softMessage: Optional[str] = None
+    intentAlert: Optional[str] = None   # For Internal Audit
     runwayDropDays: Optional[float] = None
     delaySeconds: Optional[int] = None
     compoundLossExample: Optional[str] = None
@@ -163,6 +174,24 @@ class BonusStatusResponse(BaseModel):
     lastBonusDate: Optional[datetime]
     nextBonusThreshold: str
 
+class FriendStreak(BaseModel):
+    name: str                 # 名字
+    resilienceScore: float    # 当前分数
+    currentStreak: int        # 连续大于 80 分的天数
+    rewardStatus: str         # 奖励状态描述 (例如：解锁/还差几天)
+    isEligible: bool          # 当前分数是否大于 80 (决定是否能累计天数)
+
+class StreakChallengeResponse(BaseModel):
+    challengeTitle: str       # 挑战的名称
+    currentUser: FriendStreak # 你自己的打卡进度
+    friends: List[FriendStreak] # 另外两个固定好友的打卡进度
+
+class SupportRequest(BaseModel):
+    targetHandle: str  # 前端传过来的名字，例如 "@ZenBudget"
+
+class SupportResponse(BaseModel):
+    message: str
+    success: bool
 
 # ========== Manual Transaction & Calendar/Goals ==========
 class ManualTransactionRequest(BaseModel):

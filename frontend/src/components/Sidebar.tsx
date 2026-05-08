@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Activity, Users, Menu, X } from "lucide-react";
+import { LayoutDashboard, Activity, Users, Menu, X, MapPin } from "lucide-react";
 import "./Sidebar.css";
 // 💥 步骤 1: 引入你的 Logo 图片资源
 // 请确保 image_2.png 文件在对应的路径下 (例如 src/assets/logo.png)
@@ -18,6 +18,7 @@ export default function Sidebar() {
     { path: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     { path: "/tracking", icon: <Activity size={20} />, label: "Risk Profile" },
     { path: "/social", icon: <Users size={20} />, label: "Social Circle" },
+    { path: "/location", icon: <MapPin size={20} />, label: "Geo-Radar" },
   ];
 
   const handleNavClick = () => {
