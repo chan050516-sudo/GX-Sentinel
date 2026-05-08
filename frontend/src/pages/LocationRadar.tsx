@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
-import { Map as MapIcon, Coffee, Utensils, ShoppingBag, ShieldAlert, ArrowRight, ArrowLeft, Target, AlertTriangle } from "lucide-react";
+import { Map as MapIcon, Coffee, Utensils, ShoppingBag, ShieldAlert, ArrowRight, ArrowLeft, Target, AlertTriangle, MapPin, Navigation, Eye } from "lucide-react";
 import "./LocationRadar.css";
 
 // --- Data Models ---
@@ -17,8 +17,8 @@ type Spot = {
   category: string;
   dangerLevel: "critical" | "warning" | "safe";
   avgSpend: number;
-  runwayDrop: number;      // How many days of runway lost
-  resilienceDrop: number;  // Impact on resilience score
+  runwayDrop: number;
+  resilienceDrop: number;
   advice: string;
   alternatives: Alternative[];
 };
@@ -29,116 +29,348 @@ type Zone = {
   type: string;
   lat: number;
   lng: number;
-  baseZoomLevel: number; // Minimum zoom level required to see this zone
+  baseZoomLevel: number;
   spots: Spot[];
 };
 
 // Center on Bukit Bintang, Kuala Lumpur
-const center = { lat: 3.1466, lng: 101.7115 }; 
+const center = { lat: 3.1466, lng: 101.7115 };
+
+// --- Extended Mock Data: 12 High-Spend Zones around KL ---
+const zones: Zone[] = [
+  {
+    id: 1, name: "Pavilion Kuala Lumpur", type: "Luxury Retail & Dining Hub", lat: 3.1488, lng: 101.7133, baseZoomLevel: 10,
+    spots: [
+      {
+        id: 101, name: "Premium Omakase Dining", category: "Dining", dangerLevel: "critical", avgSpend: 850,
+        runwayDrop: 5.2, resilienceDrop: 8.5,
+        advice: "Severe risk. This single transaction accounts for 30% of your monthly variable budget. It directly conflicts with your 'Emergency Fund' goal.",
+        alternatives: [
+          { id: 901, name: "Tokyo Street Food Hall", category: "Dining", avgSpend: 45 },
+          { id: 902, name: "Suki-Ya Pavilion", category: "Dining", avgSpend: 85 }
+        ]
+      },
+      {
+        id: 102, name: "Luxury Designer Boutique", category: "Retail", dangerLevel: "critical", avgSpend: 3200,
+        runwayDrop: 18.5, resilienceDrop: 15.0,
+        advice: "Critical warning. Purchasing luxury goods right now will break your 14-day saving streak and severely compromise your financial runway.",
+        alternatives: [
+          { id: 903, name: "High-Street Fashion Brands", category: "Retail", avgSpend: 250 }
+        ]
+      },
+      {
+        id: 103, name: "Artisan Coffee Roastery", category: "Cafe", dangerLevel: "warning", avgSpend: 35,
+        runwayDrop: 0.2, resilienceDrop: 1.0,
+        advice: "Borderline impulse. While affordable, frequenting premium cafes forms a micro-drain pattern on your liquidity.",
+        alternatives: [
+          { id: 904, name: "Local Kopitiam", category: "Cafe", avgSpend: 12 }
+        ]
+      },
+      {
+        id: 104, name: "Grand Millennium Spa", category: "Wellness", dangerLevel: "critical", avgSpend: 380,
+        runwayDrop: 2.4, resilienceDrop: 4.2,
+        advice: "Luxury self-care. Consider if this aligns with your current savings goals for Bali trip.",
+        alternatives: [
+          { id: 906, name: "Local Reflexology", category: "Wellness", avgSpend: 60 }
+        ]
+      },
+      {
+        id: 105, name: "Electronics Paradise", category: "Electronics", dangerLevel: "warning", avgSpend: 1200,
+        runwayDrop: 7.8, resilienceDrop: 6.5,
+        advice: "High-ticket electronic item. Ensure this is a planned purchase from 'Future Expenses' pocket.",
+        alternatives: [
+          { id: 907, name: "Mid-range Tech Store", category: "Electronics", avgSpend: 450 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 2, name: "The Exchange TRX", type: "Financial & Lifestyle District", lat: 3.1419, lng: 101.7186, baseZoomLevel: 12,
+    spots: [
+      {
+        id: 201, name: "Gordon Ramsay Bar & Grill", category: "Dining", dangerLevel: "critical", avgSpend: 600,
+        runwayDrop: 3.8, resilienceDrop: 5.0,
+        advice: "High-friction transaction. Unless this is a pre-planned milestone celebration, this breaks your behavioral discipline framework.",
+        alternatives: []
+      },
+      {
+        id: 202, name: "% Arabica Coffee", category: "Cafe", dangerLevel: "warning", avgSpend: 28,
+        runwayDrop: 0.1, resilienceDrop: 0.5,
+        advice: "Acceptable occasionally, but triggers our 'Latte Factor' alert. You've purchased 4 similar items this week.",
+        alternatives: [
+          { id: 905, name: "Zus Coffee", category: "Cafe", avgSpend: 10 }
+        ]
+      },
+      {
+        id: 203, name: "Premium Fitness Club", category: "Fitness", dangerLevel: "warning", avgSpend: 350,
+        runwayDrop: 2.1, resilienceDrop: 2.8,
+        advice: "Monthly membership commitment. Match against your 'fixedExpenses' budget before committing.",
+        alternatives: [
+          { id: 908, name: "Community Gym", category: "Fitness", avgSpend: 80 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 3, name: "Changkat Bukit Bintang", type: "Nightlife & Entertainment", lat: 3.1475, lng: 101.7082, baseZoomLevel: 14,
+    spots: [
+      {
+        id: 301, name: "Premium Cocktail Bar", category: "Nightlife", dangerLevel: "critical", avgSpend: 250,
+        runwayDrop: 1.5, resilienceDrop: 3.0,
+        advice: "Late-night vulnerability detected. Alcohol-related environments significantly lower financial inhibition. System recommends exiting the zone.",
+        alternatives: []
+      },
+      {
+        id: 302, name: "Club Kyo", category: "Nightlife", dangerLevel: "critical", avgSpend: 180,
+        runwayDrop: 1.1, resilienceDrop: 2.5,
+        advice: "High-risk environment for impulse spending. Cover charge + drinks will exceed RM200 easily.",
+        alternatives: [
+          { id: 909, name: "Beer Factory", category: "Nightlife", avgSpend: 60 }
+        ]
+      },
+      {
+        id: 303, name: "Hookah Lounge", category: "Nightlife", dangerLevel: "warning", avgSpend: 85,
+        runwayDrop: 0.5, resilienceDrop: 1.2,
+        advice: "Social spending that adds up. Consider limiting to once per month.",
+        alternatives: []
+      }
+    ]
+  },
+  {
+    id: 4, name: "Suria KLCC", type: "Iconic Retail Hub", lat: 3.1578, lng: 101.7119, baseZoomLevel: 10,
+    spots: [
+      {
+        id: 401, name: "Flagship Tech Store", category: "Electronics", dangerLevel: "warning", avgSpend: 4500,
+        runwayDrop: 25.0, resilienceDrop: 20.0,
+        advice: "Major capital expenditure. Ensure this is drawn from your 'Future Expenses' pocket, not your emergency fund.",
+        alternatives: []
+      },
+      {
+        id: 402, name: "Aquaria KLCC Ticket", category: "Entertainment", dangerLevel: "safe", avgSpend: 65,
+        runwayDrop: 0.4, resilienceDrop: 0.2,
+        advice: "Experience-based spending with good value. Minor impact on runway.",
+        alternatives: []
+      },
+      {
+        id: 403, name: "Signature Bakery", category: "Cafe", dangerLevel: "warning", avgSpend: 45,
+        runwayDrop: 0.3, resilienceDrop: 0.8,
+        advice: "Premium bakery items. Your 3-day safe streak is at risk.",
+        alternatives: [
+          { id: 910, name: "Garden Bakery", category: "Cafe", avgSpend: 15 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 5, name: "Mid Valley Megamall", type: "Massive Shopping Complex", lat: 3.1175, lng: 101.6769, baseZoomLevel: 11,
+    spots: [
+      {
+        id: 501, name: "Cinema IMAX", category: "Entertainment", dangerLevel: "safe", avgSpend: 38,
+        runwayDrop: 0.2, resilienceDrop: 0.1,
+        advice: "Entertainment spending within reasonable range.",
+        alternatives: []
+      },
+      {
+        id: 502, name: "Popular Bookstore", category: "Retail", dangerLevel: "safe", avgSpend: 75,
+        runwayDrop: 0.5, resilienceDrop: 0.3,
+        advice: "Educational spending is generally acceptable.",
+        alternatives: []
+      },
+      {
+        id: 503, name: "Daiso Japan", category: "Retail", dangerLevel: "safe", avgSpend: 25,
+        runwayDrop: 0.1, resilienceDrop: 0.1,
+        advice: "Low-cost retail. Minimal impact on financial health.",
+        alternatives: []
+      },
+      {
+        id: 504, name: "Uniqlo", category: "Retail", dangerLevel: "warning", avgSpend: 180,
+        runwayDrop: 1.1, resilienceDrop: 1.5,
+        advice: "Clothing purchase. Check if you have similar items purchased this month.",
+        alternatives: [
+          { id: 911, name: "Padini Concept Store", category: "Retail", avgSpend: 90 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 6, name: "Bangsar Shopping Centre", type: "Upscale Boutique Strip", lat: 3.1312, lng: 101.6686, baseZoomLevel: 13,
+    spots: [
+      {
+        id: 601, name: "Antipodean Cafe", category: "Dining", dangerLevel: "warning", avgSpend: 55,
+        runwayDrop: 0.3, resilienceDrop: 0.7,
+        advice: "Brunch culture trap. You've dined out 3 times this week.",
+        alternatives: [
+          { id: 912, name: "Local Hawker Center", category: "Dining", avgSpend: 15 }
+        ]
+      },
+      {
+        id: 602, name: "Bangsar Village Wine Shop", category: "Retail", dangerLevel: "critical", avgSpend: 200,
+        runwayDrop: 1.2, resilienceDrop: 2.0,
+        advice: "Alcohol purchase. Remember your commitment to reduce discretionary spending.",
+        alternatives: []
+      }
+    ]
+  },
+  {
+    id: 7, name: "Mont Kiara", type: "Expat Hub", lat: 3.1749, lng: 101.6514, baseZoomLevel: 13,
+    spots: [
+      {
+        id: 701, name: "The Great Escape", category: "Dining", dangerLevel: "warning", avgSpend: 70,
+        runwayDrop: 0.4, resilienceDrop: 0.9,
+        advice: "Popular brunch spot with premium pricing.",
+        alternatives: [
+          { id: 913, name: "Kiara Cafe", category: "Dining", avgSpend: 25 }
+        ]
+      },
+      {
+        id: 702, name: "TMC Gym", category: "Fitness", dangerLevel: "warning", avgSpend: 250,
+        runwayDrop: 1.5, resilienceDrop: 2.0,
+        advice: "Premium gym membership. Evaluate if you'll use it consistently.",
+        alternatives: [
+          { id: 914, name: "Community Park", category: "Fitness", avgSpend: 0 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 8, name: "Petaling Jaya (PJU)", type: "Suburban Commercial", lat: 3.1073, lng: 101.6067, baseZoomLevel: 12,
+    spots: [
+      {
+        id: 801, name: "SS2 Durian Stalls", category: "Food", dangerLevel: "safe", avgSpend: 50,
+        runwayDrop: 0.3, resilienceDrop: 0.2,
+        advice: "Local delicacy. One-time treat is acceptable.",
+        alternatives: []
+      },
+      {
+        id: 802, name: "Jaya Grocer", category: "Groceries", dangerLevel: "safe", avgSpend: 120,
+        runwayDrop: 0.7, resilienceDrop: 0.3,
+        advice: "Essential grocery shopping. Use your 'variableBudget' pocket.",
+        alternatives: []
+      }
+    ]
+  },
+  {
+    id: 9, name: "Damansara Heights", type: "Affluent District", lat: 3.1333, lng: 101.6719, baseZoomLevel: 14,
+    spots: [
+      {
+        id: 901, name: "The Poke Bowl Co", category: "Dining", dangerLevel: "warning", avgSpend: 45,
+        runwayDrop: 0.3, resilienceDrop: 0.6,
+        advice: "Healthy but pricey lunch option.",
+        alternatives: [
+          { id: 915, name: "Economy Rice", category: "Dining", avgSpend: 12 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 10, name: "Chow Kit", type: "Bustling Market Area", lat: 3.1674, lng: 101.7042, baseZoomLevel: 14,
+    spots: [
+      {
+        id: 1001, name: "Chow Kit Night Market", category: "Market", dangerLevel: "safe", avgSpend: 40,
+        runwayDrop: 0.2, resilienceDrop: 0.1,
+        advice: "Bargain hunting opportunity. Great for saving money!",
+        alternatives: []
+      }
+    ]
+  },
+  {
+    id: 11, name: "KL Sentral", type: "Transit Hub", lat: 3.1345, lng: 101.6863, baseZoomLevel: 12,
+    spots: [
+      {
+        id: 1101, name: "Nu Sentral Mall", category: "Retail", dangerLevel: "safe", avgSpend: 80,
+        runwayDrop: 0.5, resilienceDrop: 0.3,
+        advice: "Convenient shopping but be mindful of impulse buys during transit.",
+        alternatives: []
+      }
+    ]
+  },
+  {
+    id: 12, name: "Subang Jaya SS15", type: "Student Hub", lat: 3.0751, lng: 101.5862, baseZoomLevel: 13,
+    spots: [
+      {
+        id: 1201, name: "SS15 Bubble Tea Street", category: "Food", dangerLevel: "warning", avgSpend: 18,
+        runwayDrop: 0.1, resilienceDrop: 0.3,
+        advice: "Frequent bubble tea purchases add up. You've bought 7 this month.",
+        alternatives: [
+          { id: 916, name: "Homemade Tea", category: "Beverage", avgSpend: 2 }
+        ]
+      }
+    ]
+  }
+];
 
 export default function LocationRadar() {
-  // Google Map Components type bypassing
   const MapComp = GoogleMap as any;
   const MarkerComp = Marker as any;
   const InfoWindowComp = InfoWindow as any;
   const LoadScriptComp = LoadScript as any;
 
-  // --- Hackathon Mock Data: High-Spend Zones ---
-  const zones: Zone[] = [
-    {
-      id: 1, name: "Pavilion Kuala Lumpur", type: "Luxury Retail & Dining Hub", lat: 3.1488, lng: 101.7133, baseZoomLevel: 10,
-      spots: [
-        {
-          id: 101, name: "Premium Omakase Dining", category: "Dining", dangerLevel: "critical", avgSpend: 850,
-          runwayDrop: 5.2, resilienceDrop: 8.5,
-          advice: "Severe risk. This single transaction accounts for 30% of your monthly variable budget. It directly conflicts with your 'Emergency Fund' goal.",
-          alternatives: [
-            { id: 901, name: "Tokyo Street Food Hall", category: "Dining", avgSpend: 45 },
-            { id: 902, name: "Suki-Ya Pavilion", category: "Dining", avgSpend: 85 }
-          ]
-        },
-        {
-          id: 102, name: "Luxury Designer Boutique", category: "Retail", dangerLevel: "critical", avgSpend: 3200,
-          runwayDrop: 18.5, resilienceDrop: 15.0,
-          advice: "Critical warning. Purchasing luxury goods right now will break your 14-day saving streak and severely compromise your financial runway.",
-          alternatives: [
-            { id: 903, name: "High-Street Fashion Brands", category: "Retail", avgSpend: 250 }
-          ]
-        },
-        {
-          id: 103, name: "Artisan Coffee Roastery", category: "Cafe", dangerLevel: "warning", avgSpend: 35,
-          runwayDrop: 0.2, resilienceDrop: 1.0,
-          advice: "Borderline impulse. While affordable, frequenting premium cafes forms a micro-drain pattern on your liquidity.",
-          alternatives: [
-            { id: 904, name: "Local Kopitiam", category: "Cafe", avgSpend: 12 }
-          ]
-        }
-      ]
-    },
-    {
-      id: 2, name: "The Exchange TRX", type: "Financial & Lifestyle District", lat: 3.1419, lng: 101.7186, baseZoomLevel: 12,
-      spots: [
-        {
-          id: 201, name: "Gordon Ramsay Bar & Grill", category: "Dining", dangerLevel: "critical", avgSpend: 600,
-          runwayDrop: 3.8, resilienceDrop: 5.0,
-          advice: "High-friction transaction. Unless this is a pre-planned milestone celebration, this breaks your behavioral discipline framework.",
-          alternatives: []
-        },
-        {
-          id: 202, name: "% Arabica Coffee", category: "Cafe", dangerLevel: "warning", avgSpend: 28,
-          runwayDrop: 0.1, resilienceDrop: 0.5,
-          advice: "Acceptable occasionally, but triggers our 'Latte Factor' alert. You've purchased 4 similar items this week.",
-          alternatives: [
-            { id: 905, name: "Zus Coffee", category: "Cafe", avgSpend: 10 }
-          ]
-        }
-      ]
-    },
-    {
-      id: 3, name: "Changkat Bukit Bintang", type: "Nightlife & Entertainment", lat: 3.1475, lng: 101.7082, baseZoomLevel: 14,
-      spots: [
-        {
-          id: 301, name: "Premium Cocktail Bar", category: "Nightlife", dangerLevel: "critical", avgSpend: 250,
-          runwayDrop: 1.5, resilienceDrop: 3.0,
-          advice: "Late-night vulnerability detected. Alcohol-related environments significantly lower financial inhibition. System recommends exiting the zone.",
-          alternatives: []
-        }
-      ]
-    },
-    {
-      id: 4, name: "Suria KLCC", type: "Iconic Retail Hub", lat: 3.1578, lng: 101.7119, baseZoomLevel: 10,
-      spots: [
-         {
-          id: 401, name: "Flagship Tech Store", category: "Electronics", dangerLevel: "warning", avgSpend: 4500,
-          runwayDrop: 25.0, resilienceDrop: 20.0,
-          advice: "Major capital expenditure. Ensure this is drawn from your 'Future Expenses' pocket, not your emergency fund.",
-          alternatives: []
-        }
-      ]
-    }
-  ];
-
-  // --- State Management ---
   const [mapZoom, setMapZoom] = useState<number>(14);
+  const [mapCenter, setMapCenter] = useState(center);
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
   const [selectedSpotId, setSelectedSpotId] = useState<number | null>(null);
+  const [nearbyZoneCount, setNearbyZoneCount] = useState<number>(0);
+  const [showNearbyHint, setShowNearbyHint] = useState<boolean>(false);
   
   const mapRef = useRef<google.maps.Map | null>(null);
+  const hintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const selectedZone = zones.find(z => z.id === selectedZoneId);
   const selectedSpot = selectedZone?.spots.find(s => s.id === selectedSpotId);
 
-  // --- Handlers ---
+  // --- Calculate visible zones based on current map bounds ---
+  const updateNearbyZones = useCallback(() => {
+    if (!mapRef.current) return;
+    
+    const bounds = mapRef.current.getBounds();
+    if (!bounds) return;
+    
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    
+    const visibleZones = zones.filter(zone => {
+      return zone.lat >= sw.lat() && zone.lat <= ne.lat() && zone.lng >= sw.lng() && zone.lng <= ne.lng();
+    });
+    
+    const newCount = visibleZones.length;
+    setNearbyZoneCount(newCount);
+    
+    // Show hint when moving to areas with zones (but not if already selected a zone)
+    if (newCount > 0 && !selectedZoneId) {
+      setShowNearbyHint(true);
+      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+      hintTimeoutRef.current = setTimeout(() => setShowNearbyHint(false), 5000);
+    }
+  }, [selectedZoneId]);
+
   const onLoad = useCallback(function callback(m: google.maps.Map) {
     mapRef.current = m;
     setMapZoom(m.getZoom() || 14);
-  }, []);
+    setMapCenter(m.getCenter()?.toJSON() || center);
+    
+    // Set up idle listener to detect bounds changes
+    m.addListener("idle", () => {
+      setMapZoom(m.getZoom() || 14);
+      const newCenter = m.getCenter()?.toJSON();
+      if (newCenter) setMapCenter(newCenter);
+      updateNearbyZones();
+    });
+    
+    // Initial calculation
+    setTimeout(updateNearbyZones, 500);
+  }, [updateNearbyZones]);
 
   const onZoomChanged = useCallback(() => {
     if (mapRef.current) {
       setMapZoom(mapRef.current.getZoom() || 14);
+      updateNearbyZones();
     }
-  }, []);
+  }, [updateNearbyZones]);
+
+  // Ensure nearby zones recalc when selection changes (map may have moved behind the scenes)
+  useEffect(() => {
+    updateNearbyZones();
+  }, [selectedZoneId, updateNearbyZones]);
 
   // Filter zones based on current zoom level (Semantic Zoom simulation)
   const visibleZones = zones.filter(zone => mapZoom >= zone.baseZoomLevel);
@@ -146,13 +378,25 @@ export default function LocationRadar() {
   const handleZoneClick = (zone: Zone) => {
     setSelectedZoneId(zone.id);
     setSelectedSpotId(null);
+    setShowNearbyHint(false);
     mapRef.current?.panTo({ lat: zone.lat, lng: zone.lng });
-    mapRef.current?.setZoom(16); // Zoom in closely to the selected zone
+    mapRef.current?.setZoom(16);
+  };
+
+  const handleBackToList = () => {
+    setSelectedSpotId(null);
+  };
+
+  const handleBackToMap = () => {
+    setSelectedZoneId(null);
+    setSelectedSpotId(null);
   };
 
   const renderIcon = (category: string) => {
-    if (category.includes("Cafe")) return <Coffee size={18} />;
-    if (category.includes("Dining") || category.includes("Food")) return <Utensils size={18} />;
+    const cat = category.toLowerCase();
+    if (cat.includes("cafe") || cat.includes("coffee")) return <Coffee size={18} />;
+    if (cat.includes("dining") || cat.includes("food") || cat.includes("brunch")) return <Utensils size={18} />;
+    if (cat.includes("wellness") || cat.includes("spa") || cat.includes("fitness") || cat.includes("gym")) return <MapIcon size={18} />;
     return <ShoppingBag size={18} />;
   };
 
@@ -162,7 +406,6 @@ export default function LocationRadar() {
     return "text-safe";
   };
 
-  // Dark Map styling seamlessly blending with Dashboard (#0C0121)
   const mapOptions: google.maps.MapOptions = {
     disableDefaultUI: true,
     styles: [
@@ -178,8 +421,7 @@ export default function LocationRadar() {
     ]
   };
 
-  // Use your real API Key
-  const GOOGLE_MAPS_API_KEY = "AIzaSyCM9IUKisgyTl3n9UTOH6A7P-m6CIyAJq8"; 
+  const GOOGLE_MAPS_API_KEY = "AIzaSyCM9IUKisgyTl3n9UTOH6A7P-m6CIyAJq8";
 
   return (
     <div className="location-container gx-theme">
@@ -200,7 +442,7 @@ export default function LocationRadar() {
               onZoomChanged={onZoomChanged}
               options={mapOptions}
             >
-              {/* Plot High-Spend Zones instead of individual spots */}
+              {/* Plot all zones that are visible based on zoom level */}
               {visibleZones.map(zone => (
                 <MarkerComp
                   key={zone.id}
@@ -213,32 +455,61 @@ export default function LocationRadar() {
                     strokeWeight: 0,
                     scale: selectedZoneId === zone.id ? 2 : 1.5,
                   }}
-                >
-                  {/* Tooltip on hover/select */}
-                  {selectedZoneId === zone.id && (
-                    <InfoWindowComp onCloseClick={() => setSelectedSpotId(null)}>
-                      <div className="map-tooltip">
-                        <strong>{zone.name}</strong>
-                        <span>{zone.spots.length} High-Risk Spots</span>
-                      </div>
-                    </InfoWindowComp>
-                  )}
-                </MarkerComp>
+                />
               ))}
               
-              {/* Optional: Your current location */}
+              {/* Current User Location Marker */}
               <MarkerComp 
                 position={{ lat: 3.1455, lng: 101.7100 }} 
                 icon="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" 
               />
+
+              {/* Show InfoWindow on selected zone */}
+              {selectedZoneId && (
+                <InfoWindowComp
+                  position={{ lat: zones.find(z => z.id === selectedZoneId)?.lat || 0, lng: zones.find(z => z.id === selectedZoneId)?.lng || 0 }}
+                  onCloseClick={handleBackToMap}
+                >
+                  <div className="map-tooltip">
+                    <strong>{selectedZone?.name}</strong>
+                    <span>{selectedZone?.spots.length} monitored spots inside</span>
+                  </div>
+                </InfoWindowComp>
+              )}
             </MapComp>
           </LoadScriptComp>
           
+          {/* HUD Overlay */}
           <div className="radar-hud-overlay">
             <span>ZOOM: {mapZoom.toFixed(1)}x</span>
             <span>TARGETS: {visibleZones.length}</span>
             <span>SYS: ONLINE</span>
           </div>
+          
+          {/* Nearby Zones Hint - appears when moving to new area with zones */}
+          {showNearbyHint && nearbyZoneCount > 0 && !selectedZoneId && (
+            <div style={{
+              position: "absolute",
+              bottom: "20px",
+              left: "20px",
+              right: "20px",
+              background: "rgba(16, 185, 129, 0.9)",
+              backdropFilter: "blur(8px)",
+              padding: "10px 16px",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              fontSize: "0.85rem",
+              fontWeight: 500,
+              color: "#0C0121",
+              zIndex: 10,
+              animation: "slideInUp 0.3s ease-out"
+            }}>
+              <Eye size={18} />
+              <span>{nearbyZoneCount} commercial zone(s) detected nearby. Click a pin to inspect.</span>
+            </div>
+          )}
         </div>
 
         {/* RIGHT: Dynamic Info Panel */}
@@ -248,6 +519,12 @@ export default function LocationRadar() {
             <div className="spot-detail-card empty-detail">
               <Target size={48} />
               <p>Select a High-Spend Zone on the map to run a financial environment scan.</p>
+              {nearbyZoneCount > 0 && (
+                <div style={{ marginTop: "1rem", fontSize: "0.8rem", color: "#10b981", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <MapPin size={14} />
+                  <span>{nearbyZoneCount} zones nearby — click a marker to inspect</span>
+                </div>
+              )}
             </div>
           ) : !selectedSpot ? (
              /* STATE 1: Zone Selected, Show Spots List */
@@ -281,12 +558,32 @@ export default function LocationRadar() {
                   ))}
                 </div>
               </div>
+              
+              <button 
+                onClick={handleBackToMap}
+                style={{
+                  marginTop: "1.5rem",
+                  background: "none",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "12px",
+                  padding: "0.75rem",
+                  color: "#94a3b8",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  fontSize: "0.85rem"
+                }}
+              >
+                ← Back to Map
+              </button>
             </div>
           ) : (
             /* STATE 2: Spot Selected, Show Financial Audit Details */
             <div className="spot-detail-card animate-slide-in">
-              <button className="back-to-zone-btn" onClick={() => setSelectedSpotId(null)}>
-                <ArrowLeft size={16} /> Back to Zone
+              <button className="back-to-zone-btn" onClick={handleBackToList}>
+                <ArrowLeft size={16} /> Back to {selectedZone?.name}
               </button>
 
               <div className="detail-header">
@@ -298,7 +595,7 @@ export default function LocationRadar() {
                   <span className={`spend-amount ${getDangerColor(selectedSpot.dangerLevel)}`}>
                     RM {selectedSpot.avgSpend}
                   </span>
-                  <span className="spend-label">Avg. Google Spend</span>
+                  <span className="spend-label">Avg. Transaction</span>
                 </div>
               </div>
 
