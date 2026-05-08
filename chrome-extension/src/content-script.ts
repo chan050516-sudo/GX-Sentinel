@@ -123,6 +123,7 @@ style.textContent = `
   .gx-v-index { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 12px; margin-bottom:10px;}
   .gx-alt-box { display: flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.1); border: 1px dashed rgba(16,185,129,0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
   
+
   /* WhatsApp Style Chat UI */
   .gx-chat-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
   .gx-chat-msg { padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.4; max-width: 85%; animation: gxPopIn 0.3s ease; }
@@ -134,6 +135,29 @@ style.textContent = `
   .gx-chat-input:focus { border-color: #771FFF; }
   .gx-chat-send { background: #771FFF; color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: bold; transition: 0.2s; }
   .gx-chat-send:hover { background: #6014d4; }
+
+  .gx-btn-group { display: flex; gap: 10px; margin-top: 15px; }
+  
+  .gx-btn-abort {
+    flex: 1; background: #10b981; color: white; border: none; 
+    padding: 10px; border-radius: 10px; cursor: pointer; 
+    font-weight: 700; transition: all 0.2s;
+  }
+  .gx-btn-abort:hover { background: #059669; transform: translateY(-2px); }
+
+  .gx-btn-proceed {
+    flex: 1; background: transparent; color: #94a3b8; 
+    border: 1px solid rgba(148, 163, 184, 0.3); 
+    padding: 10px; border-radius: 10px; cursor: pointer; 
+    transition: all 0.2s;
+  }
+  .gx-btn-proceed:hover { border-color: #f43f5e; color: #f43f5e; }
+
+  .gx-outcome-stats {
+    margin-top: 8px; font-size: 12px; font-family: monospace;
+  }
+  .gx-stat-negative { color: #f43f5e; font-weight: bold; }
+  .gx-stat-positive { color: #10b981; font-weight: bold; }
 `;
 document.head.appendChild(style);
 
@@ -168,17 +192,17 @@ const scenarios = {
     tiktok: {
         state: "warning",
         html: `
-            <div class="gx-msg-header warning">⚠️ Semantic Audit: High-Risk Trigger</div>
-            <p>Video context matches 'Sponsored Content' with 85% probability. Real Google Rating for this item is <strong style="color:white">3.2/5</strong>.</p>
-            <div class="gx-v-index">Value Index (V-Index): <strong style="color:#f43f5e">0.34</strong></div>
-            <p style="color:#94a3b8; font-size:11px;">Recommendation: Enforce a 72-hour cooling period. Save this fund to secure your '4.0 GPA Rewards' goal.</p>
+            <div class="gx-msg-header warning">⚠️ Multiple Risk Factors Detected</div>
+            <p>System detected <strong>late-night impulsive decision window</strong> and <strong>consecutive stacking of similar purchases</strong>. Matches 'Sponsored Content' (85%).</p>
+            <div class="gx-v-index">Potential long-term opportunity value: <strong style="color:#f43f5e">RM 1,248.90</strong></div>
+            <p style="color:#94a3b8; font-size:11px;">Strong Recommendation: Enforce a 72-hour cooling period to protect your '4.0 GPA Rewards' goal.</p>
         `
     },
     agoda: {
         state: "suggesting",
         html: `
-            <div class="gx-msg-header success">🎯 Dynamic Budget Alert</div>
-            <p>Target hotel (RM 800/night) reduces your financial runway by <strong style="color:white">6.5 Days</strong>.</p>
+            <div class="gx-msg-header success">🎯 Goal Alignment Opportunity</div>
+            <p>This RM 800/night hotel consumes <strong style="color:#f43f5e">15.5%</strong> of your progress towards 'Buy a Car' and drops runway by 6.5 days.</p>
             <div class="gx-alt-box">
                 <div style="flex:1">
                     <span style="font-size:11px; color:#10b981">Optimal Alternative Found: 500m away</span><br/>
@@ -186,14 +210,14 @@ const scenarios = {
                 </div>
                 <span style="color:#10b981">➔</span>
             </div>
-            <p style="color:#94a3b8; font-size:11px;">Switching saves 3.5 days of runway. Resilience Score maintained.</p>
+            <p style="color:#94a3b8; font-size:11px;">Switching saves 3.5 days of runway. Your 14-day saving streak remains intact.</p>
         `
     },
     coding: {
         state: "analyzing",
         html: `
-            <div class="gx-msg-header neutral">✨ High Utility Detected</div>
-            <p>Software Engineering resource detected. This high-leverage investment strictly aligns with your RM 6,000 starting salary goal.</p>
+            <div class="gx-msg-header neutral">✨ Utility: High Priority</div>
+            <p>Software Engineering resource detected. This expenditure is highly consistent with your long-term career investment strategy.</p>
             <p style="color:#94a3b8; font-size:11px;">System Pre-authorized. Frictionless checkout available via 'Future Expenses' pocket.</p>
         `
     }
@@ -218,7 +242,7 @@ function triggerStandardScenario(scenarioKey: 'tiktok' | 'agoda' | 'coding') {
 }
 
 // ==========================================
-// 4. WhatsApp-Style Chat (Alt + 4)
+// 4. WhatsApp-Style Interaction (Alt + 4)
 // ==========================================
 function triggerDialogueScenario() {
     clearTimeout(analysisTimeout);
@@ -227,9 +251,9 @@ function triggerDialogueScenario() {
     petContainer.className = 'gx-pet-container warning';
     bubble.className = 'show warning';
     bubble.innerHTML = `
-        <div class="gx-msg-header warning">🛑 Critical Interception</div>
+        <div class="gx-msg-header warning">🛑 Behavioral Friction Triggered</div>
         <div class="gx-chat-container">
-            <div class="gx-chat-msg gx-chat-ai">This RM 850 sneaker purchase severely damages your runway. Provide a rational justification to proceed.</div>
+            <div class="gx-chat-msg gx-chat-ai">System detected heavy depletion of your variable balance. You currently hold a <strong>14-day perfect saving streak</strong>. How does this RM 850 sneaker align with your current goals?</div>
         </div>
         <div class="gx-chat-input-row">
             <input type="text" id="gx-demo-input" class="gx-chat-input" value="It's limited edition, I can resell it." />
@@ -243,7 +267,7 @@ function triggerDialogueScenario() {
         petContainer.className = 'gx-pet-container analyzing';
         bubble.className = 'show analyzing';
         bubble.innerHTML = `
-            <div class="gx-msg-header neutral">🔄 AI Auditing...</div>
+            <div class="gx-msg-header neutral">🔄 Processing Behavioral Logic...</div>
             <div class="gx-chat-container">
                 <div class="gx-chat-msg gx-chat-user">${userText}</div>
             </div>
@@ -253,16 +277,59 @@ function triggerDialogueScenario() {
             petContainer.className = 'gx-pet-container warning';
             bubble.className = 'show warning';
             bubble.innerHTML = `
-                <div class="gx-msg-header warning">❌ Audit Failed</div>
+                <div class="gx-msg-header warning">⚠️ Decision Inconsistent with Goals</div>
                 <div class="gx-chat-container">
                     <div class="gx-chat-msg gx-chat-user">${userText}</div>
                     <div class="gx-chat-msg gx-chat-ai">
-                        <strong>AI Verdict: REJECTED</strong><br/>
-                        Historical data shows 0% resell success rate. This is emotional spending. Transaction BLOCKED.
+                        Similar past purchases showed weak long-term financial return. This purchase appears financially inconsistent with your current priorities.<br/><br/>
+                        <strong>Strong Recommendation: Delay Purchase.</strong>
                     </div>
                 </div>
+                <div class="gx-btn-group">
+                    <button id="gx-demo-abort" class="gx-btn-abort">Cancel Purchase</button>
+                    <button id="gx-demo-proceed" class="gx-btn-proceed">Proceed Anyway</button>
+                </div>
             `;
-        }, 1500);
+
+            // User abort to purchase
+            document.getElementById('gx-demo-abort')!.onclick = () => {
+                petContainer.className = 'gx-pet-container suggesting'; // Looi 变开心
+                bubble.className = 'show suggesting';
+                bubble.innerHTML = `
+                    <div class="gx-msg-header success">✨ Resilience Protected</div>
+                    <div class="gx-chat-container">
+                        <div class="gx-chat-msg gx-chat-ai" style="background:rgba(16,185,129,0.1); border-color:#10b981;">
+                            Good decision. You stayed aligned with your future goals.<br/>
+                            <div class="gx-outcome-stats">
+                                <span class="gx-stat-positive">Resilience Score ↑ 2.5</span><br/>
+                                <span class="gx-stat-positive">14-day streak intact</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                setTimeout(hideSentinel, 4000);
+            };
+
+            // User persists to purchase
+            document.getElementById('gx-demo-proceed')!.onclick = () => {
+                petContainer.className = 'gx-pet-container idle';
+                bubble.className = 'show warning';
+                bubble.innerHTML = `
+                    <div class="gx-msg-header warning">📉 Friction Bypassed</div>
+                    <div class="gx-chat-container">
+                        <div class="gx-chat-msg gx-chat-ai">
+                            Transaction acknowledged. Your risk profile has been updated.<br/>
+                            <div class="gx-outcome-stats">
+                                <span class="gx-stat-negative">Runway ↓ 0.2 Days</span><br/>
+                                <span class="gx-stat-negative">Resilience Score ↓ 1.3</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                setTimeout(hideSentinel, 3500);
+            };
+
+        }, 1800);
     };
 }
 
