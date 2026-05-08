@@ -318,7 +318,7 @@ export default function SocialCircle() {
           {/* Reward Redemption Vault */}
           <div className="stats-card reward-vault">
             <div className="card-header-row">
-                <h3><ShoppingBag size={18} className="header-icon" /> Reward Vault</h3>
+                <h3><ShoppingBag size={18} className="header-icon" /> GX Reward</h3>
             </div>
             
             <div className="reward-list-scrollable">
