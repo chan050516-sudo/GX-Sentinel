@@ -192,8 +192,9 @@
 .messages-area::-webkit-scrollbar {
   width: 6px;
 }
+
 .messages-area::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
 }
 
@@ -399,3 +400,38 @@
   }
 }
 
+/* 修改现有的 message-bubble，加入 pre-wrap 以支持换行 */
+.message-bubble {
+  padding: 1rem 1.2rem;
+  border-radius: 16px;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  /* 这是让多行文本保留换行的关键 */
+}
+
+/* 新增：聊天框内的下载报告按钮样式 */
+.chat-download-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  /* 搭配你的 positive 绿色主题 */
+  padding: 0.7rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+  align-self: flex-start;
+  font-family: inherit;
+}
+
+.chat-download-btn:hover {
+  background: rgba(16, 185, 129, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
