@@ -7,15 +7,27 @@ export default function GeoNotification() {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
-  // 模拟：页面加载 3 秒后，用户“走入”了高消费区
+  // Global keyboard event listener
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShow(true);
-    }, 3000);
-    return () => clearTimeout(timer);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'n') {
+        setShow(true);
+      }
+      // Esc to exit
+      if (e.key === 'Escape') {
+        setShow(false);
+      }
+    };
+
+    // Global listening
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Clean Up Function
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
-  if (!show) return null;
 
   return (
     <div className={`geo-notification-wrapper ${show ? 'show' : ''}`}>
@@ -23,7 +35,9 @@ export default function GeoNotification() {
         className="geo-notification"
         onClick={() => {
           setShow(false);
-          navigate('/location'); // 点击后跳转到地图页
+          setTimeout(() => {
+            navigate('/location'); 
+          }, 300);
         }}
       >
         <div className="geo-icon-box">
@@ -31,7 +45,7 @@ export default function GeoNotification() {
         </div>
         <div className="geo-text-box">
           <strong>High-Spend Zone Detected</strong>
-          <span>You are near Starbucks Reserve (Avg RM25)</span>
+          <span>Entering Pavilion KL area. Radar scan active.</span>
         </div>
         <div className="geo-action">
           <ChevronRight size={20} />

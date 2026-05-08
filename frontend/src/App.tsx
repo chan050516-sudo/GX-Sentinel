@@ -9,6 +9,7 @@ import SocialCircle from "./pages/SocialCircle";
 import Sidebar from "./components/Sidebar";
 import FloatingMentor from "./components/FloatingMentor";
 import LocationRadar from "./pages/LocationRadar";
+import GeoNotification from "./components/GeoNotification";
 import "./App.css";
 
 // Wrapper to handle layout based on route
@@ -20,6 +21,7 @@ function AppLayout() {
     <div className={`app-wrapper ${hideSidebar ? 'no-sidebar' : ''}`}>
       <Sidebar />
       <FloatingMentor />
+      <GeoNotification />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<Login />} />
