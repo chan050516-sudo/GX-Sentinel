@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Header
-from ..model.models import ManualTransactionRequest, ManualTransactionResponse, UserDashboardResponse
+from model.models import ManualTransactionRequest, ManualTransactionResponse, UserDashboardResponse
 
 # 引入刚刚写好的 service
-from ..services import transaction_service
+from services import transaction_service
 
 router = APIRouter(prefix="/transaction", tags=["transaction"])
 

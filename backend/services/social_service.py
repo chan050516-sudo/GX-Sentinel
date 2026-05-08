@@ -1,10 +1,6 @@
 from datetime import datetime
-from ..model.models import (
-    LeaderboardResponse, LeaderboardEntry, BonusStatusResponse, 
-    StreakChallengeResponse, FriendStreak, SupportResponse
-)
-# 注意：确保引入了 update_user 以便我们保存支持记录
-from ..firebase.crud import get_user, update_user
+from model.models import LeaderboardResponse, LeaderboardEntry, BonusStatusResponse, StreakChallengeResponse, FriendStreak
+from firebase.crud import get_user
 
 def get_leaderboard_data(user_id: str) -> LeaderboardResponse:
     #ranking

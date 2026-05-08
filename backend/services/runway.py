@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any
 
 def calculate_runway_impact(
@@ -64,3 +64,68 @@ def check_goal_conflict(
         }
     
     return {"has_conflict": False, "conflict_message": "", "affected_goal": None}
+
+
+
+# Dynamic calculation of goals' saved amount allocation
+def calculate_auto_goal_allocations(amount_to_add: float, active_goals: List[Dict[str, Any]]) -> Dict[str, float]:
+
+    if amount_to_add <= 0 or not active_goals:
+        return {}
+
+    now = datetime.now(timezone.utc)
+    goal_allocations = {}
+    remaining_amount = amount_to_add
+
+    # Use while to prevent Overflow
+    while remaining_amount > 0.01:
+        # 1. Check for active goals
+        pending_goals = []
+        for g in active_goals:
+            gid = g.get('goalId')
+            # Gap = Target - Saved - Allocated this time
+            current_gap = g.get('targetAmount', 0) - g.get('savedAmount', 0) - goal_allocations.get(gid, 0)
+            if current_gap > 0.01:
+                pending_goals.append((g, current_gap))
+        if not pending_goals:
+            break
+
+        # 2. Weightage calculation
+        weights = {}
+        total_weight = 0.0
+        
+        for g, gap in pending_goals:
+            deadline = g.get('deadline')
+            # Default as 30 if no deadline mentioned
+            if deadline:
+                if deadline.tzinfo is None:
+                    deadline = deadline.replace(tzinfo=timezone.utc)
+                days_left = max((deadline - now).days, 1)
+            else:
+                days_left = 30
+            
+            # Formula：Gap / Days remaining to deadline
+            weight = gap / days_left 
+            weights[g.get('goalId')] = weight
+            total_weight += weight
+
+        # Safety: Evenly distributed if zero weightage
+        if total_weight <= 0:
+            total_weight = len(pending_goals)
+            weights = {g.get('goalId'): 1.0 for g, _ in pending_goals}
+
+        # 3. Distribute remaining_amount based on weightage
+        amount_distributed_this_round = 0.0
+        for g, gap in pending_goals:
+            gid = g.get('goalId')
+            share = remaining_amount * (weights[gid] / total_weight)
+            
+            actual_add = min(share, gap)
+            
+            goal_allocations[gid] = goal_allocations.get(gid, 0.0) + actual_add
+            amount_distributed_this_round += actual_add
+
+        remaining_amount -= amount_distributed_this_round
+
+    # Round off
+    return {k: round(v, 2) for k, v in goal_allocations.items() if v > 0}

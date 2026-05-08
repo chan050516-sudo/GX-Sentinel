@@ -47,27 +47,36 @@ class RecommendedAllocation(BaseModel):
     savingsPockets: AllocationRange
 
 
-class AllocatorAnalyzeRequest(BaseModel):
-    amount: float
-    source: Literal["salary", "ptptn", "scholarship", "refund"]
+# class AllocatorAnalyzeRequest(BaseModel):
+#     amount: float
+#     source: Literal["salary", "ptptn", "scholarship", "refund"]
 
+class PendingIncomeItem(BaseModel):
+    injectionId: str
+    amount: float
+    source: str
+    description: Optional[str] = None
+
+class AllocatorAnalyzeRequest(BaseModel):
+    pendingIncomes: List[PendingIncomeItem]
 
 class AllocatorAnalyzeResponse(BaseModel):
-    recommendedAllocation: RecommendedAllocation
+    isSmartMode: bool
+    totalAmount: float
+    recommendedAllocation: Optional['RecommendedAllocation'] = None
     adviceText: str
     investmentSuggestion: Optional[str] = None
 
-
 class AllocatorConfirmRequest(BaseModel):
-    injectionId: str
-    allocationMap: Dict[str, float]  # {"emergencyFund": 200}
-
+    injectionIds: List[str]                  # Confirm multiple pending transaction at once
+    allocationMap: Dict[str, float]          # e.g. {"emergencyFund": 200}
+    # goalAllocations: Optional[Dict[str, float]] = None
 
 class AllocatorConfirmResponse(BaseModel):
     success: bool
     newBalances: FinancialSections
     runwayRecalc: float
-
+    
 
 # ========== Module 2: Interceptor ==========
 class ProductInfo(BaseModel):
@@ -88,6 +97,7 @@ class InterceptorAnalyzeRequest(BaseModel):
     products: List[ProductInfo]
     totalAmount: float
     isCheckoutPage: bool = True
+    paymentSource: Literal["variableBudget", "emergencyFund", "savingsPockets", "fixedExpenses", "futureExpenses"] = "variableBudget"
 
 
 class InterceptorAnalyzeResponse(BaseModel):
@@ -95,6 +105,7 @@ class InterceptorAnalyzeResponse(BaseModel):
     auditId: str
     observations: InterceptorObservations
     softMessage: Optional[str] = None
+    intentAlert: Optional[str] = None   # For Internal Audit
     runwayDropDays: Optional[float] = None
     delaySeconds: Optional[int] = None
     compoundLossExample: Optional[str] = None
