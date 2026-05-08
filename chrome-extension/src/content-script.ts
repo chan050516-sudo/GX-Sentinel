@@ -1,5 +1,5 @@
 // ==========================================
-// 1. 动态注入 CSS (引入生物运动学图层)
+// 1. 动态注入 CSS (Looi-Style + WhatsApp Chat Style)
 // ==========================================
 const style = document.createElement('style');
 style.textContent = `
@@ -20,7 +20,7 @@ style.textContent = `
     opacity: 1;
   }
   
-  /* 基础外壳 */
+  /* Looi 风格的基础外壳 */
   .gx-pet-container {
     position: relative;
     width: 70px;
@@ -40,144 +40,54 @@ style.textContent = `
     box-shadow: 0 15px 35px rgba(119, 31, 255, 0.4), inset 0 0 20px rgba(119, 31, 255, 0.4);
   }
 
-  /* 图层 1: 躯干层 (负责全局呼吸与挤压拉伸) */
+  /* 生物图层 */
   .gx-pet-breather {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    transform-origin: bottom center; /* 呼吸的重心在底部 */
+    width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; gap: 8px;
+    transform-origin: bottom center;
   }
-
-  /* 图层 2: 眼眶层 (负责视线位移与情绪旋转) */
-  .gx-eye-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  /* 图层 3: 眼球层 (负责形态与眨眼) */
+  .gx-eye-wrap { display: flex; justify-content: center; align-items: center; transition: all 0.4s ease; }
   .gx-eye-inner {
-    width: 14px;
-    height: 32px;
-    background: #e2e8f0;
-    border-radius: 10px;
+    width: 14px; height: 32px; background: #e2e8f0; border-radius: 10px;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    transform-origin: center;
   }
 
-  /* =========================================
-     生物学核心动画定义
-     ========================================= */
-  
-  /* 深呼吸 (Squash & Stretch) */
-  @keyframes bioBreathe {
-    0%, 100% { transform: scale(1, 1) translateY(0); }
-    50% { transform: scale(1.04, 0.94) translateY(2px); }
-  }
-  
-  /* 快速心跳/急促呼吸 */
-  @keyframes bioBreatheFast {
-    0%, 100% { transform: scale(1, 1) translateY(0); }
-    50% { transform: scale(1.06, 0.92) translateY(3px); }
-  }
+  /* 动画组 */
+  @keyframes bioBreathe { 0%, 100% { transform: scale(1, 1) translateY(0); } 50% { transform: scale(1.04, 0.94) translateY(2px); } }
+  @keyframes bioBreatheFast { 0%, 100% { transform: scale(1, 1) translateY(0); } 50% { transform: scale(1.06, 0.92) translateY(3px); } }
+  @keyframes bioBlink { 0%, 88%, 100% { transform: scaleY(1); } 90% { transform: scaleY(0.1); } 92% { transform: scaleY(1); } 94% { transform: scaleY(0.1); } 96% { transform: scaleY(1); } }
+  @keyframes bioLookAround { 0%, 100% { transform: translate(0, 0); } 15%, 25% { transform: translate(-6px, 2px); } 45%, 55% { transform: translate(6px, 0); } 75%, 85% { transform: translate(0, -4px); } }
+  @keyframes bioShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+  @keyframes gxPopIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
 
-  /* 生物级随机眨眼 (含连眨机制) */
-  @keyframes bioBlink {
-    0%, 88%, 100% { transform: scaleY(1); }
-    90% { transform: scaleY(0.1); }
-    92% { transform: scaleY(1); }
-    94% { transform: scaleY(0.1); }
-    96% { transform: scaleY(1); }
-  }
-
-  /* 环境巡视 (眼球转动) */
-  @keyframes bioLookAround {
-    0%, 100% { transform: translate(0, 0); }
-    15%, 25% { transform: translate(-6px, 2px); }
-    45%, 55% { transform: translate(6px, 0); }
-    75%, 85% { transform: translate(0, -4px); } /* 抬头看 */
-  }
-
-  /* 震动 (警报状态) */
-  @keyframes bioShake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    75% { transform: translateX(3px); }
-  }
-
-
-  /* =========================================
-     情绪状态机调度
-     ========================================= */
-
-  /* --- 状态 0: Idle (闲置巡视) --- */
+  /* 状态机 */
   .gx-pet-container.idle .gx-pet-breather { animation: bioBreathe 4s infinite ease-in-out; }
   .gx-pet-container.idle .gx-eye-wrap { animation: bioLookAround 8s infinite; }
   .gx-pet-container.idle .gx-eye-inner { animation: bioBlink 6s infinite; }
 
-  /* --- 状态 1: Analyzing (锁定/思考) --- */
-  .gx-pet-container.analyzing {
-    border-color: #771FFF;
-    box-shadow: 0 0 30px rgba(119, 31, 255, 0.6), inset 0 0 20px rgba(119, 31, 255, 0.5);
-  }
+  .gx-pet-container.analyzing { border-color: #771FFF; box-shadow: 0 0 30px rgba(119, 31, 255, 0.6), inset 0 0 20px rgba(119, 31, 255, 0.5); }
   .gx-pet-container.analyzing .gx-pet-breather { animation: bioBreatheFast 1s infinite ease-in-out; }
   .gx-pet-container.analyzing .gx-eye-wrap { transform: scale(1.15); }
-  .gx-pet-container.analyzing .gx-eye-inner {
-    width: 22px; height: 22px; border-radius: 50%;
-    background: #a78bfa; box-shadow: 0 0 15px #771FFF;
-    animation: bioBlink 4s infinite; /* 思考时也会眨眼 */
-  }
+  .gx-pet-container.analyzing .gx-eye-inner { width: 22px; height: 22px; border-radius: 50%; background: #a78bfa; box-shadow: 0 0 15px #771FFF; animation: bioBlink 4s infinite; }
 
-  /* --- 状态 2: Warning (毒舌/嫌弃) --- */
-  .gx-pet-container.warning {
-    border-color: #f43f5e;
-    box-shadow: 0 0 30px rgba(244, 63, 94, 0.4), inset 0 0 20px rgba(244, 63, 94, 0.3);
-  }
+  .gx-pet-container.warning { border-color: #f43f5e; box-shadow: 0 0 30px rgba(244, 63, 94, 0.4), inset 0 0 20px rgba(244, 63, 94, 0.3); }
   .gx-pet-container.warning .gx-pet-breather { animation: bioBreathe 3s infinite ease-in-out, bioShake 0.5s ease; }
-  .gx-pet-container.warning .gx-eye-wrap:nth-child(1) { transform: rotate(15deg) translateY(4px); } /* 倒八字 */
+  .gx-pet-container.warning .gx-eye-wrap:nth-child(1) { transform: rotate(15deg) translateY(4px); } 
   .gx-pet-container.warning .gx-eye-wrap:nth-child(2) { transform: rotate(-15deg) translateY(4px); }
-  .gx-pet-container.warning .gx-eye-inner {
-    height: 12px;
-    background: #f43f5e;
-    box-shadow: 0 0 15px #f43f5e;
-    border-radius: 4px;
-    animation: bioBlink 5s infinite;
-  }
+  .gx-pet-container.warning .gx-eye-inner { height: 12px; background: #f43f5e; box-shadow: 0 0 15px #f43f5e; border-radius: 4px; animation: bioBlink 5s infinite; }
 
-  /* --- 状态 3: Suggesting (赞赏/月牙眼) --- */
-  .gx-pet-container.suggesting {
-    border-color: #10b981;
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(16, 185, 129, 0.2);
-  }
+  .gx-pet-container.suggesting { border-color: #10b981; box-shadow: 0 0 30px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(16, 185, 129, 0.2); }
   .gx-pet-container.suggesting .gx-pet-breather { animation: bioBreathe 4s infinite ease-in-out; }
-  .gx-pet-container.suggesting .gx-eye-inner {
-    height: 16px;
-    background: #10b981;
-    box-shadow: 0 0 15px #10b981;
-    border-radius: 20px 20px 4px 4px; 
-    transform: translateY(-4px);
-    animation: bioBlink 7s infinite;
-  }
+  .gx-pet-container.suggesting .gx-eye-inner { height: 16px; background: #10b981; box-shadow: 0 0 15px #10b981; border-radius: 20px 20px 4px 4px; transform: translateY(-4px); animation: bioBlink 7s infinite; }
 
-  /* 信息气泡样式保持不变 */
+  /* 气泡样式 */
   #gx-bubble {
-    background: rgba(12, 1, 33, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 1.2rem;
-    border-radius: 16px 16px 4px 16px;
-    width: 320px;
-    color: white;
-    pointer-events: all;
-    transform-origin: bottom right;
+    background: rgba(12, 1, 33, 0.95); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1); padding: 1.2rem;
+    border-radius: 16px 16px 4px 16px; width: 340px; color: white;
+    pointer-events: all; transform-origin: bottom right;
     animation: gxPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-    display: none; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; 
   }
   #gx-bubble.show { display: block; }
   #gx-bubble.analyzing { border-left: 3px solid #771FFF; }
@@ -193,12 +103,22 @@ style.textContent = `
   .gx-v-index { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 12px; margin-bottom:10px;}
   .gx-alt-box { display: flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.1); border: 1px dashed rgba(16,185,129,0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
   
-  @keyframes gxPopIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+  /* WhatsApp Style Chat UI */
+  .gx-chat-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .gx-chat-msg { padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.4; max-width: 85%; animation: gxPopIn 0.3s ease; }
+  .gx-chat-ai { align-self: flex-start; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.05); color: #e2e8f0; border-bottom-left-radius: 2px; }
+  .gx-chat-user { align-self: flex-end; background: #10b981; color: white; border-bottom-right-radius: 2px; }
+  
+  .gx-chat-input-row { display: flex; gap: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+  .gx-chat-input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 10px; color: white; font-size: 13px; outline: none; }
+  .gx-chat-input:focus { border-color: #771FFF; }
+  .gx-chat-send { background: #771FFF; color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+  .gx-chat-send:hover { background: #6014d4; }
 `;
 document.head.appendChild(style);
 
 // ==========================================
-// 2. 构建 DOM 结构 (分离的物理图层)
+// 2. 构建 DOM 结构
 // ==========================================
 const wrapper = document.createElement('div');
 wrapper.id = 'gx-ambient-wrapper';
@@ -210,7 +130,6 @@ const petContainer = document.createElement('div');
 petContainer.id = 'gx-pet';
 petContainer.className = 'gx-pet-container idle';
 
-// 将控制位移的包裹层和控制形变的内层分离
 petContainer.innerHTML = `
   <div class="gx-pet-breather">
     <div class="gx-eye-wrap"><div class="gx-eye-inner"></div></div>
@@ -223,61 +142,112 @@ wrapper.appendChild(petContainer);
 document.body.appendChild(wrapper);
 
 // ==========================================
-// 3. Mock 场景字典与核心逻辑 
+// 3. 场景字典与核心逻辑 (全英文)
 // ==========================================
 const scenarios = {
-    xiaohongshu: {
+    tiktok: {
         state: "warning",
         html: `
-            <div class="gx-msg-header warning">⚠️ 语义审计: 营销高危词</div>
-            <p>当前上下文匹配『商业合作』概率 85%。提取 Google 真实评分为 <strong style="color:white">3.2/5</strong>。</p>
-            <div class="gx-v-index">理性价值指数 (V-Index): <strong style="color:#f43f5e">0.34</strong></div>
-            <p style="color:#94a3b8; font-size:11px;">建议动作: 放入 72 小时冷静期。节省的资金可直接填补你的 4.0 GPA 奖励基金缺口。</p>
+            <div class="gx-msg-header warning">⚠️ Semantic Audit: High-Risk Trigger</div>
+            <p>Video context matches 'Sponsored Content' with 85% probability. Real Google Rating for this item is <strong style="color:white">3.2/5</strong>.</p>
+            <div class="gx-v-index">Value Index (V-Index): <strong style="color:#f43f5e">0.34</strong></div>
+            <p style="color:#94a3b8; font-size:11px;">Recommendation: Enforce a 72-hour cooling period. Save this fund to secure your '4.0 GPA Rewards' goal.</p>
         `
     },
     agoda: {
         state: "suggesting",
         html: `
-            <div class="gx-msg-header success">🎯 动态预算拦截</div>
-            <p>当前目标酒店将导致生存跑道缩短 <strong style="color:white">6.5 天</strong>。</p>
+            <div class="gx-msg-header success">🎯 Dynamic Budget Alert</div>
+            <p>Target hotel (RM 800/night) reduces your financial runway by <strong style="color:white">6.5 Days</strong>.</p>
             <div class="gx-alt-box">
                 <div style="flex:1">
-                    <span style="font-size:11px; color:#10b981">寻找到最优解: 距离 500m</span><br/>
-                    <strong style="color:white">RM 450/晚 (评分 4.7)</strong>
+                    <span style="font-size:11px; color:#10b981">Optimal Alternative Found: 500m away</span><br/>
+                    <strong style="color:white">RM 450/night (Rating 4.7)</strong>
                 </div>
                 <span style="color:#10b981">➔</span>
             </div>
-            <p style="color:#94a3b8; font-size:11px;">替换此项可挽回 3.5 天跑道，维持现有 Resilience Score。</p>
+            <p style="color:#94a3b8; font-size:11px;">Switching saves 3.5 days of runway. Resilience Score maintained.</p>
         `
     },
     coding: {
         state: "analyzing",
         html: `
-            <div class="gx-msg-header neutral">✨ 效用判定: 极高</div>
-            <p>检测到核心技能进阶（Software Engineering）投资意图。此支出属于高杠杆行为，完全符合你冲击 RM 6,000 起薪的底层逻辑。</p>
-            <p style="color:#94a3b8; font-size:11px;">系统已预授权。可从『Future Expenses』中免摩擦划扣。</p>
+            <div class="gx-msg-header neutral">✨ High Utility Detected</div>
+            <p>Software Engineering resource detected. This high-leverage investment strictly aligns with your RM 6,000 starting salary goal.</p>
+            <p style="color:#94a3b8; font-size:11px;">System Pre-authorized. Frictionless checkout available via 'Future Expenses' pocket.</p>
         `
     }
 };
 
 let analysisTimeout: number | undefined;
 
-function triggerScenario(scenarioKey: 'xiaohongshu' | 'agoda' | 'coding') {
+function triggerStandardScenario(scenarioKey: 'tiktok' | 'agoda' | 'coding') {
     clearTimeout(analysisTimeout);
-    
     wrapper.classList.add('visible');
+    
     petContainer.className = 'gx-pet-container analyzing';
     bubble.className = 'show analyzing';
-    bubble.innerHTML = `
-        <div class="gx-msg-header neutral">🔄 正在解析当前语境...</div>
-    `;
+    bubble.innerHTML = `<div class="gx-msg-header neutral">🔄 Parsing Context...</div>`;
 
     analysisTimeout = window.setTimeout(() => {
         const data = scenarios[scenarioKey];
         petContainer.className = `gx-pet-container ${data.state}`;
         bubble.className = `show ${data.state}`;
         bubble.innerHTML = data.html;
-    }, 1500);
+    }, 1200);
+}
+
+// ==========================================
+// 4. WhatsApp-Style 互动对话演示 (Alt + 4)
+// ==========================================
+function triggerDialogueScenario() {
+    clearTimeout(analysisTimeout);
+    wrapper.classList.add('visible');
+    
+    // Step 1: Initial Warning & Input Request
+    petContainer.className = 'gx-pet-container warning';
+    bubble.className = 'show warning';
+    bubble.innerHTML = `
+        <div class="gx-msg-header warning">🛑 Critical Interception</div>
+        <div class="gx-chat-container">
+            <div class="gx-chat-msg gx-chat-ai">This RM 850 sneaker purchase severely damages your runway. Provide a rational justification to proceed.</div>
+        </div>
+        <div class="gx-chat-input-row">
+            <input type="text" id="gx-demo-input" class="gx-chat-input" value="It's limited edition, I can resell it." />
+            <button id="gx-demo-send" class="gx-chat-send">Reply</button>
+        </div>
+    `;
+
+    // Bind Event
+    document.getElementById('gx-demo-send')!.onclick = () => {
+        const userText = (document.getElementById('gx-demo-input') as HTMLInputElement).value;
+        
+        // Step 2: Show User Message & AI Thinking
+        petContainer.className = 'gx-pet-container analyzing';
+        bubble.className = 'show analyzing';
+        bubble.innerHTML = `
+            <div class="gx-msg-header neutral">🔄 AI Auditing...</div>
+            <div class="gx-chat-container">
+                <div class="gx-chat-msg gx-chat-user">${userText}</div>
+            </div>
+        `;
+
+        // Step 3: AI Verdict Reply
+        setTimeout(() => {
+            petContainer.className = 'gx-pet-container warning';
+            bubble.className = 'show warning';
+            bubble.innerHTML = `
+                <div class="gx-msg-header warning">❌ Audit Failed</div>
+                <div class="gx-chat-container">
+                    <div class="gx-chat-msg gx-chat-user">${userText}</div>
+                    <div class="gx-chat-msg gx-chat-ai">
+                        <strong>AI Verdict: REJECTED</strong><br/>
+                        Historical data shows 0% resell success rate. This is emotional spending. Transaction BLOCKED.
+                    </div>
+                </div>
+            `;
+        }, 1500);
+    };
 }
 
 function hideSentinel() {
@@ -290,11 +260,14 @@ function hideSentinel() {
 }
 
 // ==========================================
-// 4. 全局快捷键劫持 (现场演示控制器)
+// 5. 全局快捷键劫持控制器
 // ==========================================
 window.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.altKey && e.key === '0') hideSentinel();
-    if (e.altKey && e.key === '1') triggerScenario('xiaohongshu');
-    if (e.altKey && e.key === '2') triggerScenario('agoda');
-    if (e.altKey && e.key === '3') triggerScenario('coding');
+    if (e.altKey && e.key === '1') triggerStandardScenario('tiktok'); // TikTok
+    if (e.altKey && e.key === '2') triggerStandardScenario('agoda');  // Agoda
+    if (e.altKey && e.key === '3') triggerStandardScenario('coding'); // Utility
+    if (e.altKey && e.key === '4') triggerDialogueScenario();         // Interactive Chat
 });
+
+console.log("GX-Sentinel (Looi x Chat Edition) active. Keys: Alt+1 (TikTok), Alt+2 (Agoda), Alt+3 (Utility), Alt+4 (Chat Demo), Alt+0 (Hide).");
