@@ -1,195 +1,224 @@
-// --- 1. 终极融合版 UI 逻辑 (合并了 overlay-ui 的功能) ---
-function showGXAlert(message: string, triggerLevel: string, delay: number, auditId: string) {
-    if (document.getElementById('gx-sentinel-overlay')) return;
+// ==========================================
+// 1. 动态注入 CSS (规避额外打包配置)
+// ==========================================
+const style = document.createElement('style');
+style.textContent = `
+  #gx-ambient-wrapper {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    z-index: 2147483647;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  #gx-ambient-wrapper.visible {
+    opacity: 1;
+  }
+  
+  /* 赛博核心 (The Sentinel Core) */
+  .gx-core {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: all;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .gx-core:hover { transform: scale(1.1); }
+  
+  .gx-core-inner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #fff;
+    z-index: 10;
+    transition: all 0.5s ease;
+  }
+  
+  .gx-core-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #771FFF 0%, transparent 70%);
+    opacity: 0.8;
+    filter: blur(8px);
+    animation: gxPulseGlow 3s infinite alternate;
+    transition: background 0.5s ease;
+  }
+  
+  .gx-core-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+  }
+  .gx-ring-1 { width: 100%; height: 100%; animation: gxSpinRight 8s linear infinite; }
+  .gx-ring-2 { width: 140%; height: 140%; border-style: dashed; animation: gxSpinLeft 12s linear infinite; opacity: 0.5; }
+  
+  /* 核心状态机映射 */
+  .gx-core.analyzing .gx-core-inner { animation: gxHeartbeat 0.8s infinite; background: #771FFF; box-shadow: 0 0 20px #771FFF;}
+  .gx-core.warning .gx-core-inner { background: #f59e0b; box-shadow: 0 0 20px #f59e0b; }
+  .gx-core.warning .gx-core-glow { background: radial-gradient(circle, rgba(245, 158, 11, 0.8) 0%, transparent 70%); animation: gxPulseRapid 1s infinite; }
+  .gx-core.suggesting .gx-core-inner { background: #10b981; box-shadow: 0 0 20px #10b981; }
+  .gx-core.suggesting .gx-core-glow { background: radial-gradient(circle, rgba(16, 185, 129, 0.8) 0%, transparent 70%); }
+  
+  /* 信息面板 (The Mentor Bubble) */
+  #gx-bubble {
+    background: rgba(12, 1, 33, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.2rem;
+    border-radius: 16px 16px 4px 16px;
+    width: 320px;
+    color: white;
+    pointer-events: all;
+    transform-origin: bottom right;
+    animation: gxPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    display: none; 
+  }
+  #gx-bubble.show { display: block; }
+  #gx-bubble.analyzing { border-left: 3px solid #771FFF; }
+  #gx-bubble.warning { border-left: 3px solid #f59e0b; }
+  #gx-bubble.suggesting { border-left: 3px solid #10b981; }
+  
+  .gx-msg-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: bold; font-size: 14px;}
+  .gx-msg-header.neutral { color: #a78bfa; }
+  .gx-msg-header.warning { color: #f59e0b; }
+  .gx-msg-header.success { color: #10b981; }
+  
+  #gx-bubble p { margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+  .gx-v-index { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 12px; margin-bottom:10px;}
+  .gx-alt-box { display: flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.1); border: 1px dashed rgba(16,185,129,0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
+  .gx-alt-box:hover { background: rgba(16,185,129,0.2); }
+  
+  /* 动画组 */
+  @keyframes gxPopIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes gxPulseGlow { 0% { transform: scale(0.9); } 100% { transform: scale(1.2); } }
+  @keyframes gxPulseRapid { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.3); opacity: 1; } }
+  @keyframes gxHeartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.5); } }
+  @keyframes gxSpinRight { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+  @keyframes gxSpinLeft { 100% { transform: translate(-50%, -50%) rotate(-360deg); } }
+`;
+document.head.appendChild(style);
 
-    const overlay = document.createElement('div');
-    overlay.id = 'gx-sentinel-overlay';
-    
-    // Critical 模式用全屏，Soft 用右侧浮窗
-    const isHard = triggerLevel === 'critical' || triggerLevel === 'friction';
-    
-    overlay.style.cssText = isHard 
-        ? `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; color: #fff; font-family: sans-serif;`
-        : `position: fixed; top: 20px; right: 20px; width: 320px; background: #1a1a1a; color: #fff; border: 2px solid #ff4d4f; padding: 20px; border-radius: 12px; z-index: 9999999; box-shadow: 0 4px 20px rgba(0,0,0,0.5); font-family: sans-serif;`;
+// ==========================================
+// 2. 构建 DOM 结构
+// ==========================================
+const wrapper = document.createElement('div');
+wrapper.id = 'gx-ambient-wrapper';
 
-    let actionContent = ``;
-    if (triggerLevel === 'critical') {
-        // Tier 3: 强制输入理由
-        actionContent = `
-            <textarea id="gx-justify" placeholder="Why is this purchase necessary?" style="width: 80%; max-width: 400px; height: 80px; margin-top: 15px; padding: 10px; border-radius: 8px; color: #000;"></textarea>
-            <button id="gx-submit-btn" disabled style="width: 200px; background: #555; color: white; border: none; padding: 12px; border-radius: 6px; cursor: not-allowed; margin-top: 15px; font-weight: bold;">Wait for timer...</button>
-        `;
-    } else {
-        // Tier 1 & 2: 仅需倒计时确认
-        actionContent = `
-            <button id="gx-close-btn" ${delay > 0 ? 'disabled' : ''} style="width: 100%; background: ${delay > 0 ? '#444' : '#ff4d4f'}; color: white; border: none; padding: 12px; border-radius: 6px; cursor: ${delay > 0 ? 'not-allowed' : 'pointer'}; margin-top: 15px; font-weight: bold;">
-                ${delay > 0 ? `Wait...` : 'I understand'}
-            </button>
-        `;
+const bubble = document.createElement('div');
+bubble.id = 'gx-bubble';
+
+const core = document.createElement('div');
+core.id = 'gx-core';
+core.className = 'gx-core idle';
+core.innerHTML = `
+  <div class="gx-core-glow"></div>
+  <div class="gx-core-inner"></div>
+  <div class="gx-core-ring gx-ring-1"></div>
+  <div class="gx-core-ring gx-ring-2"></div>
+`;
+
+wrapper.appendChild(bubble);
+wrapper.appendChild(core);
+document.body.appendChild(wrapper);
+
+// ==========================================
+// 3. Mock 场景字典与核心逻辑
+// ==========================================
+const scenarios = {
+    xiaohongshu: {
+        state: "warning",
+        html: `
+            <div class="gx-msg-header warning">⚠️ 语义审计: 营销高危词</div>
+            <p>当前上下文匹配『商业合作』概率 85%。提取 Google 真实评分为 <strong style="color:white">3.2/5</strong>。</p>
+            <div class="gx-v-index">理性价值指数 (V-Index): <strong style="color:#f43f5e">0.34</strong></div>
+            <p style="color:#94a3b8; font-size:11px;">建议动作: 放入 72 小时冷静期。节省的资金可直接填补你的 4.0 GPA 奖励基金缺口。</p>
+        `
+    },
+    agoda: {
+        state: "suggesting",
+        html: `
+            <div class="gx-msg-header success">🎯 动态预算拦截</div>
+            <p>当前目标酒店将导致生存跑道缩短 <strong style="color:white">6.5 天</strong>。</p>
+            <div class="gx-alt-box">
+                <div style="flex:1">
+                    <span style="font-size:11px; color:#10b981">寻找到最优解: 距离 500m</span><br/>
+                    <strong style="color:white">RM 450/晚 (评分 4.7)</strong>
+                </div>
+                <span style="color:#10b981">➔</span>
+            </div>
+            <p style="color:#94a3b8; font-size:11px;">替换此项可挽回 3.5 天跑道，维持现有 Resilience Score。</p>
+        `
+    },
+    coding: {
+        state: "analyzing",
+        html: `
+            <div class="gx-msg-header neutral">✨ 效用判定: 极高</div>
+            <p>检测到核心技能进阶（Software Engineering）投资意图。此支出属于高杠杆行为，完全符合你冲击 RM 6,000 起薪的底层逻辑。</p>
+            <p style="color:#94a3b8; font-size:11px;">系统已预授权。可从『Future Expenses』中免摩擦划扣。</p>
+        `
     }
+};
 
-    overlay.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <h2 style="color: #ff4d4f; margin: 0; font-size: 24px;">⚠️ GX-Sentinel</h2>
-            <p style="font-size: 16px; margin: 20px 0; line-height: 1.6; white-space: pre-wrap;">${message}</p>
-            ${delay > 0 ? `<div id="gx-timer-text" style="color: #faad14; margin-bottom: 10px; font-weight: bold;">Deep reflection required: ${delay}s</div>` : ''}
-            ${actionContent}
-        </div>
+let analysisTimeout: number | undefined;
+
+function triggerScenario(scenarioKey: 'xiaohongshu' | 'agoda' | 'coding') {
+    clearTimeout(analysisTimeout);
+    
+    wrapper.classList.add('visible');
+    core.className = 'gx-core analyzing';
+    bubble.className = 'show analyzing';
+    bubble.innerHTML = `
+        <div class="gx-msg-header neutral">🔄 正在解析当前语境...</div>
     `;
 
-    document.body.appendChild(overlay);
-
-    // 倒计时解锁逻辑
-    if (delay > 0) {
-        let timeLeft = delay;
-        const timer = setInterval(() => {
-            timeLeft--;
-            const timerDoc = document.getElementById('gx-timer-text');
-            const closeBtn = document.getElementById('gx-close-btn') as HTMLButtonElement;
-            const submitBtn = document.getElementById('gx-submit-btn') as HTMLButtonElement;
-
-            if (timerDoc) timerDoc.innerText = `Deep reflection required: ${timeLeft}s`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                if (timerDoc) timerDoc.innerText = "You may now proceed.";
-                if (closeBtn) {
-                    closeBtn.disabled = false;
-                    closeBtn.style.background = '#ff4d4f';
-                    closeBtn.style.cursor = 'pointer';
-                    closeBtn.innerText = "I have reflected";
-                }
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.style.background = '#1890ff';
-                    submitBtn.style.cursor = 'pointer';
-                    submitBtn.innerText = "Submit Justification";
-                }
-            }
-        }, 1000);
-    }
-
-    // 事件绑定: 关闭
-    document.getElementById('gx-close-btn')?.addEventListener('click', () => {
-        overlay.remove();
-        hasAnalyzed = false; // 允许下次继续监听
-    });
-
-    // 事件绑定: 提交 AI 审计
-    document.getElementById('gx-submit-btn')?.addEventListener('click', async () => {
-        const justification = (document.getElementById('gx-justify') as HTMLTextAreaElement).value;
-        if (!justification) return alert("Please enter a reason.");
-        
-        const submitBtn = document.getElementById('gx-submit-btn') as HTMLButtonElement;
-        submitBtn.innerText = "Auditing...";
-        submitBtn.disabled = true;
-
-        try {
-            const res = await fetch('http://localhost:8000/interceptor/justify', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': 'demo_user_01' // [修复点] 补全 Header
-                },
-                body: JSON.stringify({ auditId, justification })
-            });
-            const result = await res.json();
-            
-            // 展示 AI 毒舌结果
-            alert(`🛡️ Guardian Verdict: ${result.verdict.toUpperCase()}\n\n📝 Reasoning: ${result.reasoning}\n\n💡 Advice: ${result.cognitiveMessage}`);
-            overlay.remove();
-            hasAnalyzed = false; 
-        } catch (error) {
-            alert("Error communicating with AI Guardian.");
-            submitBtn.innerText = "Submit Justification";
-            submitBtn.disabled = false;
-        }
-    });
+    analysisTimeout = window.setTimeout(() => {
+        const data = scenarios[scenarioKey];
+        core.className = `gx-core ${data.state}`;
+        bubble.className = `show ${data.state}`;
+        bubble.innerHTML = data.html;
+    }, 1500);
 }
 
-// --- 2. 抓取逻辑 ---
-function getProductInfo() {
-    // 🚀 尝试多个可能的 Shopee 价格选择器 (Shopee 经常更新这些类名)
-    const priceSelectors = [
-        '.Y_uSTn',          // 你原本的版本
-        '.pq7uM9',          // 备选 1
-        'div[data-testid="price"]', // 备选 2 (如果他们用了 data-test)
-        '.G2777V'           // 备选 3
-    ];
-    
-    let priceElement = null;
-    for (const selector of priceSelectors) {
-        priceElement = document.querySelector(selector);
-        if (priceElement) break;
-    }
-
-    const nameElement = document.querySelector('.V_P69E') || document.querySelector('.flex-column > span');  
-    
-    const priceText = priceElement?.textContent || "0";
-    // 增强正则：保留数字和小数点
-    const numericPrice = parseFloat(priceText.replace(/[^\d.]/g, '')) || 0;
-    
-    console.log(`GX-Sentinel Debug: 抓取到价格文本: "${priceText}", 解析为: ${numericPrice}`);
-    
-    return { 
-        name: nameElement?.textContent?.trim() || "Unknown Item", 
-        price: numericPrice 
-    };
+function hideSentinel() {
+    clearTimeout(analysisTimeout);
+    wrapper.classList.remove('visible');
+    setTimeout(() => {
+        bubble.classList.remove('show');
+        core.className = 'gx-core idle';
+    }, 300);
 }
 
-function isCheckoutPage(): boolean {
-    const textToSearch = ['check out', 'place order', 'buy now', '结账', '下单'];
-    const buttons = Array.from(document.querySelectorAll('button'));
-    return buttons.some(btn => {
-        const content = btn.textContent?.toLowerCase() || "";
-        return textToSearch.some(t => content.includes(t));
-    });
-}
-
-// --- 3. 发送逻辑 ---
-async function sendToAnalyze() {
-    console.log("GX-Sentinel: 检测到下单，正在分析...");
-    const product = getProductInfo();
-    // if (product.price <= 0) {
-    //     console.log("GX-Sentinel: 非商品页面或未检测到价格，跳过分析。");
-    //     return; 
-    // }
-    console.log("GX-Sentinel: 检测到有效商品，正在分析...");
-    const payload = {
-        platform: "shopee", 
-        products: [{ name: product.name, price: product.price }],
-        totalAmount: product.price,
-        isCheckoutPage: isCheckoutPage()
-        // 故意不传 paymentSource，让后端默认为 variableBudget
-    };
-
-    try {
-        const response = await fetch('http://localhost:8000/interceptor/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-id': 'demo_user_01' },
-            body: JSON.stringify(payload)
-        });
-        const result = await response.json();
-        
-        // 即使是 Soft 级别，只要不是纯粹的 "放行"，就展示 UI
-        if (result.triggerLevel !== 'soft' || result.softMessage.includes('⚠️')) {
-            showGXAlert(result.softMessage, result.triggerLevel, result.delaySeconds || 0, result.auditId || "");
-        }
-    } catch (e) {
-        console.error("Backend offline.");
+// ==========================================
+// 4. 全局快捷键劫持 (现场演示控制器)
+// ==========================================
+window.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.altKey && e.key === '0') {
+        hideSentinel();
     }
-}
-
-// --- 4. 10秒监控逻辑 ---
-let hasAnalyzed = false;
-const startTime = Date.now();
-
-setInterval(() => {
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const checkout = isCheckoutPage();
-
-    if (!hasAnalyzed && (checkout || elapsed >= 10)) {
-        hasAnalyzed = true;
-        sendToAnalyze();
+    if (e.altKey && e.key === '1') {
+        triggerScenario('xiaohongshu');
     }
-}, 2000);
+    if (e.altKey && e.key === '2') {
+        triggerScenario('agoda');
+    }
+    if (e.altKey && e.key === '3') {
+        triggerScenario('coding');
+    }
+});
+
+console.log("GX-Sentinel Ambient Mentor 已装载。使用 Alt+1, Alt+2, Alt+3 触发演示场景，Alt+0 隐藏。");
