@@ -1,6 +1,6 @@
 .tracking-container {
   min-height: 100vh;
-  padding: 3rem;
+  padding: 3rem 3rem 8rem 3rem;
   background-color: var(--bg, #0C0121);
   background-image: radial-gradient(circle at center, rgba(119, 31, 255, 0.1), transparent 60%);
   color: white;
@@ -22,22 +22,189 @@
   margin: 0;
 }
 
+/* --- 全新布局 --- */
 .tracking-main {
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
   max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* --- 💥 中心大圆环 主视觉 --- */
+.score-hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.glowing-ring-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score-ring-svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  /* 让圆环从 12 点钟方向开始画 */
+}
+
+.ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 8;
+}
+
+.ring-fill {
+  fill: none;
+  stroke: url(#score-gradient);
+  stroke-width: 10;
+  stroke-linecap: round;
+  filter: url(#glow-effect);
+  /* 圆周长 = 2 * PI * r = 2 * 3.14159 * 85 ≈ 534 */
+  /* 534 * (1 - 0.842) = 84.3 (留白的长度) */
+  stroke-dasharray: 534;
+  stroke-dashoffset: 84.3;
+  animation: drawRing 1.5s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes drawRing {
+  from {
+    stroke-dashoffset: 534;
+  }
+
+  to {
+    stroke-dashoffset: 84.3;
+  }
+}
+
+.ring-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.ring-score {
+  font-size: 5.5rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 0 30px rgba(119, 31, 255, 0.8), 0 0 60px rgba(248, 50, 109, 0.5);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.ring-status {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #10b981;
+  /* 代表稳定的荧光绿 */
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+}
+
+.hero-subtitle {
+  margin-top: 1.5rem;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.hero-subtitle strong {
+  color: #10b981;
+}
+
+/* --- 下方并排数据区 --- */
+.dashboard-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: stretch;
+}
+
+.breakdown-card {
+  background: rgba(12, 1, 33, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(16px);
+}
+
+/* 响应式适配 */
+@media (max-width: 1024px) {
+  .dashboard-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .glowing-ring-container {
+    width: 250px;
+    height: 250px;
+  }
+
+  .ring-score {
+    font-size: 4rem;
+  }
+
+  .ring-status {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+  }
 }
 
 .radar-card {
   background: rgba(12, 1, 33, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  /* 稍微带点紫色的边框 */
   border-radius: 20px;
   padding: 2rem;
   backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+  /* 确保扫描线不溢出 */
+
+  /* 💥 战术网格背景 */
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: center;
+}
+
+/* 💥 顶部扫描线光效 */
+.radar-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary, #771FFF), transparent);
+  opacity: 0.3;
+  animation: scanLine 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes scanLine {
+  0% {
+    top: 0%;
+  }
+
+  100% {
+    top: 100%;
+  }
 }
 
 .radar-card h3 {
@@ -61,28 +228,54 @@
 }
 
 .radar-grid {
-  fill: rgba(255, 255, 255, 0.02);
-  stroke: rgba(255, 255, 255, 0.1);
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  /* 极淡的白线 */
   stroke-width: 1;
 }
 
 .radar-axis {
-  stroke: rgba(255, 255, 255, 0.2);
+  stroke: rgba(139, 92, 246, 0.3);
+  /* 改为淡紫色 */
   stroke-width: 1;
-  stroke-dasharray: 4;
+  stroke-dasharray: 2 4;
+  /* 点状线，更有电子感 */
 }
 
 .radar-data {
-  fill: rgba(119, 31, 255, 0.3);
-  stroke: var(--primary);
-  stroke-width: 2;
+  fill: rgba(119, 31, 255, 0.15);
+  stroke: var(--primary, #771FFF);
+  stroke-width: 3;
+  /* 加粗线条更像监控器 */
   transition: all 0.5s ease-out;
+
+  /* 💥 强发光滤镜 */
+  filter: drop-shadow(0 0 8px rgba(119, 31, 255, 0.8));
+
+  /* 💥 呼吸动画 */
+  animation: radarPulse 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes radarPulse {
+
+  0%,
+  100% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 5px rgba(119, 31, 255, 0.5));
+  }
+
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 15px rgba(119, 31, 255, 1));
+  }
 }
 
 .radar-point {
-  fill: white;
-  stroke: var(--primary);
+  fill: #fff;
+  stroke: var(--primary, #771FFF);
   stroke-width: 2;
+  filter: drop-shadow(0 0 5px var(--primary));
 }
 
 /* --- 雷达图 Labels 样式升级版 --- */
@@ -156,14 +349,6 @@
   transform: translateY(-50%);
 }
 
-
-/* Metrics Column */
-.metrics-column {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
 .metric-card {
   background: rgba(12, 1, 33, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -206,6 +391,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 2rem;
+  backdrop-filter: blur(16px);
 }
 
 .breakdown-card h3 {
@@ -215,7 +401,171 @@
 .breakdown-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  /* 增加间距，让条形图有呼吸感 */
+}
+
+.breakdown-item-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.item-info span {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.item-info strong {
+  font-size: 1.1rem;
+  color: #10b981;
+  /* 默认正面贡献为绿色 */
+}
+
+.item-info strong.neg-val {
+  color: #f43f5e;
+  /* 负面贡献为红色/粉色 */
+}
+
+/* --- 💥 核心：战术条形图 --- */
+.progress-bar-container {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: var(--fill-width, 0%);
+  border-radius: 2px;
+  position: relative;
+
+  /* 💥 制造 ████ 这种分段效果 */
+  background-image: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.15) 2px,
+      transparent 2px);
+  background-size: 6px 100%;
+  /* 每 6px 一个切分线 */
+
+  /* 动画：从左向右生长的入场效果 */
+  animation: growBar 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+  transform-origin: left;
+}
+
+/* 💥 正面指标：深呼吸光效 (Breathing Glow) */
+.progress-bar-fill.positive {
+  background-color: #771FFF;
+  /* 组合动画：先执行 1.2s 的生长，然后无限循环呼吸发光 */
+  animation:
+    growBar 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards,
+    pulseGlow 3s ease-in-out infinite 1.2s;
+  /* 延迟 1.2s 等入场结束 */
+}
+
+@keyframes pulseGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(119, 31, 255, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(119, 31, 255, 0.9);
+  }
+}
+
+/* 💥 负面指标：危险警示光效 (Threat Pulse) */
+.progress-bar-fill.negative {
+  background-color: #f43f5e;
+  animation:
+    growBar 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards,
+    pulseDanger 2s ease-in-out infinite 1.2s;
+  /* 呼吸频率更快，增加急迫感 */
+}
+
+/* 警报容器框（让红色指标的底槽也发红） */
+.danger-container {
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  background: rgba(244, 63, 94, 0.05);
+}
+
+@keyframes pulseDanger {
+
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(244, 63, 94, 1);
+    background-color: #ff1a4b;
+    /* 呼吸到顶点时，颜色微亮，像警报灯闪烁 */
+  }
+}
+
+/* 💥 威胁标签 (VOLATILE / RISK ELEVATED) */
+.threat-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid #f43f5e;
+  border-radius: 4px;
+  letter-spacing: 1.5px;
+  vertical-align: middle;
+  /* 类似终结者/赛博朋克的硬核闪烁 */
+  animation: blinkWarning 1.5s infinite steps(2, start);
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.4);
+}
+
+@keyframes blinkWarning {
+
+  0%,
+  100% {
+    opacity: 1;
+    border-color: #f43f5e;
+  }
+
+  50% {
+    opacity: 0.4;
+    border-color: transparent;
+  }
+}
+
+/* 总分统计样式优化 */
+.breakdown-total {
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breakdown-total span {
+  font-weight: 600;
+  color: white;
+}
+
+.breakdown-total strong {
+  font-size: 1.5rem;
+  color: white;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .breakdown-item {
@@ -254,9 +604,9 @@
   font-size: 1.2rem;
 }
 
-/* =============================================
+/* ==========================================================================================
    RESPONSIVE — TRACKING
-   ============================================= */
+   ========================================================================================== */
 @media (max-width: 1024px) {
   .tracking-container {
     padding: 2rem;
@@ -276,6 +626,7 @@
   .tracking-container {
     padding: 1rem;
     padding-top: 4rem;
+    padding-bottom: 120px;
   }
 
   .tracking-header h2 {
@@ -341,6 +692,13 @@
 }
 
 @media (max-width: 480px) {
+  .tracking-container {
+    padding-bottom: 100px;
+    /* 👈 手机端同样留出空间 */
+  }
+}
+
+@media (max-width: 480px) {
   .radar-wrapper {
     width: 240px;
     height: 240px;
@@ -370,5 +728,465 @@
 
   .label-value {
     font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .radar-card {
+    background-size: 15px 15px;
+    /* 移动端网格加密，显精细 */
+    padding: 1.5rem 1rem;
+  }
+
+  .radar-data {
+    stroke-width: 2;
+    /* 移动端线条稍微变细 */
+    filter: drop-shadow(0 0 5px rgba(119, 31, 255, 0.6));
+    /* 减少光晕半径防止过曝 */
+  }
+}
+
+/* --- Mobile 适配优化 --- */
+@media (max-width: 480px) {
+  .breakdown-card {
+    padding: 1.5rem;
+  }
+
+  .item-info span {
+    font-size: 0.75rem;
+  }
+
+  .progress-bar-container {
+    height: 10px;
+    /* 移动端稍微细一点，显得更精细 */
+  }
+}
+
+/* --- 💥 AI Insight Panel 主样式 --- */
+.ai-insight-panel {
+  background: rgba(119, 31, 255, 0.03);
+  /* 极淡的紫色背景 */
+  border: 1px solid rgba(119, 31, 255, 0.2);
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: inset 0 0 20px rgba(119, 31, 255, 0.05);
+}
+
+/* 状态指示器：类似系统后台运行 */
+.ai-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+  animation: blinkStatus 1s infinite alternate;
+}
+
+@keyframes blinkStatus {
+  from {
+    opacity: 0.3;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.ai-status-indicator span {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #94a3b8;
+}
+
+.ai-insight-panel h3 {
+  font-size: 1.2rem;
+  margin: 0 0 1.5rem 0;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 洞察列表项目 */
+.insight-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: fadeInText 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* 依次入场动画 */
+.insight-item:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.insight-item:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.insight-item:nth-child(3) {
+  animation-delay: 0.8s;
+}
+
+@keyframes fadeInText {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.bullet {
+  width: 4px;
+  height: 12px;
+  background: #771FFF;
+  margin-top: 4px;
+  border-radius: 2px;
+}
+
+.bullet.warning {
+  background: #f43f5e;
+  box-shadow: 0 0 8px #f43f5e;
+}
+
+.insight-item p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.insight-item p strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 💥 灵魂扫描线：模拟 AI 正在扫描你的行为 */
+.panel-scanner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom,
+      rgba(119, 31, 255, 0.1),
+      transparent);
+  border-top: 1px solid rgba(119, 31, 255, 0.3);
+  pointer-events: none;
+  animation: scanLoop 6s linear infinite;
+}
+
+@keyframes scanLoop {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(400%);
+  }
+}
+
+/* --- Mobile 适配 --- */
+@media (max-width: 768px) {
+  .ai-insight-panel {
+    padding: 1.2rem;
+  }
+
+  .insight-item p {
+    font-size: 0.85rem;
+  }
+}
+
+/* =========================================================
+   💥 7-Day Behavioral Stability Graph 样式
+   ========================================================= */
+.trend-card {
+  background: rgba(12, 1, 33, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+}
+
+.trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.trend-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.trend-badge {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid #10b981;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  animation: blinkStatus 1.5s infinite;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.trend-chart-wrapper {
+  width: 100%;
+  position: relative;
+
+  /* 限制卡片在手机上的最大高度，内容超出会出现滚动条 */
+  max-height: 350px;
+
+  /* 👇 核心：开启 X 轴和 Y 轴的双向滑动 */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  /* 开启 iOS 原生物理惯性滑动，像滑地图一样丝滑 */
+  padding-bottom: 15px;
+  padding-right: 15px;
+
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border-radius: 12px;
+
+  /* 边缘渐变消失，暗示四面八方都可以滑 */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, white 5%, white 95%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, white 5%, white 95%, transparent 100%);
+}
+
+.trend-chart-wrapper::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.trend-chart-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.trend-chart-wrapper::-webkit-scrollbar-thumb {
+  background: #771FFF;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(119, 31, 255, 0.5);
+}
+
+.trend-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+  /* 允许标签稍微超出边界 */
+}
+
+/* 坐标轴与网格线 */
+.trend-grid-line {
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.trend-grid-text {
+  fill: #64748b;
+  font-size: 12px;
+  text-anchor: end;
+  font-family: 'Outfit', sans-serif;
+}
+
+.trend-axis-text {
+  fill: #94a3b8;
+  font-size: 12px;
+  text-anchor: middle;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+}
+
+/* 💥 主线与发光 */
+.trend-main-line {
+  fill: none;
+  stroke: #F8326D;
+  /* 高亮粉色 */
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* 入场动画：线从左画到右 */
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: drawTrendLine 2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes drawTrendLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* --- 数据点与事件标记 (Event Markers) --- */
+.trend-dot {
+  stroke-width: 2;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* 普通点 */
+.trend-dot.normal {
+  fill: #0C0121;
+  stroke: #771FFF;
+}
+
+/* 积极事件点 (绿色发光) */
+.trend-dot.positive {
+  fill: #10b981;
+  stroke: #fff;
+  filter: drop-shadow(0 0 8px #10b981);
+  animation: pulseDotGreen 2s infinite;
+}
+
+/* 危险事件点 (红色/粉色发光) */
+.trend-dot.negative {
+  fill: #f43f5e;
+  stroke: #fff;
+  filter: drop-shadow(0 0 10px #f43f5e);
+  animation: pulseDotRed 1s infinite alternate;
+}
+
+/* 中性/当前点 */
+.trend-dot.neutral {
+  fill: #771FFF;
+  stroke: #fff;
+  filter: drop-shadow(0 0 10px #771FFF);
+}
+
+@keyframes pulseDotGreen {
+
+  0%,
+  100% {
+    r: 5;
+    opacity: 0.8;
+  }
+
+  50% {
+    r: 8;
+    opacity: 1;
+  }
+}
+
+@keyframes pulseDotRed {
+  from {
+    r: 5;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 5px #f43f5e);
+  }
+
+  to {
+    r: 8;
+    opacity: 1;
+    filter: drop-shadow(0 0 15px #ff1a4b);
+  }
+}
+
+/* 竖向定位线 */
+.event-drop-line {
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.5;
+}
+
+.event-drop-line.positive {
+  stroke: #10b981;
+}
+
+.event-drop-line.negative {
+  stroke: #f43f5e;
+}
+
+.event-drop-line.neutral {
+  stroke: #771FFF;
+}
+
+/* --- 事件标签框 --- */
+.event-label-group {
+  opacity: 0;
+  animation: fadeUpIn 0.5s forwards;
+  animation-delay: 1.5s;
+  /* 等线画完再出现文字 */
+}
+
+@keyframes fadeUpIn {
+  from {
+    opacity: 0;
+    transform: translate(cx, calc(cy - 10px));
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(cx, calc(cy - 20px));
+  }
+}
+
+.event-label-bg {
+  stroke-width: 1;
+  fill: rgba(12, 1, 33, 0.9);
+}
+
+.event-label-bg.negative {
+  stroke: rgba(244, 63, 94, 0.8);
+}
+
+.event-label-bg.positive {
+  stroke: rgba(16, 185, 129, 0.8);
+}
+
+.event-label-bg.neutral {
+  stroke: rgba(119, 31, 255, 0.8);
+}
+
+.event-label-text {
+  fill: #fff;
+  font-size: 10px;
+  font-family: 'Outfit', sans-serif;
+  text-anchor: middle;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile 适配 */
+@media (max-width: 768px) {
+  .trend-card {
+    padding: 1.5rem;
+  }
+
+  .event-label-text {
+    font-size: 9px;
   }
 }

@@ -1,19 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "GX-Sentinel: Ambient Mentor",
-  "version": "2.0",
-  "description": "Context-aware financial mentor acting across all platforms.",
+  "name": "GX-Sentinel: Behavioral Defense",
+  "version": "1.0",
+  "description": "Intercepting financial impulse at the moment of decision.",
   "permissions": [
     "storage",
     "tabs"
   ],
   "host_permissions": [
-    "<all_urls>"
-  ],
+    "https://*.shopee.com.my/*",
+    "http://localhost:8000/*" 
+],
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "https://*.shopee.com.my/*",
+        "https://*.lazada.com.my/*"
       ],
       "js": ["dist/content-script.js"],
       "run_at": "document_end"

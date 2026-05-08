@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, Activity, Users, Menu, X, MapPin } from "lucide-react";
 import "./Sidebar.css";
+// 💥 步骤 1: 引入你的 Logo 图片资源
+// 请确保 image_2.png 文件在对应的路径下 (例如 src/assets/logo.png)
 
 export default function Sidebar() {
   const location = useLocation();
@@ -41,10 +43,11 @@ export default function Sidebar() {
 
       <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-logo">
-          <div className="logo-icon-small">
-            <span className="gx-text">GX</span>
-          </div>
-          <h2>Sentinel</h2>
+          {/* 💥 步骤 2: 将图标和 H2 文字替换为图片 */}
+          <Link to="/dashboard" className="logo-image-container">
+            <img src="./public/Name.png" alt="GX-Sentinel Logo" className="sidebar-logo-img" />
+          </Link>
+
           <button
             className="mobile-close-btn"
             onClick={() => setMobileOpen(false)}
