@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Activity, Users, Menu, X } from "lucide-react";
+import { LayoutDashboard, Activity, Users, Menu, X, MapPin } from "lucide-react";
 import "./Sidebar.css";
 
 export default function Sidebar() {
@@ -16,6 +16,7 @@ export default function Sidebar() {
     { path: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     { path: "/tracking", icon: <Activity size={20} />, label: "Risk Profile" },
     { path: "/social", icon: <Users size={20} />, label: "Social Circle" },
+    { path: "/location", icon: <MapPin size={20} />, label: "Geo-Radar" },
   ];
 
   const handleNavClick = () => {

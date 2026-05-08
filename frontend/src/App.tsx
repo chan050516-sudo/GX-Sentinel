@@ -8,6 +8,8 @@ import ChatAssistant from "./pages/ChatAssistant";
 import SocialCircle from "./pages/SocialCircle";
 import Sidebar from "./components/Sidebar";
 import FloatingMentor from "./components/FloatingMentor";
+import LocationRadar from "./pages/LocationRadar";
+import GeoNotification from "./components/GeoNotification";
 import "./App.css";
 
 // Wrapper to handle layout based on route
@@ -19,6 +21,7 @@ function AppLayout() {
     <div className={`app-wrapper ${hideSidebar ? 'no-sidebar' : ''}`}>
       <Sidebar />
       <FloatingMentor />
+      <GeoNotification />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<Login />} />
@@ -28,6 +31,7 @@ function AppLayout() {
           <Route path="/tracking" element={<Tracking />} />
           <Route path="/chat" element={<ChatAssistant />} />
           <Route path="/social" element={<SocialCircle />} />
+          <Route path="/location" element={<LocationRadar />} />
         </Routes>
       </div>
     </div>
