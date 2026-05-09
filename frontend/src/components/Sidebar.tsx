@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Activity, Users, Menu, X, MapPin } from "lucide-react";
+// 新增引入 LogOut 图标
+import { LayoutDashboard, Activity, Users, Menu, X, MapPin, LogOut } from "lucide-react";
 import "./Sidebar.css";
-// 💥 步骤 1: 引入你的 Logo 图片资源
-// 请确保 image_2.png 文件在对应的路径下 (例如 src/assets/logo.png)
 
 export default function Sidebar() {
   const location = useLocation();
@@ -43,7 +42,6 @@ export default function Sidebar() {
 
       <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-logo">
-          {/* 💥 步骤 2: 将图标和 H2 文字替换为图片 */}
           <Link to="/dashboard" className="logo-image-container">
             <img src="./public/Name.png" alt="GX-Sentinel Logo" className="sidebar-logo-img" />
           </Link>
@@ -71,11 +69,18 @@ export default function Sidebar() {
           ))}
         </nav>
 
+        {/* 底部 Footer 区域 */}
         <div className="sidebar-footer">
           <div className="resilience-score-mini">
             <span>Resilience Score</span>
             <strong>84.2</strong>
           </div>
+
+          {/* 新增的 Logout / Back to Login 按钮 */}
+          <Link to="/" className="logout-btn" onClick={handleNavClick}>
+            <LogOut size={18} />
+            <span>Back to Login</span>
+          </Link>
         </div>
       </aside>
     </>
