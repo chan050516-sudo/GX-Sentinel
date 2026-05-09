@@ -49,7 +49,7 @@ export default function SocialCircle() {
   const [squad, setSquad] = useState<SquadMember[]>([
     { id: "1", handle: "NovaKey", score: 92.5, status: "safe" },
     { id: "2", handle: "LunaByte", score: 88.1, status: "safe", isCurrentUser: true },
-    { id: "3", handle: "EchoFox", score: 81.2, status: "warning" },
+    { id: "3", handle: "EchoFox", score: 84.2, status: "warning" },
   ]);
 
   const handlePing = () => {
@@ -108,7 +108,7 @@ export default function SocialCircle() {
     setSquad([
       { id: "1", handle: "NovaKey", score: 92.5, status: "safe" },
       { id: "2", handle: "LunaByte", score: 88.1, status: "safe", isCurrentUser: true },
-      { id: "3", handle: "EchoFox", score: 81.2, status: "warning" },
+      { id: "3", handle: "EchoFox", score: 84.2, status: "warning" },
     ]);
   };
 
@@ -163,8 +163,7 @@ export default function SocialCircle() {
       {/* --- Main Header: Buttons Removed from here --- */}
       <header className="social-header">
         <div>
-          <h2>Social Resilience Circle</h2>
-          <p>Discipline is no longer individual. It's socially reinforced.</p>
+          <h2>Social Resilience Circle</h2> 
         </div>
       </header>
 
@@ -412,7 +411,7 @@ export default function SocialCircle() {
 
             </div>
           </div>
-        )}
+        )}``
 
       </main>
     </div>
