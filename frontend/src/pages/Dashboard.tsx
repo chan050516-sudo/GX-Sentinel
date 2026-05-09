@@ -131,6 +131,13 @@ export default function Dashboard() {
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([
     { id: "e1", title: "Movie Date", category: "movie", estimatedCost: 85, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-16`, isRecurring: false, subscriptionDetection: false },
     { id: "e2", title: "Netflix Subscription", category: "subscription", estimatedCost: 55, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-13`, isRecurring: true, subscriptionDetection: true },
+    { id: "e3", title: "Gym Membership", category: "subscription", estimatedCost: 150, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-05`, isRecurring: true, subscriptionDetection: true },
+    { id: "e4", title: "Dinner with Friends", category: "social", estimatedCost: 120, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-12`, isRecurring: false, subscriptionDetection: false },
+    { id: "e5", title: "Book Store Haul", category: "hobby", estimatedCost: 60, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-20`, isRecurring: false, subscriptionDetection: false },
+    { id: "e6", title: "Grocery Restock", category: "food", estimatedCost: 200, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-26`, isRecurring: false, subscriptionDetection: false },
+    { id: "e7", title: "Steam Sale", category: "gaming", estimatedCost: 45, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-28`, isRecurring: false, subscriptionDetection: false },
+    { id: "e8", title: "Internet Bill", category: "utilities", estimatedCost: 149, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-23`, isRecurring: true, subscriptionDetection: true },
+    { id: "e9", title: "Weekend Getaway", category: "travel", estimatedCost: 400, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-24`, isRecurring: false, subscriptionDetection: false },
   ]);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: "", category: "movie", estimatedCost: "", isRecurring: false, subscriptionDetection: false });
