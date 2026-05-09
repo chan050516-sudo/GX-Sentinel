@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Target, AlertTriangle, Send, FileText } from "lucide-react";
+import { Bot, Target, AlertTriangle, Send, FileText, Download } from "lucide-react"; // 加入了 Download icon
 import "./ChatAssistant.css";
 
-type Message = { id: string; role: "user" | "assistant"; content: string; timestamp: string };
+// 增加 isReport 可选属性
+type Message = { id: string; role: "user" | "assistant"; content: string; timestamp: string; isReport?: boolean };
 
 export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }) {
   const [messages, setMessages] = useState<Message[]>([
@@ -58,13 +59,110 @@ export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }
     };
     setMessages(prev => [...prev, userMsg]);
 
+    // 使用你提供的新报告内容
+    const reportContent = `📊 WEEKLY RESILIENCE REPORT — GX-SENTINEL AI AUDIT
+
+Resilience Score: 84.2 ↑ (+4.2%)
+
+Behavioral Status: BEHAVIORALLY STABLE
+
+━━━━━━━━━━━━━━━━━━
+🧠 AI Behavioral Observations
+━━━━━━━━━━━━━━━━━━
+
+• Impulse resistance improved by 12% compared to last week.
+
+• Two high-risk discretionary purchases were intercepted during late-night browsing sessions.
+
+• Spending volatility decreased after reduced food delivery frequency.
+
+• Financial runway increased from 41.3 days → 45.0 days.
+
+• Savings discipline remains consistent, though entertainment spending is trending upward near weekends.
+
+━━━━━━━━━━━━━━━━━━
+⚠ Risk Signals Detected
+━━━━━━━━━━━━━━━━━━
+
+• Elevated purchase intent detected between 11:30 PM – 2:00 AM.
+
+• Repeated exposure to high discretionary spending zones (cafés & lifestyle retail).
+
+• One inactive subscription detected:
+RM45/month — Streaming Service
+
+━━━━━━━━━━━━━━━━━━
+✅ Positive Behavioral Events
+━━━━━━━━━━━━━━━━━━
+
+• Aborted 3 impulse purchase attempts.
+
+• Maintained daily spending within projected discretionary allowance for 5 consecutive days.
+
+• Goal contribution streak maintained.
+
+━━━━━━━━━━━━━━━━━━
+🎯 AI Strategic Recommendation
+━━━━━━━━━━━━━━━━━━
+
+Your current financial behavior indicates strong recovery stability and improving impulse control.
+
+However, recurring night-time discretionary activity remains your highest behavioral risk factor.
+
+Recommended actions:
+• Enable Night Spending Friction Mode after 11 PM
+• Reduce food delivery frequency by 1–2 transactions/week
+• Review inactive subscriptions before next billing cycle
+
+Projected Outcome if maintained:
+Estimated runway improvement:
++6.8 additional survivability days within 30 days.
+
+GX-Sentinel Assessment:
+Behavioral resilience trajectory remains positive.
+
+━━━━━━━━━━━━━━━━━━
+💹 AI Financial Positioning Insight
+━━━━━━━━━━━━━━━━━━
+
+• Current liquidity stability may support gradual low-risk investment exposure.
+
+• Consider allocating a small portion of surplus reserves into:
+• Money Market Funds
+• Fixed Deposits
+• Broad Market Index ETFs
+
+• Aggressive speculative investments are currently not recommended due to elevated discretionary spending behavior during late-night periods.
+
+• Recommended priority remains:
+Emergency runway stability before high-volatility asset exposure.
+
+━━━━━━━━━━━━━━━━━━
+🛡 GX-Sentinel Final Assessment
+━━━━━━━━━━━━━━━━━━
+
+Current behavioral profile demonstrates:
+• Stable runway recovery
+• Improving impulse resistance
+• Consistent savings discipline
+• Moderate discretionary risk exposure
+
+Overall system confidence:
+HIGH
+
+GX-Sentinel predicts continued financial stabilization if current behavioral trends are maintained.
+
+Next behavioral audit scheduled:
+Monday, 09:00 AM`;
+
     // Simulate Report Generation
     setTimeout(() => {
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "📊 Weekly Resilience Report Generated!\n\n• Resilience Index: 84.2 (↑ 4.2%)\n• Impulse Purchases Stopped: 2\n• Savings Goal: 'Buy a Car' is on track (Dec 2027)\n• Warning: 3 inactive subscriptions detected (RM 45/mo).",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        content: reportContent,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isReport: true // 标记这是一份报告
       };
       setMessages(prev => [...prev, aiMsg]);
     }, 1000);
@@ -73,7 +171,7 @@ export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }
   return (
     <div className="chat-container">
       <div className="chat-layout">
-        
+
         {/* Left Side: Weekly Report */}
         <div className="weekly-report-panel">
           <h2>Weekly Report</h2>
@@ -83,8 +181,8 @@ export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }
               <span className="trend positive">↑ 4.2%</span>
             </div>
             <div className="report-body">
-              <p>Your <strong>Resilience Index</strong> improved this week primarily due to stopping 2 impulse purchases via the Interceptor.</p>
-              
+              <p>Your <strong>Resilience Score</strong> improved this week primarily due to stopping 2 impulse purchases via the Interceptor.</p>
+
               <div className="insight-item">
                 <span className="insight-icon"><Target size={24} /></span>
                 <div className="insight-text">
@@ -92,7 +190,7 @@ export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }
                   <span>"Buy a Car" is projected to hit target by Dec 2027.</span>
                 </div>
               </div>
-              
+
               <div className="insight-item warning">
                 <span className="insight-icon"><AlertTriangle size={24} /></span>
                 <div className="insight-text">
@@ -110,17 +208,24 @@ export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }
           <div className="chat-header">
             <div className="mentor-avatar"><Bot size={28} color="white" /></div>
             <div>
-              <h3>Mentor Agent</h3>
+              <h3>AI Mentor Agent</h3>
               <span className="status">Online</span>
             </div>
           </div>
-          
+
           <div className="messages-area">
             {messages.map(msg => (
               <div key={msg.id} className={`message-wrapper ${msg.role}`}>
                 <div className="message-bubble">
                   {msg.content}
                 </div>
+                {/* 动态渲染聊天框内的下载按钮 */}
+                {msg.isReport && (
+                  <button className="chat-download-btn" onClick={() => alert("Downloading Report...")}>
+                    <Download size={16} />
+                    <span>Download Report</span>
+                  </button>
+                )}
                 <span className="message-time">{msg.timestamp}</span>
               </div>
             ))}
@@ -137,9 +242,9 @@ export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }
           )}
 
           <div className="input-area">
-            <input 
-              type="text" 
-              value={input} 
+            <input
+              type="text"
+              value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
               placeholder="Ask about your financial health..."

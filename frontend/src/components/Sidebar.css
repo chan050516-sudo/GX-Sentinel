@@ -170,6 +170,36 @@
   display: none;
 }
 
+/* --- Logout / Back to Login Button --- */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  /* 与上方的分数卡片拉开距离 */
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  color: #f43f5e;
+  /* 玫瑰红，适合表示登出或离开 */
+  background: rgba(244, 63, 94, 0.05);
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(244, 63, 94, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.logout-btn:hover {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.25);
+  transform: translateY(-1px);
+}
+
 /* =============================================
    RESPONSIVE — MOBILE DRAWER
    ============================================= */
