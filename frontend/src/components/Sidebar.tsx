@@ -43,7 +43,7 @@ export default function Sidebar() {
       <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-logo">
           <Link to="/dashboard" className="logo-image-container">
-            <img src="./public/Name.png" alt="GX-Sentinel Logo" className="sidebar-logo-img" />
+            <img src="/Name.png" alt="GX-Sentinel Logo" className="sidebar-logo-img" />
           </Link>
 
           <button
