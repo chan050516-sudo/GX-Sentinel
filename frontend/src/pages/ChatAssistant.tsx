@@ -61,33 +61,52 @@ export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }
 
     // 使用你提供的新报告内容
     const reportContent = `📊 WEEKLY RESILIENCE REPORT — GX-SENTINEL AI AUDIT
-Resilience Index: 84.2 ↑ (+4.2%)
-Behavioral Status: STABLE
+
+Resilience Score: 84.2 ↑ (+4.2%)
+
+Behavioral Status: BEHAVIORALLY STABLE
+
 ━━━━━━━━━━━━━━━━━━
 🧠 AI Behavioral Observations
 ━━━━━━━━━━━━━━━━━━
+
 • Impulse resistance improved by 12% compared to last week.
+
 • Two high-risk discretionary purchases were intercepted during late-night browsing sessions.
+
 • Spending volatility decreased after reduced food delivery frequency.
+
 • Financial runway increased from 41.3 days → 45.0 days.
+
 • Savings discipline remains consistent, though entertainment spending is trending upward near weekends.
+
 ━━━━━━━━━━━━━━━━━━
 ⚠ Risk Signals Detected
 ━━━━━━━━━━━━━━━━━━
+
 • Elevated purchase intent detected between 11:30 PM – 2:00 AM.
+
 • Repeated exposure to high discretionary spending zones (cafés & lifestyle retail).
+
 • One inactive subscription detected:
 RM45/month — Streaming Service
+
 ━━━━━━━━━━━━━━━━━━
 ✅ Positive Behavioral Events
 ━━━━━━━━━━━━━━━━━━
+
 • Aborted 3 impulse purchase attempts.
+
 • Maintained daily spending within projected discretionary allowance for 5 consecutive days.
+
 • Goal contribution streak maintained.
+
 ━━━━━━━━━━━━━━━━━━
 🎯 AI Strategic Recommendation
 ━━━━━━━━━━━━━━━━━━
+
 Your current financial behavior indicates strong recovery stability and improving impulse control.
+
 However, recurring night-time discretionary activity remains your highest behavioral risk factor.
 
 Recommended actions:
@@ -100,7 +119,41 @@ Estimated runway improvement:
 +6.8 additional survivability days within 30 days.
 
 GX-Sentinel Assessment:
-Behavioral resilience trajectory remains positive.`;
+Behavioral resilience trajectory remains positive.
+
+━━━━━━━━━━━━━━━━━━
+💹 AI Financial Positioning Insight
+━━━━━━━━━━━━━━━━━━
+
+• Current liquidity stability may support gradual low-risk investment exposure.
+
+• Consider allocating a small portion of surplus reserves into:
+• Money Market Funds
+• Fixed Deposits
+• Broad Market Index ETFs
+
+• Aggressive speculative investments are currently not recommended due to elevated discretionary spending behavior during late-night periods.
+
+• Recommended priority remains:
+Emergency runway stability before high-volatility asset exposure.
+
+━━━━━━━━━━━━━━━━━━
+🛡 GX-Sentinel Final Assessment
+━━━━━━━━━━━━━━━━━━
+
+Current behavioral profile demonstrates:
+• Stable runway recovery
+• Improving impulse resistance
+• Consistent savings discipline
+• Moderate discretionary risk exposure
+
+Overall system confidence:
+HIGH
+
+GX-Sentinel predicts continued financial stabilization if current behavioral trends are maintained.
+
+Next behavioral audit scheduled:
+Monday, 09:00 AM`;
 
     // Simulate Report Generation
     setTimeout(() => {
@@ -128,7 +181,7 @@ Behavioral resilience trajectory remains positive.`;
               <span className="trend positive">↑ 4.2%</span>
             </div>
             <div className="report-body">
-              <p>Your <strong>Resilience Index</strong> improved this week primarily due to stopping 2 impulse purchases via the Interceptor.</p>
+              <p>Your <strong>Resilience Score</strong> improved this week primarily due to stopping 2 impulse purchases via the Interceptor.</p>
 
               <div className="insight-item">
                 <span className="insight-icon"><Target size={24} /></span>
@@ -155,7 +208,7 @@ Behavioral resilience trajectory remains positive.`;
           <div className="chat-header">
             <div className="mentor-avatar"><Bot size={28} color="white" /></div>
             <div>
-              <h3>Mentor Agent</h3>
+              <h3>AI Mentor Agent</h3>
               <span className="status">Online</span>
             </div>
           </div>
