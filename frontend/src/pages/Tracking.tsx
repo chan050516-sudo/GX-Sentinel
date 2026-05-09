@@ -11,7 +11,7 @@ export default function Tracking() {
     { label: "Runway Stability", value: 0.8 },
     { label: "Impulse Control", value: 0.9 },
     { label: "Savings Discipline", value: 0.7 },
-    { label: "Spending Stability", value: 0.85 }
+    { label: "Spending Volatility", value: 0.85 }
   ];
 
   const getCoordinatesForAngle = (angle: number, value: number) => {
@@ -68,7 +68,7 @@ export default function Tracking() {
   return (
     <div className="tracking-container">
       <header className="tracking-header">
-        <h2>Risk Profile & Auditing</h2>
+        <h2>Risk Profile & Behavioral Analysis</h2>
         <p>Monitor your behavioral discipline and time survivability.</p>
       </header>
 
@@ -277,7 +277,7 @@ export default function Tracking() {
                   <span className="label-value">70%</span>
                 </div>
                 <div className="label left">
-                  <span className="label-title">Spending Stability</span>
+                  <span className="label-title">Spending Volatility</span>
                   <span className="label-value">85%</span>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function Tracking() {
 
           {/* 右侧：加减分项明细 */}
           <div className="breakdown-card">
-            <h3>Score Contributors</h3>
+            <h3>Behavioral Drivers</h3>
             <div className="breakdown-list">
               {/* Runway Stability */}
               <div className="breakdown-item-wrapper">
@@ -325,8 +325,8 @@ export default function Tracking() {
               <div className="breakdown-item-wrapper">
                 <div className="item-info">
                   <span>
-                    Spending Stability
-                    <span className="threat-badge">VOLATILE</span>
+                    Spending Volatility
+                    <span className="threat-badge">HIGH</span>
                   </span>
                   <strong className="neg-val">- 1.4</strong>
                 </div>
