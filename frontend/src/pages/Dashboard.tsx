@@ -34,24 +34,53 @@ type InterceptorState = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
+  const processedLocationKey = useRef<string | null>(null);
 
-  const [runwayDays, setRunwayDays] = useState(45.2);
+  const [runwayDays, setRunwayDays] = useState<number>(() => {
+    const saved = localStorage.getItem("gx_runwayDays");
+    return saved ? JSON.parse(saved) : 45.2;
+  });
   const [nudgeMessage, setNudgeMessage] = useState<string | null>(null);
   const [nudgeType, setNudgeType] = useState<"positive" | "negative" | null>(null);
 
-  const [sections, setSections] = useState<Section[]>([
-    { id: "s1", name: "Emergency Fund", amount: 5000, iconType: "shield" },
-    { id: "s2", name: "Fixed Expenses", amount: 3500, iconType: "home" },
-    { id: "s3", name: "Expected Future", amount: 1500, iconType: "calendar" },
-    { id: "s4", name: "Variable Budget", amount: 1500, iconType: "utensils" },
-    { id: "s5", name: "Savings Pocket", amount: 1000, iconType: "wallet" },
-  ]);
+  const [sections, setSections] = useState<Section[]>(() => {
+    const saved = localStorage.getItem("gx_sections");
+    return saved ? JSON.parse(saved) : [
+      { id: "s1", name: "Emergency Fund", amount: 5000, iconType: "shield" },
+      { id: "s2", name: "Fixed Expenses", amount: 3500, iconType: "home" },
+      { id: "s3", name: "Expected Future", amount: 1500, iconType: "calendar" },
+      { id: "s4", name: "Variable Budget", amount: 1500, iconType: "utensils" },
+      { id: "s5", name: "Savings Pocket", amount: 1000, iconType: "wallet" },
+    ];
+  });
 
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    { id: "t1", type: "income", amount: 12500, date: "Just now", description: "Initial System Injection" }
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const saved = localStorage.getItem("gx_transactions");
+    return saved ? JSON.parse(saved) : [
+      { id: "t1", type: "income", amount: 12500, date: "Just now", description: "Initial System Injection" }
+    ];
+  });
 
-  const [pendingAllocations, setPendingAllocations] = useState<PendingAllocation[]>([]);
+  const [pendingAllocations, setPendingAllocations] = useState<PendingAllocation[]>(() => {
+    const saved = localStorage.getItem("gx_pending");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("gx_runwayDays", JSON.stringify(runwayDays));
+  }, [runwayDays]);
+
+  useEffect(() => {
+    localStorage.setItem("gx_sections", JSON.stringify(sections));
+  }, [sections]);
+
+  useEffect(() => {
+    localStorage.setItem("gx_transactions", JSON.stringify(transactions));
+  }, [transactions]);
+
+  useEffect(() => {
+    localStorage.setItem("gx_pending", JSON.stringify(pendingAllocations));
+  }, [pendingAllocations]);
 
   // Simulation Modal State
   const [showSimulateModal, setShowSimulateModal] = useState(false);
@@ -95,8 +124,10 @@ export default function Dashboard() {
   });
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Future Planning: Goals State
-  const [goals, setGoals] = useState<Goal[]>([{ id: "g1", name: "Buy a Car", target: 20000, saved: 7000, deadline: "2027-12-31" }]);
+  const [goals, setGoals] = useState<Goal[]>(() => {
+    const saved = localStorage.getItem("gx_goals");
+    return saved ? JSON.parse(saved) : [{ id: "g1", name: "Buy a Car", target: 20000, saved: 7000, deadline: "2027-12-31" }];
+  });
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [newGoal, setNewGoal] = useState({ name: "", target: "", deadline: "" });
 
@@ -128,46 +159,68 @@ export default function Dashboard() {
     setSelectedDate(`1 ${monthNames[newDate.getMonth()].substring(0, 3)}`);
   };
 
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([
-    { id: "e1", title: "Movie Date", category: "movie", estimatedCost: 85, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-16`, isRecurring: false, subscriptionDetection: false },
-    { id: "e2", title: "Netflix Subscription", category: "subscription", estimatedCost: 55, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-13`, isRecurring: true, subscriptionDetection: true },
-  ]);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(() => {
+    const saved = localStorage.getItem("gx_calendarEvents");
+    return saved ? JSON.parse(saved) : [
+      { id: "e1", title: "Movie Date", category: "movie", estimatedCost: 85, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-16`, isRecurring: false, subscriptionDetection: false },
+      { id: "e2", title: "Netflix Subscription", category: "subscription", estimatedCost: 55, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-13`, isRecurring: true, subscriptionDetection: true },
+      { id: "e3", title: "Gym Membership", category: "subscription", estimatedCost: 150, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-05`, isRecurring: true, subscriptionDetection: true },
+      { id: "e4", title: "Dinner with Friends", category: "social", estimatedCost: 120, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-12`, isRecurring: false, subscriptionDetection: false },
+      { id: "e5", title: "Book Store Haul", category: "hobby", estimatedCost: 60, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-20`, isRecurring: false, subscriptionDetection: false },
+      { id: "e6", title: "Grocery Restock", category: "food", estimatedCost: 200, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-26`, isRecurring: false, subscriptionDetection: false },
+      { id: "e7", title: "Steam Sale", category: "gaming", estimatedCost: 45, date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-28`, isRecurring: false, subscriptionDetection: false },
+      { id: "e8", title: "Internet Bill", category: "utilities", estimatedCost: 149, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-23`, isRecurring: true, subscriptionDetection: true },
+      { id: "e9", title: "Weekend Getaway", category: "travel", estimatedCost: 400, date: `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-24`, isRecurring: false, subscriptionDetection: false },
+    ];
+  });
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: "", category: "movie", estimatedCost: "", isRecurring: false, subscriptionDetection: false });
 
-  const pendingTotal = pendingAllocations.reduce((sum, item) => sum + item.amount, 0);
-  const totalBalance = sections.reduce((sum, sec) => sum + sec.amount, 0) + pendingTotal;
+  useEffect(() => {
+    localStorage.setItem("gx_goals", JSON.stringify(goals));
+  }, [goals]);
 
   useEffect(() => {
+    localStorage.setItem("gx_calendarEvents", JSON.stringify(calendarEvents));
+  }, [calendarEvents]);
+
+  const pendingTotal = pendingAllocations.reduce((sum, item) => sum + item.amount, 0);
+  const totalBalance = sections.reduce((sum, sec) => sum + sec.amount, 0);
+
+
+  useEffect(() => {
+    const state = location.state as any;
     // 监听从 Smart Allocator 页面成功返回
-    if (location.state && location.state.allocated) {
-      console.log("Returned from Allocator with state:", location.state);
+    if (state && state.allocated && location.key !== processedLocationKey.current) {
+      processedLocationKey.current = location.key;
+      console.log("Returned from Allocator with state:", state);
 
       setPendingAllocations([]); // 清空 Pending
 
-      if (location.state.allocatedMap) {
+      if (state.allocatedMap) {
         // 更新各个 Pocket 的金额
         setSections(prev => prev.map(sec => ({
           ...sec,
-          amount: sec.amount + (location.state.allocatedMap[sec.name] || 0)
+          amount: sec.amount + (state.allocatedMap[sec.name] || 0)
         })));
-      } else if (location.state.allocatedAmount) {
+      } else if (state.allocatedAmount) {
         console.warn("No allocatedMap found, falling back to first pocket.");
         setSections(prev => prev.map((sec, idx) =>
-          idx === 0 ? { ...sec, amount: sec.amount + location.state.allocatedAmount } : sec
+          idx === 0 ? { ...sec, amount: sec.amount + state.allocatedAmount } : sec
         ));
       }
+
 
       // 清除路由状态，防止刷新页面重复加钱
       window.history.replaceState({}, document.title);
     }
 
     // Micro-Nudge interceptor feedback
-    if (location.state && location.state.nudgeType) {
-      setNudgeMessage(location.state.message);
-      setNudgeType(location.state.nudgeType);
-      if (location.state.runwayDrop) {
-        setRunwayDays(prev => +(Math.max(0, prev - location.state.runwayDrop)).toFixed(1));
+    if (state && state.nudgeType) {
+      setNudgeMessage(state.message);
+      setNudgeType(state.nudgeType);
+      if (state.runwayDrop) {
+        setRunwayDays(prev => +(Math.max(0, prev - state.runwayDrop)).toFixed(1));
       }
       const timer = setTimeout(() => {
         setNudgeMessage(null);
@@ -176,7 +229,7 @@ export default function Dashboard() {
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [location.state]);
+  }, [location.state, location.key]);
 
   const handleSimulateInflow = (e: React.FormEvent) => {
     e.preventDefault();
