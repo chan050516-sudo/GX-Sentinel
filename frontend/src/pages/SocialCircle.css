@@ -689,23 +689,31 @@
    Animations - MASSIVE REWARD OVERLAY
    ============================================= */
 .confetti-overlay.massive-overlay {
-  position: fixed; /* Fix to viewport */
+  position: fixed;
+  /* Fix to viewport */
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(12, 1, 33, 0.85); /* Darken entire screen */
+  background: rgba(12, 1, 33, 0.85);
+  /* Darken entire screen */
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* Put above everything */
+  z-index: 9999;
+  /* Put above everything */
   animation: fadeIn 0.4s ease-out forwards;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .confetti-particles {
@@ -729,8 +737,15 @@
 }
 
 @keyframes explode {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0);
+    opacity: 0;
+  }
 }
 
 .voucher-popup.massive {
@@ -754,9 +769,20 @@
 }
 
 @keyframes popUpVoucherMassive {
-  0% { transform: scale(0.4) translateY(50px); opacity: 0; }
-  50% { transform: scale(1.05) translateY(-10px); opacity: 1; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
+  0% {
+    transform: scale(0.4) translateY(50px);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05) translateY(-10px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 }
 
 .voucher-glow.massive-glow {
@@ -764,7 +790,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 300px; /* Bigger glow */
+  width: 300px;
+  /* Bigger glow */
   height: 300px;
   background: radial-gradient(circle, rgba(248, 50, 109, 0.4) 0%, transparent 70%);
   z-index: -1;
@@ -772,8 +799,17 @@
 }
 
 @keyframes pulseGlowMassive {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-  50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.4; }
+
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0.4;
+  }
 }
 
 .icon-wrap {
@@ -792,7 +828,8 @@
 .voucher-popup.massive h2 {
   margin: 0;
   color: #10b981;
-  font-size: 3rem; /* Much larger text */
+  font-size: 3rem;
+  /* Much larger text */
   font-weight: 900;
   letter-spacing: 4px;
   text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
@@ -810,25 +847,57 @@
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-.sparkle-float-left, .sparkle-float-right {
+.sparkle-float-left,
+.sparkle-float-right {
   color: #fbbf24;
   position: absolute;
   filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.6));
 }
-.sparkle-float-left { left: -40px; top: 10px; animation: float 3s infinite ease-in-out; }
-.sparkle-float-right { right: -40px; bottom: 10px; animation: float 3s infinite reverse ease-in-out; }
+
+.sparkle-float-left {
+  left: -40px;
+  top: 10px;
+  animation: float 3s infinite ease-in-out;
+}
+
+.sparkle-float-right {
+  right: -40px;
+  bottom: 10px;
+  animation: float 3s infinite reverse ease-in-out;
+}
 
 @keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-15px) rotate(15deg); }
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-15px) rotate(15deg);
+  }
 }
 
 @keyframes heartBeat {
-  0% { transform: scale(1); }
-  15% { transform: scale(1.1); }
-  30% { transform: scale(1); }
-  45% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  15% {
+    transform: scale(1.1);
+  }
+
+  30% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ... [KEEP EVERYTHING BELOW THE ANIMATIONS EXACTLY AS IS (Media Queries & Reward Vault)] ... */
@@ -849,7 +918,7 @@
   justify-content: center;
   padding: 0.5rem;
   transition: all 0.2s ease;
-  z-index: 10001; 
+  z-index: 10001;
 }
 
 .close-popup-btn:hover {
@@ -867,7 +936,7 @@
   margin: 0 0 -1rem 0;
   text-transform: uppercase;
   text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
-  z-index: 1; 
+  z-index: 1;
 }
 
 .claim-now-btn {
@@ -904,7 +973,7 @@
   flex-direction: column;
   gap: 1rem;
   margin-top: 1.5rem;
-  max-height: 350px; 
+  max-height: 350px;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
@@ -925,7 +994,8 @@
 .reward-custom-img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Keeps your image from stretching */
+  object-fit: cover;
+  /* Keeps your image from stretching */
 }
 
 /* Fades out the item if it is claimed */
@@ -943,9 +1013,18 @@
 }
 
 /* Custom Scrollbar */
-.reward-list-scrollable::-webkit-scrollbar { width: 6px; }
-.reward-list-scrollable::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
-.reward-list-scrollable::-webkit-scrollbar-thumb { background: rgba(119, 31, 255, 0.3); border-radius: 4px; }
+.reward-list-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reward-list-scrollable::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.reward-list-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(119, 31, 255, 0.3);
+  border-radius: 4px;
+}
 
 /* --- MOCK CONTROLS (Top Right Buttons) --- */
 
@@ -1001,14 +1080,16 @@
   color: #94a3b8;
   box-shadow: none;
   cursor: not-allowed;
-  transform: none; /* Removes the hover jump effect */
+  transform: none;
+  /* Removes the hover jump effect */
 }
 
 /* --- NEW REWARD CLAIMED POPUP --- */
 
 /* 40% Width Popup Card */
 .reward-success-popup {
-  width: 40vw !important; /* Force to 40% of viewport width */
+  width: 40vw !important;
+  /* Force to 40% of viewport width */
   min-height: 40vh !important;
   display: flex;
   flex-direction: column;
@@ -1102,7 +1183,7 @@
 }
 
 .progress-bar-fill.failed-bar {
-  background: #f43f5e !important; 
+  background: #f43f5e !important;
 }
 
 .claim-btn.failed-btn-state:disabled {
@@ -1118,7 +1199,8 @@
 }
 
 .safe-text {
-  color: #38bdf8 !important; /* Cool Blue for Safe */
+  color: #38bdf8 !important;
+  /* Cool Blue for Safe */
   text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
@@ -1130,17 +1212,18 @@
 }
 
 .safe-text {
-  color: #38bdf8 !important; /* Cool Blue for Safe */
+  color: #38bdf8 !important;
+  /* Cool Blue for Safe */
   text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
 /* =============================================
-   MOBILE RESPONSIVE — ADDITIONAL QUERIES
+   MOBILE RESPONSIVE — ENHANCED TYPOGRAPHY
    ============================================= */
 @media (max-width: 480px) {
   .social-container {
-    padding: 0.75rem;
-    padding-top: 1rem;
+    padding: 0.85rem;
+    padding-top: 1.2rem;
   }
 
   .social-header {
@@ -1148,68 +1231,75 @@
   }
 
   .social-header h2 {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    /* 1.2 -> 1.4 */
     font-weight: 700;
   }
 
   .social-header p {
-    font-size: 0.8rem;
-    line-height: 1.4;
+    font-size: 0.95rem;
+    /* 0.8 -> 0.95 */
+    line-height: 1.5;
   }
 
-  .social-header > div:last-child {
+  .social-header>div:last-child {
     flex-wrap: wrap;
-    gap: 0.5rem !important;
+    gap: 0.6rem !important;
   }
 
   .social-header button {
-    padding: 0.4rem 0.6rem !important;
-    font-size: 0.7rem !important;
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.85rem !important;
+    /* 0.7 -> 0.85 */
   }
 
   .social-main {
-    gap: 1rem;
+    gap: 1.2rem;
   }
 
   .squad-card {
-    padding: 1rem;
+    padding: 1.2rem;
     border-radius: 12px;
     gap: 1.5rem;
   }
 
   .card-header {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.6rem;
     align-items: flex-start;
   }
 
   .card-header h3 {
-    font-size: 1rem;
+    font-size: 1.2rem;
+    /* 1.0 -> 1.2 */
     gap: 0.5rem;
   }
 
   .squad-status {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.7rem;
+    font-size: 0.85rem;
+    /* 0.75 -> 0.85 */
+    padding: 0.4rem 0.8rem;
     width: 100%;
   }
 
   .squad-list {
-    gap: 0.8rem;
+    gap: 1rem;
   }
 
   .squad-member {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.8rem;
-    padding: 0.8rem;
+    padding: 1rem;
     border-radius: 12px;
   }
 
   .member-avatar {
-    width: 35px;
-    height: 35px;
-    font-size: 0.9rem;
+    width: 42px;
+    /* 增大以适应更大的字体 */
+    height: 42px;
+    font-size: 1.1rem;
+    /* 0.9 -> 1.1 */
   }
 
   .member-info {
@@ -1217,20 +1307,23 @@
   }
 
   .member-name-row {
-    gap: 0.4rem;
+    gap: 0.5rem;
   }
 
   .handle {
-    font-size: 0.9rem;
+    font-size: 1.05rem;
+    /* 0.9 -> 1.05 */
   }
 
   .you-badge {
-    font-size: 0.6rem;
-    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+    /* 0.6 -> 0.75 */
+    padding: 0.25rem 0.5rem;
   }
 
   .member-status-text {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
+    /* 0.75 -> 0.9 */
   }
 
   .member-action-area {
@@ -1242,110 +1335,123 @@
   }
 
   .score-display {
-    gap: 0.3rem;
-  }
-
-  .score-value {
-    font-size: 2.25rem;
-  }
-
-  .score-label {
-    font-size: 0.65rem;
-  }
-
-  .score-adjust-mock {
-    gap: 0.2rem;
-  }
-
-  .adjust-btn {
-    width: 22px;
-    height: 22px;
-    font-size: 0.7rem;
-  }
-
-  .support-ping-btn {
-    padding: 0.4rem 0.6rem !important;
-    font-size: 0.65rem !important;
-    gap: 0.3rem;
-  }
-
-  .system-nudge-box {
-    padding: 0.8rem;
     gap: 0.4rem;
   }
 
+  .score-value {
+    font-size: 2.5rem;
+    /* 2.25 -> 2.5 */
+  }
+
+  .score-label {
+    font-size: 0.8rem;
+    /* 0.65 -> 0.8 */
+  }
+
+  .score-adjust-mock {
+    gap: 0.3rem;
+  }
+
+  .adjust-btn {
+    width: 26px;
+    /* 增大按钮以防文字溢出 */
+    height: 26px;
+    font-size: 0.85rem;
+    /* 0.7 -> 0.85 */
+  }
+
+  .support-ping-btn {
+    padding: 0.5rem 0.8rem !important;
+    font-size: 1rem !important;
+    /* 0.9 -> 1.0 */
+    gap: 0.4rem;
+  }
+
+  .system-nudge-box {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
   .system-nudge-box p {
-    font-size: 0.75rem;
-    line-height: 1.3;
+    font-size: 0.9rem;
+    /* 0.75 -> 0.9 */
+    line-height: 1.4;
   }
 
   .bonus-stats-column {
-    gap: 1rem;
+    gap: 1.2rem;
   }
 
   .bonus-card {
-    padding: 1rem;
+    padding: 1.2rem;
     border-radius: 12px;
   }
 
   .bonus-header {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.6rem;
     align-items: flex-start;
   }
 
   .bonus-header h3 {
-    font-size: 1rem;
-    gap: 0.4rem;
-  }
-
-  .points-pill {
-    font-size: 0.7rem;
-    padding: 0.3rem 0.6rem;
-    gap: 0.3rem;
-  }
-
-  .bonus-card p {
-    font-size: 0.85rem;
-    line-height: 1.4;
-  }
-
-  .bonus-progress {
+    font-size: 1.2rem;
+    /* 1.0 -> 1.2 */
     gap: 0.5rem;
   }
 
+  .points-pill {
+    font-size: 0.85rem;
+    /* 0.7 -> 0.85 */
+    padding: 0.4rem 0.8rem;
+    gap: 0.4rem;
+  }
+
+  .bonus-card p {
+    font-size: 1rem;
+    /* 0.85 -> 1.0 */
+    line-height: 1.5;
+  }
+
+  .bonus-progress {
+    gap: 0.6rem;
+  }
+
   .progress-text {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
+    /* 0.8 -> 0.95 */
   }
 
   .progress-bar-bg {
-    height: 6px;
+    height: 8px;
+    /* 稍微加粗进度条，匹配更大的字体 */
   }
 
   .claim-btn {
-    padding: 0.8rem;
-    font-size: 0.8rem;
+    padding: 0.9rem;
+    font-size: 1rem;
+    /* 0.8 -> 1.0 */
     width: 100%;
   }
 
   .card-header-row {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
   .card-header-row h3 {
-    font-size: 1rem;
+    font-size: 1.2rem;
+    /* 1.0 -> 1.2 */
   }
 
   .reward-list-scrollable {
-    gap: 0.8rem;
+    gap: 1rem;
   }
 
   .reward-item {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.8rem;
-    padding: 0.8rem;
+    gap: 1rem;
+    padding: 1rem;
   }
 
   .reward-image-container {
@@ -1353,7 +1459,8 @@
   }
 
   .reward-custom-img {
-    max-height: 120px;
+    max-height: 140px;
+    /* 120 -> 140 视觉平衡 */
   }
 
   .reward-info {
@@ -1361,102 +1468,113 @@
   }
 
   .reward-title {
-    font-size: 0.85rem;
+    font-size: 1rem;
+    /* 0.85 -> 1.0 */
   }
 
   .reward-type {
-    font-size: 0.7rem;
+    font-size: 0.85rem;
+    /* 0.7 -> 0.85 */
   }
 
   .redeem-small-btn {
-    padding: 0.5rem 0.8rem !important;
-    font-size: 0.75rem !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.9rem !important;
+    /* 0.75 -> 0.9 */
     width: 100%;
   }
 
   .stats-card {
-    padding: 1rem;
+    padding: 1.2rem;
     border-radius: 12px;
   }
 
   .stats-card h3 {
-    font-size: 1rem;
+    font-size: 1.2rem;
+    /* 1.0 -> 1.2 */
   }
 
   .stat-grid {
-    gap: 0.6rem;
+    gap: 0.8rem;
   }
 
   .stat-box {
-    padding: 0.8rem;
+    padding: 1rem;
   }
 
   .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    /* 1.2 -> 1.4 */
   }
 
   .stat-label {
-    font-size: 0.7rem;
+    font-size: 0.85rem;
+    /* 0.7 -> 0.85 */
   }
 
   /* Popup adjustments for mobile */
   .voucher-popup.massive {
     width: 90% !important;
-    max-width: 320px;
-    padding: 1.5rem;
+    max-width: 340px;
+    padding: 1.8rem;
     border-radius: 16px;
   }
 
   .close-popup-btn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 
   .congrats-text {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    /* 1.2 -> 1.4 */
   }
 
   .icon-wrap {
-    margin: 0.8rem 0;
+    margin: 1rem 0;
   }
 
   .voucher-icon-massive {
-    width: 60px !important;
-    height: 60px !important;
+    width: 70px !important;
+    height: 70px !important;
   }
 
   .sparkle-float-left,
   .sparkle-float-right {
-    width: 24px !important;
-    height: 24px !important;
+    width: 28px !important;
+    height: 28px !important;
   }
 
   .voucher-popup.massive h2 {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
+    /* 1.4 -> 1.6 */
   }
 
   .voucher-text.massive-text {
-    font-size: 0.9rem;
+    font-size: 1.05rem;
+    /* 0.9 -> 1.05 */
+    line-height: 1.5;
   }
 
   .claim-now-btn {
-    padding: 0.8rem;
-    font-size: 0.85rem;
-    margin-top: 1rem;
+    padding: 1rem;
+    font-size: 1rem;
+    /* 0.85 -> 1.0 */
+    margin-top: 1.2rem;
   }
 
   .reward-success-popup {
     width: 90% !important;
-    max-width: 320px;
+    max-width: 340px;
   }
 
   .popup-reward-image-box {
-    max-height: 120px;
-    margin: 0.8rem 0;
+    max-height: 140px;
+    margin: 1rem 0;
   }
 
   .popup-reward-image-box img {
-    max-height: 120px;
+    max-height: 140px;
   }
 }
 
@@ -1556,7 +1674,7 @@
     gap: 1rem;
   }
 
-  .social-header > div:last-child {
+  .social-header>div:last-child {
     width: 100%;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -1597,6 +1715,7 @@
 
 /* Small phones (320px - 480px) */
 @media (max-width: 480px) {
+
   /* Better spacing and text hierarchy */
   .social-header {
     display: flex;
@@ -1604,7 +1723,7 @@
     gap: 1rem;
   }
 
-  .social-header > div:last-child {
+  .social-header>div:last-child {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     width: 100%;
@@ -1805,6 +1924,7 @@
 
 /* Touch-friendly interface for mobile */
 @media (hover: none) and (pointer: coarse) {
+
   /* Increase touch target sizes */
   .support-ping-btn,
   .redeem-small-btn,
@@ -1866,4 +1986,3 @@
     gap: 0.8rem;
   }
 }
-
