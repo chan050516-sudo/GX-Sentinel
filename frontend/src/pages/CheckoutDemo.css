@@ -572,11 +572,35 @@
 }
 
 @media (max-width: 768px) {
+  /* 宠物整体包装器：居中 + 限制最大宽度 + 允许换行 */
   .checkout-container #gx-ambient-wrapper {
-    max-width: 90vw;
-    transform: translate(-50%, -50%) scale(0.9);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* 关键：限制最大宽度为 95% 视口宽度，防止溢出 */
+    max-width: 95vw;
+    /* 让内部布局在必要时可以换行 */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
   }
+
+  /* 气泡容器：宽度自适应，最多占满包装器 */
   #gx-bubble {
-    width: 280px;
+    width: 100%;
+    max-width: 320px;
+    min-width: 260px;
+    /* 调整内边距和字体，提升可读性 */
+    padding: 0.8rem;
+    font-size: 12px;
+  }
+
+  /* 宠物容器：固定大小，不被压缩 */
+  .gx-pet-container {
+    width: 70px;
+    height: 70px;
+    flex-shrink: 0;
+    transform: none;
   }
 }
