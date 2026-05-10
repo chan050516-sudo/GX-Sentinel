@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, Hand } from "lucide-react";
+import { Hand } from "lucide-react";
 import "./CheckoutDemo.css";
 
 type InterceptorLevel = "none" | "level1" | "level2" | "level3";
