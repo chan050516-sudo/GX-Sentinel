@@ -34,6 +34,7 @@ type InterceptorState = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
+  const processedLocationKey = useRef<string | null>(null);
 
   const [runwayDays, setRunwayDays] = useState<number>(() => {
     const saved = localStorage.getItem("gx_runwayDays");
@@ -184,38 +185,42 @@ export default function Dashboard() {
   }, [calendarEvents]);
 
   const pendingTotal = pendingAllocations.reduce((sum, item) => sum + item.amount, 0);
-  const totalBalance = sections.reduce((sum, sec) => sum + sec.amount, 0) + pendingTotal;
+  const totalBalance = sections.reduce((sum, sec) => sum + sec.amount, 0);
+
 
   useEffect(() => {
+    const state = location.state as any;
     // 监听从 Smart Allocator 页面成功返回
-    if (location.state && location.state.allocated) {
-      console.log("Returned from Allocator with state:", location.state);
+    if (state && state.allocated && location.key !== processedLocationKey.current) {
+      processedLocationKey.current = location.key;
+      console.log("Returned from Allocator with state:", state);
 
       setPendingAllocations([]); // 清空 Pending
 
-      if (location.state.allocatedMap) {
+      if (state.allocatedMap) {
         // 更新各个 Pocket 的金额
         setSections(prev => prev.map(sec => ({
           ...sec,
-          amount: sec.amount + (location.state.allocatedMap[sec.name] || 0)
+          amount: sec.amount + (state.allocatedMap[sec.name] || 0)
         })));
-      } else if (location.state.allocatedAmount) {
+      } else if (state.allocatedAmount) {
         console.warn("No allocatedMap found, falling back to first pocket.");
         setSections(prev => prev.map((sec, idx) =>
-          idx === 0 ? { ...sec, amount: sec.amount + location.state.allocatedAmount } : sec
+          idx === 0 ? { ...sec, amount: sec.amount + state.allocatedAmount } : sec
         ));
       }
+
 
       // 清除路由状态，防止刷新页面重复加钱
       window.history.replaceState({}, document.title);
     }
 
     // Micro-Nudge interceptor feedback
-    if (location.state && location.state.nudgeType) {
-      setNudgeMessage(location.state.message);
-      setNudgeType(location.state.nudgeType);
-      if (location.state.runwayDrop) {
-        setRunwayDays(prev => +(Math.max(0, prev - location.state.runwayDrop)).toFixed(1));
+    if (state && state.nudgeType) {
+      setNudgeMessage(state.message);
+      setNudgeType(state.nudgeType);
+      if (state.runwayDrop) {
+        setRunwayDays(prev => +(Math.max(0, prev - state.runwayDrop)).toFixed(1));
       }
       const timer = setTimeout(() => {
         setNudgeMessage(null);
@@ -224,7 +229,7 @@ export default function Dashboard() {
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [location.state]);
+  }, [location.state, location.key]);
 
   const handleSimulateInflow = (e: React.FormEvent) => {
     e.preventDefault();

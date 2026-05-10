@@ -163,7 +163,8 @@ export default function SocialCircle() {
       {/* --- Main Header: Buttons Removed from here --- */}
       <header className="social-header">
         <div>
-          <h2>Social Resilience Circle</h2> 
+          <h2>Social Resilience Circle</h2>
+          <p>Discipline is no longer individual. It&apos;s socially reinforced.</p>
         </div>
       </header>
 
@@ -198,18 +199,16 @@ export default function SocialCircle() {
                   <div className="score-display">
                     <span className={`score-value ${user.score < 80 ? 'error-text' : user.status === 'warning' ? 'warning-text' : ''}`}>{user.score.toFixed(1)}</span>
                     <span className="score-label">pts</span>
-                    
-                    <div className="score-adjust-mock">
-                      <button onClick={() => handleAdjustScore(user.id, 1)} className="adjust-btn">+</button>
-                      <button onClick={() => handleAdjustScore(user.id, -1)} className="adjust-btn">-</button>
-                    </div>
-
                   </div>
                   {!user.isCurrentUser && user.status === 'warning' && user.score >= 80 && (
                     <button className={`support-ping-btn ${pinged ? 'pinged' : ''}`} onClick={handlePing} disabled={pinged}>
                       {pinged ? 'Encouragement Sent!' : <><Flame size={16} /> Send Support</>}
                     </button>
                   )}
+                </div>
+                <div className="score-adjust-mock">
+                  <button onClick={() => handleAdjustScore(user.id, 1)} className="adjust-btn">+</button>
+                  <button onClick={() => handleAdjustScore(user.id, -1)} className="adjust-btn">-</button>
                 </div>
               </div>
             ))}
