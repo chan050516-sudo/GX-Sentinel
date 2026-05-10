@@ -168,7 +168,7 @@
 
 /* Main content */
 .gx-main {
-  padding: 2rem 3rem;
+  padding: 2rem 3rem 6rem;
   max-width: 1200px;
   width: 100%;
   display: flex;
@@ -582,8 +582,8 @@
 /* Gauge */
 .gauge-wrapper {
   position: relative;
-  width: 280px;
-  height: 280px;
+  width: 340px;
+  height: 340px;
   margin: 0 auto;
 }
 
@@ -1272,8 +1272,8 @@
   }
 
   .gauge-wrapper {
-    width: 220px;
-    height: 220px;
+    width: 280px;
+    height: 280px;
   }
 
   .balance-amount-row h1 {
@@ -1284,19 +1284,23 @@
 /* Mobile (≤ 768px) */
 @media (max-width: 768px) {
   .gx-header {
-    padding: 1.2rem 1rem 1.2rem;
-    padding-top: 4rem;
+    /* 顺序是：上 右 下 左。加入 !important 强制生效，防止被前面的代码覆盖 */
+    padding: 4.5rem 1.2rem 1.5rem 1.2rem !important;
   }
 
   .gx-top-row {
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.2rem;
     margin-bottom: 1.5rem;
   }
 
+  /* 2. 确保那两个模拟按钮在手机上不会超出屏幕 */
   .dev-tools {
     width: 100%;
     justify-content: flex-start;
+    flex-wrap: wrap;
+    /* 空间不够时自动换行，非常重要！ */
+    gap: 0.8rem;
   }
 
   .simulate-btn,
@@ -1329,7 +1333,8 @@
   }
 
   .gx-main {
-    padding: 1.2rem 1rem;
+    /* 顺序是：上 右 下 左。底部留出 6.5rem 的超大空间给 AI 按钮 */
+    padding: 1.5rem 1.2rem 6.5rem 1.2rem !important;
     gap: 1.5rem;
   }
 
@@ -1344,12 +1349,12 @@
   }
 
   .gauge-wrapper {
-    width: 200px;
-    height: 200px;
+    width: 250px;
+    height: 250px;
   }
 
   .gauge-value {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
   }
 
   .bottom-layout {
@@ -1503,12 +1508,12 @@
   }
 
   .gauge-wrapper {
-    width: 160px;
-    height: 160px;
+    width: 200px;
+    height: 200px;
   }
 
   .gauge-value {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .gauge-unit {
@@ -1529,5 +1534,14 @@
 
   .gx-modal {
     padding: 1.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .gx-main {
+    /* 原本是 padding: 1.2rem 1rem; */
+    padding: 1.2rem 1rem 6rem;
+    /* 👈 同样加上 6rem 的底部空白 */
+    gap: 1.5rem;
   }
 }
