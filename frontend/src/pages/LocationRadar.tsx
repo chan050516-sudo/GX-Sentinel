@@ -37,11 +37,11 @@ type Zone = {
   spots: Spot[];
 };
 
-const offsetLatLng = (lat: number, lng: number, seed: number) => {
-  const angle = seed * 2 * Math.PI;
-  const radius = 0.0008 + (seed % 7) * 0.0001;
-  return { lat: lat + Math.cos(angle) * radius, lng: lng + Math.sin(angle) * radius };
-};
+// const offsetLatLng = (lat: number, lng: number, seed: number) => {
+//   const angle = seed * 2 * Math.PI;
+//   const radius = 0.0008 + (seed % 7) * 0.0001;
+//   return { lat: lat + Math.cos(angle) * radius, lng: lng + Math.sin(angle) * radius };
+// };
 
 const center = { lat: 3.1466, lng: 101.7115 };
 
@@ -349,7 +349,7 @@ export default function LocationRadar() {
   const [showNearbyHint, setShowNearbyHint] = useState<boolean>(false);
   
   const mapRef = useRef<google.maps.Map | null>(null);
-  const hintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hintTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedZone = zones.find(z => z.id === selectedZoneId);
   const selectedSpot = selectedZone?.spots.find(s => s.id === selectedSpotId);

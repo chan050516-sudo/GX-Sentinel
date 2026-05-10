@@ -31,7 +31,7 @@ export default function Allocator({
     }
   }, [initialAmount, navigate, onCancel]);
 
-  const [incomeAmount, setIncomeAmount] = useState<number>(initialAmount || 0);
+  const [incomeAmount] = useState<number>(initialAmount || 0);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
   const [showReasoning, setShowReasoning] = useState(false);

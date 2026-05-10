@@ -1,10 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import './TechnicalArchitecture.css';
 
+interface Card {
+  title: string;
+  desc?: string;
+  badge?: {
+    text: string;
+    type: string;
+  };
+  items?: string[];
+  futureHint?: string;
+}
+
+interface Layer {
+  id: string;
+  title: string;
+  cards: Card[];
+}
+
 const TechnicalArchitecture: React.FC = () => {
   const [activeLayer, setActiveLayer] = useState(0);
   
-  const layers = [
+  const layers: Layer[] = [
     {
       id: 'client',
       title: '🌐 Client',
