@@ -48,8 +48,8 @@ export default function SocialCircle() {
 
   const [squad, setSquad] = useState<SquadMember[]>([
     { id: "1", handle: "NovaKey", score: 92.5, status: "safe" },
-    { id: "2", handle: "LunaByte", score: 84.2, status: "safe", isCurrentUser: true },
-    { id: "3", handle: "EchoFox", score: 81.2, status: "warning" },
+    { id: "2", handle: "LunaByte", score: 87.3, status: "safe", isCurrentUser: true },
+    { id: "3", handle: "EchoFox", score: 84.2, status: "warning" },
   ]);
 
   const handlePing = () => {
@@ -107,8 +107,8 @@ export default function SocialCircle() {
     );
     setSquad([
       { id: "1", handle: "NovaKey", score: 92.5, status: "safe" },
-      { id: "2", handle: "LunaByte", score: 84.2, status: "safe", isCurrentUser: true },
-      { id: "3", handle: "EchoFox", score: 81.2, status: "warning" },
+      { id: "2", handle: "LunaByte", score: 87.3, status: "safe", isCurrentUser: true },
+      { id: "3", handle: "EchoFox", score: 84.2, status: "warning" },
     ]);
   };
 
