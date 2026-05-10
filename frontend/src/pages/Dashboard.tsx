@@ -185,7 +185,8 @@ export default function Dashboard() {
   }, [calendarEvents]);
 
   const pendingTotal = pendingAllocations.reduce((sum, item) => sum + item.amount, 0);
-  const totalBalance = sections.reduce((sum, sec) => sum + sec.amount, 0);
+  // 【修改这里】：将 pendingTotal 加进 totalBalance 里
+  const totalBalance = sections.reduce((sum, sec) => sum + sec.amount, 0) + pendingTotal;
 
 
   useEffect(() => {
