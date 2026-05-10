@@ -15,25 +15,25 @@ type Reward = {
   id: string;
   title: string;
   cost: number;
-  image: string; 
+  image: string;
   type: string;
-  claimed: boolean; 
+  claimed: boolean;
 };
 
 export default function SocialCircle() {
   const [showBonusAnimation, setShowBonusAnimation] = useState(false);
   const [pinged, setPinged] = useState(false);
-  
-  const [points, setPoints] = useState(150); 
-  
+
+  const [points, setPoints] = useState(150);
+
   /* --- STATE: Dynamic Streak Tracking & Weekly Claim Status --- */
   const [streakDay, setStreakDay] = useState(6);
-  const [isBonusClaimed, setIsBonusClaimed] = useState(false); 
-  
+  const [isBonusClaimed, setIsBonusClaimed] = useState(false);
+
   /* --- NEW STATE: Failure Tracking --- */
   const [streakFailed, setStreakFailed] = useState(false);
   const [showFailurePopup, setShowFailurePopup] = useState(false);
-  
+
   const [claimedReward, setClaimedReward] = useState<Reward | null>(null);
 
   /* --- STATE: Rewards --- */
@@ -48,8 +48,8 @@ export default function SocialCircle() {
 
   const [squad, setSquad] = useState<SquadMember[]>([
     { id: "1", handle: "NovaKey", score: 92.5, status: "safe" },
-    { id: "2", handle: "LunaByte", score: 88.1, status: "safe", isCurrentUser: true },
-    { id: "3", handle: "EchoFox", score: 84.2, status: "warning" },
+    { id: "2", handle: "LunaByte", score: 84.2, status: "safe", isCurrentUser: true },
+    { id: "3", handle: "EchoFox", score: 81.2, status: "warning" },
   ]);
 
   const handlePing = () => {
@@ -66,24 +66,24 @@ export default function SocialCircle() {
   };
 
   const handleConfirmClaim = () => {
-    setPoints(prev => prev + 80); 
+    setPoints(prev => prev + 80);
     setShowBonusAnimation(false);
-    setIsBonusClaimed(true); 
+    setIsBonusClaimed(true);
   };
 
   const handleRedeem = (id: string, cost: number) => {
     if (points >= cost) {
       setPoints(prev => prev - cost);
-      
+
       const redeemedItem = rewards.find(r => r.id === id);
-      
-      setRewards(prevRewards => 
-        prevRewards.map(reward => 
+
+      setRewards(prevRewards =>
+        prevRewards.map(reward =>
           reward.id === id ? { ...reward, claimed: true } : reward
         )
       );
-      
-      if(redeemedItem) {
+
+      if (redeemedItem) {
         setClaimedReward(redeemedItem);
       }
     } else {
@@ -98,17 +98,17 @@ export default function SocialCircle() {
   };
 
   const handleNextWeek = () => {
-    setStreakDay(1); 
-    setIsBonusClaimed(false); 
+    setStreakDay(1);
+    setIsBonusClaimed(false);
     setStreakFailed(false);
     setShowFailurePopup(false);
-    setRewards(prevRewards => 
-      prevRewards.map(reward => ({ ...reward, claimed: false })) 
+    setRewards(prevRewards =>
+      prevRewards.map(reward => ({ ...reward, claimed: false }))
     );
     setSquad([
       { id: "1", handle: "NovaKey", score: 92.5, status: "safe" },
-      { id: "2", handle: "LunaByte", score: 88.1, status: "safe", isCurrentUser: true },
-      { id: "3", handle: "EchoFox", score: 84.2, status: "warning" },
+      { id: "2", handle: "LunaByte", score: 84.2, status: "safe", isCurrentUser: true },
+      { id: "3", handle: "EchoFox", score: 81.2, status: "warning" },
     ]);
   };
 
@@ -123,7 +123,7 @@ export default function SocialCircle() {
         if (member.id === id) {
           const newScore = Math.max(0, member.score + delta);
           const newStatus: "safe" | "warning" = newScore < 85 ? "warning" : "safe";
-          
+
           if (newScore < 80) breached = true;
           return { ...member, score: newScore, status: newStatus };
         }
@@ -173,7 +173,7 @@ export default function SocialCircle() {
         <div className="squad-card">
           <div className="card-header">
             <h3><Users size={20} className="header-icon" /> Your Accountability Squad</h3>
-            
+
             <span className="squad-status">
               Status: <strong className={squadStatusClass}>{squadStatusText}</strong>
             </span>
@@ -223,28 +223,28 @@ export default function SocialCircle() {
         {/* Right Side: Bonus, Stats & Rewards */}
         <div className="bonus-stats-column">
           <div className="bonus-card">
-            
+
             {/* --- MODIFIED: Weekly Squad Bonus Header --- */}
             {/* Moved "Add Day" and "Next Week" buttons here, vertically stacked */}
             <div className="bonus-header" style={{ alignItems: 'flex-start' }}>
-               <h3><Gift size={20} className="header-icon" /> Weekly Squad Bonus</h3>
-               
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                 <button 
-                   onClick={handleAddDay} 
-                   style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid #10b981', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
-                 >
-                   + Add Day
-                 </button>
-                 <button 
-                   onClick={handleNextWeek} 
-                   style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid #771FFF', background: 'rgba(119, 31, 255, 0.1)', color: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
-                 >
-                   ⏩ Next Week
-                 </button>
-               </div>
+              <h3><Gift size={20} className="header-icon" /> Weekly Squad Bonus</h3>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button
+                  onClick={handleAddDay}
+                  style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid #10b981', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
+                >
+                  + Add Day
+                </button>
+                <button
+                  onClick={handleNextWeek}
+                  style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid #771FFF', background: 'rgba(119, 31, 255, 0.1)', color: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
+                >
+                  ⏩ Next Week
+                </button>
+              </div>
             </div>
-            
+
             <p>If <strong>ALL 3 members</strong> maintain a score above 80.0 for 7 consecutive days, the whole squad unlocks a bonus packet.</p>
 
             <div className="bonus-progress">
@@ -261,13 +261,13 @@ export default function SocialCircle() {
               onClick={handleClaimBonus}
               disabled={streakDay < 7 || isBonusClaimed || streakFailed}
             >
-              {streakFailed 
+              {streakFailed
                 ? "Streak Broken. Try Again Next Week."
-                : isBonusClaimed 
-                ? "Weekly Reward Claimed. Please Wait for Next Week." 
-                : streakDay < 7 
-                ? "Complete 7-Day Streak to Unlock Bonus" 
-                : "Unlock Weekly Squad Bonus"}
+                : isBonusClaimed
+                  ? "Weekly Reward Claimed. Please Wait for Next Week."
+                  : streakDay < 7
+                    ? "Complete 7-Day Streak to Unlock Bonus"
+                    : "Unlock Weekly Squad Bonus"}
             </button>
 
             {showBonusAnimation && (
@@ -276,14 +276,14 @@ export default function SocialCircle() {
                   {[...Array(50)].map((_, i) => {
                     const seed = i * 12345 % 10000;
                     const delay = (seed % 200) / 1000;
-                    const x = ((seed * 7 % 600) - 300); 
+                    const x = ((seed * 7 % 600) - 300);
                     const y = ((seed * 11 % 600) - 300);
                     return (
-                    <div key={i} className="particle" style={{'--delay': `${delay}s`, '--x': `${x}px`, '--y': `${y}px`, '--color': i % 3 === 0 ? '#10b981' : i % 3 === 1 ? '#F8326D' : '#771FFF'} as React.CSSProperties}></div>
+                      <div key={i} className="particle" style={{ '--delay': `${delay}s`, '--x': `${x}px`, '--y': `${y}px`, '--color': i % 3 === 0 ? '#10b981' : i % 3 === 1 ? '#F8326D' : '#771FFF' } as React.CSSProperties}></div>
                     );
                   })}
                 </div>
-                
+
                 <div className="voucher-popup massive">
                   <button className="close-popup-btn" onClick={closePopup}>
                     <X size={28} />
@@ -291,9 +291,9 @@ export default function SocialCircle() {
                   <div className="voucher-glow massive-glow"></div>
                   <h3 className="congrats-text">CONGRATULATIONS!</h3>
                   <div className="icon-wrap">
-                     <Sparkles size={40} className="sparkle-float-left" />
-                     <Gift size={100} className="voucher-icon-massive" />
-                     <Sparkles size={40} className="sparkle-float-right" />
+                    <Sparkles size={40} className="sparkle-float-left" />
+                    <Gift size={100} className="voucher-icon-massive" />
+                    <Sparkles size={40} className="sparkle-float-right" />
                   </div>
                   <h2>SQUAD SURVIVED</h2>
                   <p className="voucher-text massive-text">
@@ -309,25 +309,25 @@ export default function SocialCircle() {
 
           {/* Reward Redemption Vault */}
           <div className="stats-card reward-vault">
-            
+
             {/* --- MODIFIED: GX Reward Header --- */}
             {/* Moved "+ 100 PTS" and "Points Pill" here, aligned to the right side */}
             <div className="card-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0 }}><ShoppingBag size={18} className="header-icon" /> GX Reward</h3>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <button 
-                    onClick={handleAddPoints} 
-                    style={{ padding: '0.4rem 0.6rem', borderRadius: '8px', border: '1px solid #fbbf24', background: 'rgba(251, 191, 36, 0.1)', color: '#fbbf24', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
-                  >
-                    + 100 PTS
-                  </button>
-                  <div className="points-pill" style={{ margin: 0 }}>
-                    <Sparkles size={14} /> {points} PTS
-                  </div>
+              <h3 style={{ margin: 0 }}><ShoppingBag size={18} className="header-icon" /> GX Reward</h3>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button
+                  onClick={handleAddPoints}
+                  style={{ padding: '0.4rem 0.6rem', borderRadius: '8px', border: '1px solid #fbbf24', background: 'rgba(251, 191, 36, 0.1)', color: '#fbbf24', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
+                >
+                  + 100 PTS
+                </button>
+                <div className="points-pill" style={{ margin: 0 }}>
+                  <Sparkles size={14} /> {points} PTS
                 </div>
+              </div>
             </div>
-            
+
             <div className="reward-list-scrollable">
               {rewards.map(reward => (
                 <div key={reward.id} className={`reward-item ${reward.claimed ? 'is-claimed' : ''}`}>
@@ -338,7 +338,7 @@ export default function SocialCircle() {
                     <span className="reward-title">{reward.title}</span>
                     <span className="reward-type">{reward.type}</span>
                   </div>
-                  <button 
+                  <button
                     className={`redeem-small-btn ${reward.claimed ? 'claimed-btn-state' : ''}`}
                     onClick={() => handleRedeem(reward.id, reward.cost)}
                     disabled={points < reward.cost || reward.claimed}
@@ -375,7 +375,7 @@ export default function SocialCircle() {
               <AlertTriangle size={80} color="#f43f5e" style={{ marginBottom: '1rem', animation: 'heartBeat 1.5s infinite' }} />
               <h2 style={{ color: '#f43f5e', fontSize: '2.5rem', margin: '0' }}>STREAK BROKEN</h2>
               <p className="voucher-text massive-text" style={{ color: '#94a3b8', fontSize: '1.2rem', marginTop: '1.5rem', textAlign: 'center', lineHeight: '1.6' }}>
-                A squad member's discipline score dropped below 80.0.<br/>
+                A squad member's discipline score dropped below 80.0.<br />
                 The weekly squad bonus has been forfeited.
               </p>
               <button className="claim-now-btn" onClick={() => setShowFailurePopup(false)} style={{ background: 'linear-gradient(135deg, #475569, #334155)', marginTop: '2rem' }}>
@@ -389,21 +389,21 @@ export default function SocialCircle() {
         {claimedReward && (
           <div className="confetti-overlay massive-overlay">
             <div className="voucher-popup massive reward-success-popup">
-              
+
               <button className="close-popup-btn right-middle" onClick={() => setClaimedReward(null)}>
                 <X size={28} />
               </button>
 
               <div className="voucher-glow massive-glow"></div>
-              
+
               <h3 className="congrats-text" style={{ color: '#10b981' }}>SUCCESSFULLY REDEEMED</h3>
 
               <div className="popup-reward-image-box">
                 <img src={claimedReward.image} alt={claimedReward.title} />
               </div>
-              
+
               <h2>{claimedReward.title}</h2>
-              
+
               <p className="voucher-text massive-text" style={{ color: '#94a3b8', fontSize: '1.2rem', marginTop: '1rem' }}>
                 Limit: 1 per week. Check your email for details!
               </p>
