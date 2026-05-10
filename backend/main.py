@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import allocator, interceptor, chat, social, transaction
 from firebase.init import init_firebase
+import os 
+import uvicorn
 
 # Pre-load
 from services.classifier import classify_necessity
@@ -30,3 +32,7 @@ app.include_router(transaction.router)
 @app.get("/")
 async def root():
     return {"message": "GX-Sentinel Backend Running"}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
