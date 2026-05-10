@@ -1,4 +1,3 @@
-// src/components/BusinessModel.tsx
 import React, { useState, useEffect } from 'react';
 import './BusinessModel.css';
 
@@ -14,10 +13,8 @@ const BusinessModel: React.FC = () => {
 
   return (
     <div className="gx-deck-container">
-      {/* 固定标题 */}
       <h2 className="deck-title">Business Model</h2>
       
-      {/* 指示点 */}
       <div className="deck-indicators">
         <button
           className={`indicator ${activeSlide === 0 ? 'active' : ''}`}
@@ -65,7 +62,7 @@ const BusinessModel: React.FC = () => {
           <div className="capability-card">
             <div className="cap-icon">👥</div>
             <h4>Social Accountability</h4>
-            <p>Streak‑based rewards, squad bonuses, and peer support.</p>
+            <p>Streak-based rewards, squad bonuses, and peer support.</p>
             <div className="cap-badge">Implemented</div>
           </div>
         </div>
@@ -103,7 +100,7 @@ const BusinessModel: React.FC = () => {
           <div className="revenue-card">
             <div className="revenue-icon">💸</div>
             <h4>Performance Fee</h4>
-            <p>Share of incremental deposit retention — outcome‑based.</p>
+            <p>Share of incremental deposit retention — outcome-based.</p>
             <div className="revenue-tag">Aligned incentives</div>
           </div>
           <div className="revenue-card">

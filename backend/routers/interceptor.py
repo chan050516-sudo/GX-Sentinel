@@ -156,14 +156,11 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
             require_justification = True
 
     else:
-        # =====================================================================
-        # 路径 B：专款专用 (完全避开旧有逻辑，纯看语义意图)
-        # =====================================================================
         observations = InterceptorObservations(
             similarPurchasesCount=similar_count,
             timeOfDay=transaction_time.strftime("%H:%M"),
             currentRunwayDays=current_runway,
-            transactionVariance=0.5, # 不算冲动，给个默认值
+            transactionVariance=0.5,
             isNightTime=is_night
         )
         
@@ -175,7 +172,6 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
         else:
             reserved_titles = []
             if req.paymentSource == "fixedExpenses":
-                # 显式加入房租等通用固定支出，协助 LLM 判定
                 reserved_titles = ["Monthly Rent / Rental / Housing", "Insurance Premiums", "Utilities", "Loans"]
             elif req.paymentSource == "savingsPockets":
                 reserved_titles = [g['title'] for g in goals]
@@ -195,9 +191,7 @@ async def analyze_interception(req: InterceptorAnalyzeRequest, x_user_id: str = 
                 display_titles = reserved_titles[:2] if reserved_titles else ["this specific purpose"]
                 soft_message = f"⚠️ INTENT MISMATCH: Your {req.paymentSource} is reserved for {display_titles}. Why are you diverting it for '{product_desc}'?\n🛑 TRANSACTION FROZEN! Please justify."
 
-    # -------------------------------------------------------------------------
-    # 构建返回值与存储
-    # -------------------------------------------------------------------------
+
     tier_map = {0: "soft", 1: "soft", 2: "friction", 3: "critical"}
     final_tier_str = tier_map[tier]
     
@@ -331,7 +325,6 @@ async def justify_purchase(
 
 # @router.post("/outcome", response_model=InterceptorOutcomeResponse)
 # async def interceptor_outcome(req: InterceptorOutcomeRequest, x_user_id: str = Header("demo_user_01")):
-#     # 1. 获取审计记录和用户当前状态
 #     audit = get_interceptor_audit(x_user_id, req.auditId)
 #     if not audit:
 #         raise HTTPException(404, "Audit not found")
@@ -340,10 +333,8 @@ async def justify_purchase(
 #     if not user_data:
 #         raise HTTPException(404, "User not found")
     
-#     # 2. 根据 action 执行更新
 #     result = apply_outcome(x_user_id, audit, req.userAction, user_data)
     
-#     # 3. 更新审计最终结果
 #     update_interceptor_audit(x_user_id, req.auditId, {
 #         "userAction": req.userAction,
 #         "finalOutcome": "aborted" if req.userAction == "abort" else "allowed"
@@ -359,13 +350,10 @@ async def justify_purchase(
 
 @router.post("/outcome", response_model=InterceptorOutcomeResponse)
 async def interceptor_outcome(req: InterceptorOutcomeRequest, x_user_id: str = Header("demo_user_01")):
-    # 更新审计记录最终动作
     update_interceptor_audit(x_user_id, req.auditId, {
         "userAction": req.userAction,
         "finalOutcome": "aborted" if req.userAction == "abort" else "allowed"
     })
-    # 韧性分数和交易记录的更新逻辑由其他服务处理（此处返回模拟）
-    # 实际应调用 resilience_service 完成
     return InterceptorOutcomeResponse(
         success=True,
         resilienceDelta=2.5 if req.userAction == "abort" else -1.2,

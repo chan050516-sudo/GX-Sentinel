@@ -95,7 +95,6 @@
   border-color: rgba(119, 31, 255, 0.2);
 }
 
-/* 危险状态样式 */
 .squad-member.warning-state {
   background: linear-gradient(90deg, rgba(245, 158, 11, 0.05), transparent);
   border-color: rgba(245, 158, 11, 0.3);
@@ -180,7 +179,7 @@
   font-size: 0.9rem;
 }
 
-/* Support Ping 按钮 */
+/* Support Ping Button */
 .support-ping-btn {
   background: rgba(248, 50, 109, 0.1);
   border: 1px solid rgba(248, 50, 109, 0.3);
@@ -1296,7 +1295,6 @@
 
   .member-avatar {
     width: 42px;
-    /* 增大以适应更大的字体 */
     height: 42px;
     font-size: 1.1rem;
     /* 0.9 -> 1.1 */
@@ -1354,7 +1352,6 @@
 
   .adjust-btn {
     width: 26px;
-    /* 增大按钮以防文字溢出 */
     height: 26px;
     font-size: 0.85rem;
     /* 0.7 -> 0.85 */
@@ -1423,7 +1420,6 @@
 
   .progress-bar-bg {
     height: 8px;
-    /* 稍微加粗进度条，匹配更大的字体 */
   }
 
   .claim-btn {
@@ -1460,7 +1456,6 @@
 
   .reward-custom-img {
     max-height: 140px;
-    /* 120 -> 140 视觉平衡 */
   }
 
   .reward-info {

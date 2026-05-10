@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-// 新增引入 LogOut 图标
 import { LayoutDashboard, Activity, Users, Menu, X, MapPin, LogOut } from "lucide-react";
 import "./Sidebar.css";
 
@@ -69,14 +68,12 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        {/* 底部 Footer 区域 */}
         <div className="sidebar-footer">
           <div className="resilience-score-mini">
             <span>Resilience Score</span>
             <strong>84.2</strong>
           </div>
 
-          {/* 新增的 Logout / Back to Login 按钮 */}
           <Link to="/" className="logout-btn" onClick={handleNavClick}>
             <LogOut size={18} />
             <span>Back to Login</span>

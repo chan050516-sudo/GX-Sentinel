@@ -28,7 +28,6 @@ export default function Tracking() {
   // Grid lines
   const levels = [0.25, 0.5, 0.75, 1];
 
-  // 💥 新增：7-Day Behavioral Stability 数据与曲线计算
   const trendData = [
     { day: "Mon", score: 76 },
     { day: "Tue", score: 62, event: "Impulse purchase", type: "negative" },
@@ -43,26 +42,24 @@ export default function Tracking() {
   const chartHeight = 250;
   const paddingX = 40;
   const paddingY = 40;
-  const minScore = 50; // Y轴最低分
-  const maxScore = 100; // Y轴最高分
+  const minScore = 50;
+  const maxScore = 100;
 
   const getX = (index: number) => paddingX + (index * (chartWidth - paddingX * 2)) / (trendData.length - 1);
   const getY = (score: number) => chartHeight - paddingY - ((score - minScore) / (maxScore - minScore)) * (chartHeight - paddingY * 2);
 
-  // 自动生成平滑的贝塞尔曲线 (Smooth Bezier Curve)
+  // Smooth Bezier Curve
   let trendPath = `M ${getX(0)},${getY(trendData[0].score)}`;
   for (let i = 0; i < trendData.length - 1; i++) {
     const x0 = getX(i);
     const y0 = getY(trendData[i].score);
     const x1 = getX(i + 1);
     const y1 = getY(trendData[i + 1].score);
-    // 控制点计算
     const cpX1 = x0 + (x1 - x0) / 2;
     const cpX2 = x0 + (x1 - x0) / 2;
     trendPath += ` C ${cpX1},${y0} ${cpX2},${y1} ${x1},${y1}`;
   }
 
-  // 用于底部的渐变填充区域
   const trendArea = `${trendPath} L ${getX(trendData.length - 1)},${chartHeight - paddingY} L ${getX(0)},${chartHeight - paddingY} Z`;
 
   return (
@@ -73,7 +70,6 @@ export default function Tracking() {
       </header>
 
       <main className="tracking-main">
-        {/* 💥 主视觉：中心发光大圆环 */}
         <div className="score-hero-section">
           <div className="glowing-ring-container">
             <svg viewBox="0 0 200 200" className="score-ring-svg">
@@ -91,17 +87,14 @@ export default function Tracking() {
                 </filter>
               </defs>
 
-              {/* 暗色底环 */}
               <circle cx="100" cy="100" r="85" className="ring-bg" />
 
-              {/* 进度亮环 (84.2% 进度) */}
               <circle
                 cx="100" cy="100" r="85"
                 className="ring-fill"
               />
             </svg>
 
-            {/* 内部文字 */}
             <div className="ring-content">
               <span className="ring-score">84.2</span>
               <span className="ring-status">BEHAVIORALLY STABLE</span>
@@ -137,7 +130,6 @@ export default function Tracking() {
             </div>
           </div>
 
-          {/* 装饰性扫描线 */}
           <div className="panel-scanner"></div>
         </div>
 
@@ -151,7 +143,6 @@ export default function Tracking() {
           <div className="trend-chart-wrapper">
             <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="trend-svg">
               <defs>
-                {/* 发光滤镜 */}
                 <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
                   <feGaussianBlur stdDeviation="4" result="blur" />
                   <feMerge>
@@ -159,14 +150,12 @@ export default function Tracking() {
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
-                {/* 底部渐变填充 */}
                 <linearGradient id="area-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor="rgba(119, 31, 255, 0.4)" />
                   <stop offset="100%" stopColor="rgba(119, 31, 255, 0.0)" />
                 </linearGradient>
               </defs>
 
-              {/* 背景横向参考线 (网格感) */}
               {[60, 80, 100].map((score) => (
                 <g key={score} className="grid-line-group">
                   <line x1={paddingX} y1={getY(score)} x2={chartWidth - paddingX} y2={getY(score)} className="trend-grid-line" />
@@ -174,13 +163,10 @@ export default function Tracking() {
                 </g>
               ))}
 
-              {/* 填充面积 */}
               <path d={trendArea} fill="url(#area-gradient)" />
 
-              {/* 平滑的发光主线 */}
               <path d={trendPath} className="trend-main-line" filter="url(#neon-glow)" />
 
-              {/* 数据点与事件标记 (Event Markers) */}
               {trendData.map((d, i) => {
                 const cx = getX(i);
                 const cy = getY(d.score);
@@ -188,19 +174,16 @@ export default function Tracking() {
 
                 return (
                   <g key={i}>
-                    {/* 竖向定位线 */}
                     {hasEvent && (
                       <line x1={cx} y1={cy} x2={cx} y2={chartHeight - paddingY} className={`event-drop-line ${d.type}`} />
                     )}
 
-                    {/* 数据点圆圈 */}
                     <circle
                       cx={cx} cy={cy}
                       r={hasEvent ? 6 : 4}
                       className={`trend-dot ${hasEvent ? d.type : 'normal'}`}
                     />
 
-                    {/* 事件文字浮层 (只在有事件时显示) */}
                     {hasEvent && (
                       <g className="event-label-group" transform={`translate(${cx}, ${cy - 20})`}>
                         <rect x="-60" y="-20" width="120" height="24" rx="4" className={`event-label-bg ${d.type}`} />
@@ -208,7 +191,6 @@ export default function Tracking() {
                       </g>
                     )}
 
-                    {/* 底部 X 轴文字 */}
                     <text x={cx} y={chartHeight - 15} className="trend-axis-text">{d.day}</text>
                   </g>
                 );
@@ -217,9 +199,7 @@ export default function Tracking() {
           </div>
         </div>
 
-        {/* 下方数据拆解区 */}
         <div className="dashboard-bottom-grid">
-          {/* 左侧：雷达图 */}
           <div className="radar-card">
             <h3>Resilience Index Radar</h3>
             <div className="radar-wrapper">
@@ -284,7 +264,6 @@ export default function Tracking() {
             </div>
           </div>
 
-          {/* 右侧：加减分项明细 */}
           <div className="breakdown-card">
             <h3>Behavioral Drivers</h3>
             <div className="breakdown-list">

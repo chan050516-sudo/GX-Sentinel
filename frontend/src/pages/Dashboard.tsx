@@ -151,11 +151,9 @@ export default function Dashboard() {
 
   const [selectedDate, setSelectedDate] = useState<string>(`${new Date().getDate()} ${monthNames[new Date().getMonth()].substring(0, 3)}`);
 
-  // 切换月份的函数
   const changeMonth = (offset: number) => {
     const newDate = new Date(currentYear, currentMonth + offset, 1);
     setViewDate(newDate);
-    // 切换月份时，默认选中那一个月的 1 号
     setSelectedDate(`1 ${monthNames[newDate.getMonth()].substring(0, 3)}`);
   };
 
@@ -185,21 +183,18 @@ export default function Dashboard() {
   }, [calendarEvents]);
 
   const pendingTotal = pendingAllocations.reduce((sum, item) => sum + item.amount, 0);
-  // 【修改这里】：将 pendingTotal 加进 totalBalance 里
   const totalBalance = sections.reduce((sum, sec) => sum + sec.amount, 0) + pendingTotal;
 
 
   useEffect(() => {
     const state = location.state as any;
-    // 监听从 Smart Allocator 页面成功返回
     if (state && state.allocated && location.key !== processedLocationKey.current) {
       processedLocationKey.current = location.key;
       console.log("Returned from Allocator with state:", state);
 
-      setPendingAllocations([]); // 清空 Pending
+      setPendingAllocations([]);
 
       if (state.allocatedMap) {
-        // 更新各个 Pocket 的金额
         setSections(prev => prev.map(sec => ({
           ...sec,
           amount: sec.amount + (state.allocatedMap[sec.name] || 0)
@@ -211,8 +206,6 @@ export default function Dashboard() {
         ));
       }
 
-
-      // 清除路由状态，防止刷新页面重复加钱
       window.history.replaceState({}, document.title);
     }
 
@@ -236,17 +229,16 @@ export default function Dashboard() {
     e.preventDefault();
     const amount = Number(simAmount);
 
-    // Debug: 检查是否读取到了金额
     console.log("Simulating Inflow:", amount);
 
     if (isNaN(amount) || amount <= 0) {
-      alert("⚠️ 请输入有效的金额！");
+      alert("⚠️ Please enter a valid amount！");
       return;
     }
 
     const newId = Date.now().toString();
 
-    // 1. 进入 Pending 缓冲池
+    // Pending
     setPendingAllocations(prev => [{
       id: newId,
       amount: amount,
@@ -255,7 +247,7 @@ export default function Dashboard() {
       date: "Just now"
     }, ...prev]);
 
-    // 3. 立刻写入 Recent Transactions
+    // Recent Transactions
     setTransactions(prev => [
       {
         id: newId,
@@ -267,7 +259,6 @@ export default function Dashboard() {
       ...prev
     ]);
 
-    // 关闭弹窗并清空输入框
     setShowSimulateModal(false);
     setShowAddMoneyModal(false);
     setSimAmount("");
@@ -290,16 +281,15 @@ export default function Dashboard() {
     const selectedSection = sections.find(s => s.id === miniAllocSectionId);
     if (!selectedSection) return;
 
-    // 获取当前待分配的总额
     const amountToAllocate = pendingTotal;
     console.log(`Allocating RM${amountToAllocate} to ${selectedSection.name}`);
 
-    // 1. 钱正式进入对应的 Pocket
+    // Into Pocket
     setSections(prev => prev.map(sec =>
       sec.id === miniAllocSectionId ? { ...sec, amount: sec.amount + amountToAllocate } : sec
     ));
 
-    // 2. 清空待分配列表
+    // Clea pending list
     setPendingAllocations([]);
     setShowMiniAllocModal(false);
   };
@@ -885,7 +875,6 @@ export default function Dashboard() {
               <p>Pay via DuitNow QR code.</p>
             </div>
             <div className="modal-form">
-              {/* 【新增】选择扣款的 Pocket */}
               <div className="input-group">
                 <label>Pay from Pocket</label>
                 <select value={qrPocket} onChange={e => setQrPocket(e.target.value)}>
@@ -924,7 +913,6 @@ export default function Dashboard() {
               <p>Transfer to a bank or eWallet.</p>
             </div>
             <div className="modal-form">
-              {/* 【新增】选择扣款的 Pocket */}
               <div className="input-group">
                 <label>Pay from Pocket</label>
                 <select value={sendPocket} onChange={e => setSendPocket(e.target.value)}>

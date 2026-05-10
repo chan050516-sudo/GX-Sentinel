@@ -11,14 +11,14 @@ const ScalabilityFuture: React.FC = () => {
       <div className="scalability-quote">
         <div className="quote-icon">⚡</div>
         <div className="quote-text">
-          "GX‑Sentinel transforms banking data into real‑time behavioural intervention."
+          "GX-Sentinel transforms banking data into real-time behavioural intervention."
         </div>
       </div>
 
-      {/* Bank‑grade context advantage (这个是最关键的护城河说明) */}
+      {/* Bank-grade context advantage */}
       <div className="bank-advantage">
         <div className="advantage-text">
-          🏦 <strong>Bank‑grade context awareness</strong> — Real balance, salary cycle, recurring payments, 
+          🏦 <strong>Bank-grade context awareness</strong> — Real balance, salary cycle, recurring payments, 
           debt exposure, savings goals. Data that no standalone browser extension can access.
         </div>
       </div>
@@ -31,7 +31,7 @@ const ScalabilityFuture: React.FC = () => {
           <h3>GX Bank API Ready</h3>
           <div className="badge-api">Integration Ready</div>
           <ul>
-            <li>Real‑time transaction ingestion</li>
+            <li>Real-time transaction ingestion</li>
             <li>OAuth 2.0 authorization flow</li>
             <li>DuitNow QR friction layer</li>
           </ul>
@@ -39,11 +39,11 @@ const ScalabilityFuture: React.FC = () => {
 
         <div className="scalability-card">
           <div className="card-icon">🌐</div>
-          <h3>Cross‑Platform Interception</h3>
-          <div className="badge-api">DOM‑based</div>
+          <h3>Cross-Platform Interception</h3>
+          <div className="badge-api">DOM-based</div>
           <ul>
             <li>Shopee, Lazada, TikTok Shop ready</li>
-            <li>Rapid adaptation to any e‑commerce site</li>
+            <li>Rapid adaptation to any e-commerce site</li>
             <li>Mobile companion (2026 Q4)</li>
           </ul>
           <div className="future-tag">Write once, intercept anywhere</div>
@@ -54,9 +54,9 @@ const ScalabilityFuture: React.FC = () => {
           <h3>AI Agent Modularity</h3>
           <div className="badge-api">LangGraph Native</div>
           <ul>
-            <li>Flexible AI orchestration (Gemini, GPT‑4o, Claude)</li>
-            <li>Plug‑in new agents without core changes</li>
-            <li>Rule‑based + LLM hybrid decision layer</li>
+            <li>Flexible AI orchestration (Gemini, GPT-4o, Claude)</li>
+            <li>Plug-in new agents without core changes</li>
+            <li>Rule-based + LLM hybrid decision layer</li>
           </ul>
         </div>
       </div>
@@ -78,14 +78,14 @@ const ScalabilityFuture: React.FC = () => {
             <div className="timeline-content">
               <span className="timeline-date">Q4 2026</span>
               <strong>Campus resilience challenges</strong>
-              <p>Squad accountability, streak‑based rewards, group goals</p>
+              <p>Squad accountability, streak-based rewards, group goals</p>
             </div>
           </div>
           <div className="timeline-item">
             <div className="timeline-dot"></div>
             <div className="timeline-content">
               <span className="timeline-date">2027</span>
-              <strong>Anonymous campus‑level analytics</strong>
+              <strong>Anonymous campus-level analytics</strong>
               <p>Benchmark behavioural patterns across university cohorts</p>
             </div>
           </div>

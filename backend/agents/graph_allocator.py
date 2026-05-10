@@ -193,7 +193,6 @@ JSON Schema required in final response:
 def agent_node(state: AllocatorState):
     user_id = state["user_id"]
     
-    # --- 1. 同步抓取所有上下文 (替代原来的 Tools) ---
     user = get_user(user_id) or {}
     runway = user.get("currentRunwayDays", 0.0)
     variable_budget = user.get("financialSections", {}).get("variableBudget", 0.0)
@@ -210,7 +209,6 @@ def agent_node(state: AllocatorState):
         for e in events
     ]
     
-    # --- 2. 构建强上下文结构 ---
     context_str = f"""
     [USER FINANCIAL REALITY]
     Current Runway: {runway} days
@@ -223,7 +221,6 @@ def agent_node(state: AllocatorState):
     Sources: {", ".join(state['income_sources'])}
     """
     
-    # --- 3. 单次 LLM Call ---
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=f"Please analyze my reality and allocate the funds.\n{context_str}")
@@ -245,11 +242,9 @@ def finalize_node(state: AllocatorState):
         try:
             content = last_ai.content
             
-            # 【修复 BUG：处理多模态或 Function Calling 遗留的 List 格式】
             if isinstance(content, list):
                 content = content[0].get("text", "") if content else ""
             
-            # 鲁棒的清洗逻辑
             cleaned = re.sub(r"```[a-zA-Z]*", "", str(content)).replace("```", "").strip()
             if not cleaned:
                 raise ValueError("Empty LLM response content.")
@@ -259,7 +254,6 @@ def finalize_node(state: AllocatorState):
             percents = data.get("percentages", {})
             advice_text = data.get("advice", "Allocation complete.")
             
-            # 归一化处理（防止 LLM 算错数，总和不为 1）
             total_p = sum(float(percents.get(p, 0)) for p in ["emergencyFund", "fixedExpenses", "futureExpenses", "variableBudget", "savingsPockets"])
             if total_p == 0: 
                 total_p = 1.0
@@ -275,17 +269,15 @@ def finalize_node(state: AllocatorState):
                 
         except Exception as e:
             print(f"❌ JSON Parsing Error in Allocator: {e} | Content received: {last_ai.content}")
-            # 安全降级，平均分配
             for pocket in ["emergencyFund", "fixedExpenses", "futureExpenses", "variableBudget", "savingsPockets"]:
                 val = total_amount * 0.2
                 recommendation[pocket] = {"min": round(val*0.9, 2), "max": round(val*1.1, 2), "best": round(val, 2)}
 
     return {"recommendation": recommendation, "advice_text": advice_text}
 
-# 4. Graph Compilation (变成极简的直线流水线)
+# 4. Graph Compilation
 workflow = StateGraph(AllocatorState)
 
-# 只需要两个节点：推理 -> 解析
 workflow.add_node("agent", agent_node)
 workflow.add_node("finalize", finalize_node)
 

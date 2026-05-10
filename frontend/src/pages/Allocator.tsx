@@ -105,7 +105,6 @@ export default function Allocator({
 
     setErrorMsg("");
 
-    // 1. 根据当前 sliders 的值，生成具体的分配明细字典
     const allocatedMap: Record<string, number> = {};
     sections.forEach(sec => {
       allocatedMap[sec.name] = sec.amount;
@@ -114,12 +113,11 @@ export default function Allocator({
     if (onConfirm) {
       onConfirm(allocatedMap);
     } else {
-      // 2. 携带这个明细字典，跳回 Dashboard
       navigate("/dashboard", {
         state: {
           allocated: true,
           allocatedAmount: incomeAmount,
-          allocatedMap: allocatedMap, // <--- 关键在这里！把明细传过去
+          allocatedMap: allocatedMap,
           transaction: location.state?.transaction // Pass the transaction back to persist it
         }
       });

@@ -1,15 +1,11 @@
-# backend/agents/graph_mentor.py
 from .state import AgentState
 from datetime import datetime
 
 def run_mentor_agent(state: AgentState) -> AgentState:
     
-    """
-    财务导师 Agent：负责解释财务变动并提供建议。
-    """
+
     user_msg = state.get("user_input", "").lower()
     
-    # 模拟 Gemini 的意图识别[cite: 2]
     if "runway" in user_msg:
         state["advice_text"] = (
             "Your runway is the number of days you can survive if all income stops. "

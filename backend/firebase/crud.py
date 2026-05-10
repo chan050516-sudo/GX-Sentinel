@@ -147,24 +147,14 @@ def get_recent_transactions(user_id: str, limit: int = 5) -> List[Dict[str, Any]
     return transactions
 
 def get_similar_purchases_count(user_id: str, product_keyword: str, days: int = 30) -> int:
-    """
-    统计过去 days 天内，描述包含关键词的交易数量（不区分大小写模糊匹配）。
-    需要查询 transactions 子集合。
-    """
-    # 计算时间界限
     since_date = datetime.now() - timedelta(days=days)
     col_ref = _get_transactions_col(user_id)
-    # 注意：Firestore 不支持全文搜索，这里使用简单的字符串 contains 过滤（需要创建索引）
-    # 如果你希望高性能，可以使用第三方搜索（如 Algolia），但此处演示用 client-side 过滤
-    # 更好的方式：存储 products 数组并查询 array_contains，但这里产品名是单个字段 description
-    # 我们先用 client-side 过滤，数据量小可接受
     docs = col_ref.where("timestamp", ">=", since_date).stream()
     count = 0
     keyword_lower = product_keyword.lower()
     for doc in docs:
         data = doc.to_dict()
         desc = data.get("description", "").lower()
-        # 也可以检查 products 数组
         if keyword_lower in desc:
             count += 1
     return count
@@ -239,8 +229,6 @@ def get_upcoming_events(user_id: str, days: int = 30) -> List[Dict[str, Any]]:
     future = now + timedelta(days=days)
     col_ref = _get_calendar_events_col(user_id)
     
-    # 【修复方案】：将 .filter(filter=...) 改回 .where(filter=...)
-    # 这样既能使用 FieldFilter 消除警告，也能兼容旧版本的 CollectionReference 对象
     query = col_ref.where(filter=FieldFilter("date", ">=", now)) \
                    .where(filter=FieldFilter("date", "<=", future)) \
                    .order_by("date")
@@ -282,10 +270,6 @@ def add_resilience_history(user_id: str, history_data: Dict[str, Any]) -> str:
 
 # ========== Bonus ==========
 def get_leaderboard(period: str = "weekly", limit: int = 50) -> List[Dict[str, Any]]:
-    """
-    从 socialResilience/leaderboard 集合中获取排行榜（按 period）
-    注意：socialResilience 是顶层集合，不是用户子集合。
-    """
     db = get_firestore_client()
     doc_ref = db.collection("socialResilience").document("leaderboard")
     doc = doc_ref.get()
@@ -295,10 +279,6 @@ def get_leaderboard(period: str = "weekly", limit: int = 50) -> List[Dict[str, A
     return []
 
 def update_user_bonus(user_id: str, points: int, reason: str) -> None:
-    """
-    更新用户奖励积分，并记录 bonusHistory。
-    存储路径：socialResilience/userBonuses/{userId}
-    """
     db = get_firestore_client()
     bonus_ref = db.collection("socialResilience").document("userBonuses").collection("users").document(user_id)
     bonus_ref.set({
@@ -309,7 +289,6 @@ def update_user_bonus(user_id: str, points: int, reason: str) -> None:
             "points": points
         }])
     }, merge=True)
-    # 同时更新用户文档中的 bonusPoints
     user = get_user(user_id)
     if user:
         current = user.get("bonusPoints", 0)

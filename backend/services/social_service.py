@@ -4,7 +4,6 @@ from firebase.crud import get_user, update_user
 
 def get_leaderboard_data(user_id: str) -> LeaderboardResponse:
     #ranking
-    """团队健康度名册 (基于你的 Co-op 逻辑)"""
     user_data = get_user(user_id) or {}
     real_user_score = user_data.get("resilienceScore", 85.0) 
     
@@ -23,7 +22,6 @@ def get_leaderboard_data(user_id: str) -> LeaderboardResponse:
 
 def get_user_bonus_status(user_id: str) -> BonusStatusResponse:
     #To determine is the team streak succces or not
-    """右上角的团队概览面板 (基于你的失败/警告/胜利判定)"""
     user_data = get_user(user_id) or {}
     user_score = user_data.get("resilienceScore", 85.0) 
     team_streak = user_data.get("consecutiveSafeDays", 5) 
@@ -50,13 +48,9 @@ def get_user_bonus_status(user_id: str) -> BonusStatusResponse:
 
 def send_team_support(user_id: str, target_handle: str) -> SupportResponse:
     #Support teammate 
-    """
-    [新增功能]：处理前端发送鼓励的动作，并将记录保存到数据库中。
-    """
     user_data = get_user(user_id) or {}
     supported_list = user_data.get("sentSupportTo", [])
     
-    # 如果还没鼓励过这个人，就把他加入名单并更新数据库
     if target_handle not in supported_list:
         supported_list.append(target_handle)
         update_user(user_id, {"sentSupportTo": supported_list})
@@ -65,11 +59,9 @@ def send_team_support(user_id: str, target_handle: str) -> SupportResponse:
 
 
 def get_friends_streak_challenge(user_id: str) -> StreakChallengeResponse:
-    """核心小队打卡面板 (整合了你的合作逻辑 与 鼓励文字变化逻辑)"""
     user_data = get_user(user_id) or {}
     user_score = user_data.get("resilienceScore", 85.0) 
     base_streak = user_data.get("consecutiveSafeDays", 5) 
-    # [新增]：读取当前用户已经鼓励过的人员名单
     supported_list = user_data.get("sentSupportTo", [])
 
     tm1_score = 92.5
@@ -94,11 +86,9 @@ def get_friends_streak_challenge(user_id: str) -> StreakChallengeResponse:
     else:
         challenge_title = f"🛡️ Co-op Team Defense (Day {effective_streak}/7){warning_text}"
 
-    # --- 决定 @ZenBudget 的状态文字 (整合互动反馈) ---
     if team_failed:
         tm2_status = "Failed 💔"
     elif tm2_score < 83.0:
-        # 如果已经点击过鼓励了，文字变成成功
         if "@ZenBudget" in supported_list:
             tm2_status = "Support Sent ✅" 
         else:
@@ -126,7 +116,7 @@ def get_friends_streak_challenge(user_id: str) -> StreakChallengeResponse:
         name="@ZenBudget",
         resilienceScore=tm2_score,
         currentStreak=effective_streak,
-        rewardStatus=tm2_status, # 这里使用了上面的动态文字
+        rewardStatus=tm2_status,
         isEligible=tm2_score >= 80.0
     )
 

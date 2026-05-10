@@ -293,7 +293,7 @@ function triggerDialogueScenario() {
 
             // User abort to purchase
             document.getElementById('gx-demo-abort')!.onclick = () => {
-                petContainer.className = 'gx-pet-container suggesting'; // Looi 变开心
+                petContainer.className = 'gx-pet-container suggesting';
                 bubble.className = 'show suggesting';
                 bubble.innerHTML = `
                     <div class="gx-msg-header success">✨ Resilience Protected</div>

@@ -1,4 +1,3 @@
-// src/components/TechnicalArchitecture.tsx
 import React, { useState, useEffect } from 'react';
 import './TechnicalArchitecture.css';
 
@@ -90,7 +89,6 @@ const TechnicalArchitecture: React.FC = () => {
       <h2 className="arch-title">GX‑Sentinel Technical Architecture</h2>
       
       <div className="arch-carousel">
-        {/* 层级标题 */}
         <div className="layer-title-wrapper">
           <div className="layer-title-icon">{currentLayer.title}</div>
           <div className="layer-indicators">
@@ -104,7 +102,6 @@ const TechnicalArchitecture: React.FC = () => {
           </div>
         </div>
 
-        {/* 卡片容器 - 带滑动动画 */}
         <div className="layer-cards-container">
           <div 
             className="layer-cards" 
@@ -136,7 +133,6 @@ const TechnicalArchitecture: React.FC = () => {
         </div>
       </div>
 
-      {/* 固定数据流 (不轮播) */}
       <div className="arch-flow">
         <div className="flow-title">📌 Key Data Flows</div>
         <ul>

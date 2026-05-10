@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { Bot, Target, AlertTriangle, Send, FileText, Download } from "lucide-react"; // 加入了 Download icon
 import "./ChatAssistant.css";
 
-// 增加 isReport 可选属性
 type Message = { id: string; role: "user" | "assistant"; content: string; timestamp: string; isReport?: boolean };
 
 export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }) {
@@ -59,7 +58,6 @@ export default function ChatAssistant({ isPopup = false }: { isPopup?: boolean }
     };
     setMessages(prev => [...prev, userMsg]);
 
-    // 使用你提供的新报告内容
     const reportContent = `📊 WEEKLY RESILIENCE REPORT — GX-SENTINEL AI AUDIT
 
 Resilience Score: 84.2 ↑ (+4.2%)
@@ -162,7 +160,7 @@ Monday, 09:00 AM`;
         role: "assistant",
         content: reportContent,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isReport: true // 标记这是一份报告
+        isReport: true
       };
       setMessages(prev => [...prev, aiMsg]);
     }, 1000);

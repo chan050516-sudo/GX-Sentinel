@@ -37,17 +37,14 @@ type Zone = {
   spots: Spot[];
 };
 
-// 辅助函数：在给定中心点附近生成偏移坐标（范围约50-150米）
 const offsetLatLng = (lat: number, lng: number, seed: number) => {
   const angle = seed * 2 * Math.PI;
   const radius = 0.0008 + (seed % 7) * 0.0001;
   return { lat: lat + Math.cos(angle) * radius, lng: lng + Math.sin(angle) * radius };
 };
 
-// 中心点：Bukit Bintang, Kuala Lumpur
 const center = { lat: 3.1466, lng: 101.7115 };
 
-// ---------- 完整 Mock 数据：12 个 High-Spend Zones，每个 spot 包含独立坐标 ----------
 const zones: Zone[] = [
   {
     id: 1, name: "Pavilion Kuala Lumpur", type: "Luxury Retail & Dining Hub", lat: 3.1488, lng: 101.7133, baseZoomLevel: 10,
@@ -357,7 +354,6 @@ export default function LocationRadar() {
   const selectedZone = zones.find(z => z.id === selectedZoneId);
   const selectedSpot = selectedZone?.spots.find(s => s.id === selectedSpotId);
 
-  // 更新可见区域内 Zone 的数量（基于当前地图边界）
   const updateNearbyZones = useCallback(() => {
     if (!mapRef.current) return;
     const bounds = mapRef.current.getBounds();
@@ -369,7 +365,6 @@ export default function LocationRadar() {
     });
     const newCount = visible.length;
     setNearbyZoneCount(newCount);
-    // 当移动到有 Zone 的区域且未选中任何 Zone 时，短暂显示提示条
     if (newCount > 0 && !selectedZoneId) {
       setShowNearbyHint(true);
       if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
@@ -384,7 +379,6 @@ export default function LocationRadar() {
       setMapZoom(m.getZoom() || 14);
       updateNearbyZones();
     });
-    // 初次加载时也计算一次
     setTimeout(updateNearbyZones, 500);
   }, [updateNearbyZones]);
 
@@ -395,7 +389,6 @@ export default function LocationRadar() {
     }
   }, [updateNearbyZones]);
 
-  // 当选中状态变化时重新计算附近区域（避免地图移动后提示不更新）
   useEffect(() => {
     updateNearbyZones();
   }, [selectedZoneId, updateNearbyZones]);
@@ -433,7 +426,6 @@ export default function LocationRadar() {
     setSelectedAlternative(null);
   };
 
-  // 根据危险等级获取 Marker 填充色
   const getMarkerColor = (level: string) => {
     if (level === "critical") return "#f43f5e";
     if (level === "warning") return "#f59e0b";
@@ -473,15 +465,15 @@ export default function LocationRadar() {
   const mapOptions: google.maps.MapOptions = {
     disableDefaultUI: true,
     styles: [
-        { elementType: "geometry", stylers: [{ color: "#2a2744" }] },        // 更亮的深紫灰
+        { elementType: "geometry", stylers: [{ color: "#2a2744" }] }, 
         { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-        { elementType: "labels.text.fill", stylers: [{ color: "#cbd5e1" }] }, // 亮灰色文字
+        { elementType: "labels.text.fill", stylers: [{ color: "#cbd5e1" }] }, 
         { elementType: "labels.text.stroke", stylers: [{ color: "#2a2744" }] },
         { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#3b3760" }] },
-        { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#3b3760" }] },      // 道路提亮
+        { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#3b3760" }] },    
         { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#544e7a" }] },
         { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#e2e8f0" }] },
-        { featureType: "water", elementType: "geometry", stylers: [{ color: "#1e1b3b" }] },          // 水体略深增加层次
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#1e1b3b" }] },      
         { featureType: "poi", elementType: "geometry", stylers: [{ color: "#302c4e" }] }
     ]
   };
@@ -502,7 +494,6 @@ export default function LocationRadar() {
 
   const GOOGLE_MAPS_API_KEY = "AIzaSyCM9IUKisgyTl3n9UTOH6A7P-m6CIyAJq8";
 
-  // 根据缩放级别显示 Zone 标记（语义缩放）
   const visibleZones = zones.filter(zone => mapZoom >= zone.baseZoomLevel);
 
   return (
@@ -524,7 +515,6 @@ export default function LocationRadar() {
               onZoomChanged={onZoomChanged}
               options={mapOptions}
             >
-              {/* 显示所有可见 Zone 标记 */}
               {visibleZones.map(zone => (
                 <MarkerComp
                   key={zone.id}
@@ -540,7 +530,6 @@ export default function LocationRadar() {
                 />
               ))}
 
-              {/* 当前选中的 Spot 对应的彩色小点 */}
               {selectedSpot && (
                 <MarkerComp
                   position={{ lat: selectedSpot.lat, lng: selectedSpot.lng }}
@@ -554,7 +543,6 @@ export default function LocationRadar() {
                 />
               )}
 
-              {/* 当前选中的 Alternative 对应的彩色小点（紫色） */}
               {selectedAlternative && (
                 <MarkerComp
                   position={{ lat: selectedAlternative.lat, lng: selectedAlternative.lng }}
@@ -568,13 +556,11 @@ export default function LocationRadar() {
                 />
               )}
 
-              {/* 模拟用户当前位置 */}
               <MarkerComp 
                 position={{ lat: 3.1455, lng: 101.7100 }} 
                 icon="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" 
               />
 
-              {/* 选中 Zone 时的信息窗口 */}
               {selectedZoneId && (
                 <InfoWindowComp
                   position={{ lat: zones.find(z => z.id === selectedZoneId)?.lat || 0, lng: zones.find(z => z.id === selectedZoneId)?.lng || 0 }}
@@ -589,14 +575,13 @@ export default function LocationRadar() {
             </MapComp>
           </LoadScriptComp>
 
-          {/* HUD 信息 */}
+          {/* HUD */}
           <div className="radar-hud-overlay">
             <span>ZOOM: {mapZoom.toFixed(1)}x</span>
             <span>TARGETS: {visibleZones.length}</span>
             <span>SYS: ONLINE</span>
           </div>
 
-          {/* 附近区域提示条 */}
           {showNearbyHint && nearbyZoneCount > 0 && !selectedZoneId && (
             <div style={{
               position: "absolute",
@@ -625,7 +610,6 @@ export default function LocationRadar() {
         {/* RIGHT: Dynamic Info Panel */}
         <div className="details-panel">
           {!selectedZone ? (
-            /* 未选中任何 Zone */
             <div className="spot-detail-card empty-detail">
               <Target size={48} />
               <p>Select a High-Spend Zone on the map to run a financial environment scan.</p>
@@ -637,7 +621,6 @@ export default function LocationRadar() {
               )}
             </div>
           ) : !selectedSpot ? (
-            /* 显示 Zone 内的 Spots 列表 */
             <div className="spot-detail-card animate-slide-in">
               <div className="zone-overview-header">
                 <h3>{selectedZone.name}</h3>
@@ -669,7 +652,6 @@ export default function LocationRadar() {
               </button>
             </div>
           ) : (
-            /* 显示选中 Spot 的详细审计信息及替代方案 */
             <div className="spot-detail-card animate-slide-in">
               <button className="back-to-zone-btn" onClick={handleBackToList}>
                 <ArrowLeft size={16} /> Back to {selectedZone.name}

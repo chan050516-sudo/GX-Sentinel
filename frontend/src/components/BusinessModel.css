@@ -1,4 +1,3 @@
-/* BusinessModelDeck.css */
 .gx-deck-container {
   background: linear-gradient(135deg, #0a0a1a 0%, #0f0f2a 100%);
   border-radius: 2rem;
@@ -13,7 +12,7 @@
   min-height: 520px;
 }
 
-/* 固定标题 */
+/* Title */
 .deck-title {
   font-size: 1.8rem;
   font-weight: 700;
@@ -25,7 +24,7 @@
   color: transparent;
 }
 
-/* 指示点 */
+/* Indicator */
 .deck-indicators {
   display: flex;
   justify-content: center;
@@ -51,7 +50,7 @@
   box-shadow: 0 0 8px rgba(119, 31, 255, 0.6);
 }
 
-/* Slide 切换动画 */
+/* Slide Transition */
 .deck-slide {
   transition: opacity 0.4s ease-in-out;
 }
@@ -76,7 +75,7 @@
   }
 }
 
-/* 共用区块样式 */
+/* Public section */
 .slide-section {
   margin-bottom: 1.2rem;
 }
@@ -121,7 +120,6 @@
   letter-spacing: 0.5px;
 }
 
-/* 三张能力卡片 */
 .capabilities-grid {
   display: flex;
   flex-wrap: wrap;
@@ -167,7 +165,7 @@
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-/* Revenue 卡片 */
+/* Revenue Cards */
 .revenue-grid {
   display: flex;
   flex-wrap: wrap;
@@ -214,7 +212,6 @@
   border: 1px solid rgba(119, 31, 255, 0.3);
 }
 
-/* 第二页底部对齐声明 */
 .alignment-footer {
   text-align: center;
   padding-top: 8rem;
@@ -224,7 +221,6 @@
   color: #64748b;
 }
 
-/* 响应式 */
 @media (max-width: 768px) {
   .gx-deck-container {
     padding: 1rem;
