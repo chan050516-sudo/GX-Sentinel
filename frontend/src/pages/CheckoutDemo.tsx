@@ -5,7 +5,6 @@ import "./CheckoutDemo.css";
 
 type InterceptorLevel = "none" | "level1" | "level2" | "level3";
 
-// 宠物自我介绍对话数据
 type IntroStep = {
   text: string;
   petState: "idle" | "analyzing" | "warning" | "suggesting";
@@ -41,33 +40,28 @@ const introSteps: IntroStep[] = [
 export default function CheckoutDemo() {
   const navigate = useNavigate();
 
-  // 拦截器原有状态
   const [interceptorState, setInterceptorState] = useState<InterceptorLevel>("none");
   const [countdown, setCountdown] = useState(5);
   const [justification, setJustification] = useState("");
 
-  // 宠物介绍相关状态
   const [introActive, setIntroActive] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [petVisible, setPetVisible] = useState(true);
   const [showBubble, setShowBubble] = useState(true);
   const petContainerRef = useRef<HTMLDivElement>(null);
 
-  // 当前介绍的宠物状态
   const currentPetState = introSteps[currentStep].petState;
 
-  // 当介绍步骤变化时，更新宠物的状态类
   useEffect(() => {
     if (!introActive) return;
     const petElem = petContainerRef.current;
     if (!petElem) return;
-    // 移除所有状态类
+
     petElem.classList.remove("idle", "analyzing", "warning", "suggesting");
-    // 添加当前状态类
     petElem.classList.add(currentPetState);
   }, [currentStep, introActive, currentPetState]);
 
-  // 眼睛跟随鼠标（完全照抄 content-script）
+
   useEffect(() => {
     if (!petVisible || !introActive) return;
     const petContainer = petContainerRef.current;
@@ -88,7 +82,6 @@ export default function CheckoutDemo() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [petVisible, introActive]);
 
-  // 处理宠物点击：下一句或结束介绍
   const handlePetClick = () => {
     if (!introActive) return;
     if (currentStep + 1 < introSteps.length) {
@@ -100,7 +93,6 @@ export default function CheckoutDemo() {
     }
   };
 
-  // 拦截器逻辑（保持不变）
   const handlePlaceOrder = () => {
     if (introActive) {
       setIntroActive(false);
@@ -148,13 +140,11 @@ export default function CheckoutDemo() {
 
   return (
     <div className="checkout-container">
-      {/* 假电商头部 */}
       <header className="checkout-header">
         <div className="ecommerce-logo">E-Commerce App</div>
         <button className="back-to-dash" onClick={() => navigate("/dashboard")}>Exit Demo</button>
       </header>
 
-      {/* 假结算内容 */}
       <main className="checkout-main">
         <div className="checkout-card">
           <h2>Checkout</h2>
@@ -184,10 +174,8 @@ export default function CheckoutDemo() {
         </div>
       </main>
 
-      {/* 宠物介绍模块 - 结构完全复制 content-script */}
       {petVisible && (
         <div id="gx-ambient-wrapper" className="visible">
-          {/* 气泡 */}
           {showBubble && introActive && (
             <div id="gx-bubble" className={`show ${currentPetState}`}>
               <div className={`gx-msg-header ${
@@ -202,7 +190,6 @@ export default function CheckoutDemo() {
               </div>
             </div>
           )}
-          {/* 宠物容器 - 结构与 content-script 完全一致 */}
           <div
             ref={petContainerRef}
             id="gx-pet"
@@ -221,7 +208,6 @@ export default function CheckoutDemo() {
         </div>
       )}
 
-      {/* 拦截器原有 Overlay */}
       {(interceptorState === "level2" || interceptorState === "level3") && (
         <div className="friction-overlay">
           {interceptorState === "level2" && (
