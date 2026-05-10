@@ -1,0 +1,224 @@
+/* ScalabilityFuture.css */
+.gx-scalability-container {
+  background: linear-gradient(135deg, #0a0a1a 0%, #0f0f2a 100%);
+  border-radius: 2rem;
+  padding: 2rem;
+  color: #e2e8f0;
+  font-family: 'Outfit', system-ui, sans-serif;
+  max-width: 1400px;
+  margin: 2rem auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(119, 31, 255, 0.2);
+}
+
+.scalability-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  background: linear-gradient(135deg, #fff, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Quote Section */
+.scalability-quote {
+  background: rgba(119, 31, 255, 0.08);
+  border-left: 4px solid #771FFF;
+  border-radius: 1rem;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.quote-icon {
+  font-size: 2rem;
+}
+
+.quote-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+/* Three Cards Grid */
+.scalability-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.scalability-card {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 1.2rem;
+  padding: 1.5rem;
+  flex: 1 1 280px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.scalability-card:hover {
+  border-color: rgba(119, 31, 255, 0.4);
+  transform: translateY(-4px);
+}
+
+.card-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.8rem;
+}
+
+.scalability-card h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.badge-api {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  margin-bottom: 1rem;
+}
+
+.scalability-card ul {
+  margin: 0 0 1rem 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.scalability-card li {
+  margin-bottom: 0.4rem;
+}
+
+.future-tag {
+  font-size: 0.75rem;
+  color: #a78bfa;
+  border-top: 1px dashed rgba(168, 85, 247, 0.3);
+  padding-top: 0.6rem;
+  margin-top: 0.4rem;
+  text-align: center;
+}
+
+/* Roadmap Timeline */
+.roadmap-section {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 1.2rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  margin-top: -2rem;
+}
+
+.roadmap-section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  color: #c4b5fd;
+  text-align: center;
+}
+
+.timeline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 0.8rem;
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  background: #771FFF;
+  border-radius: 50%;
+  margin-top: 0.3rem;
+  box-shadow: 0 0 8px rgba(119, 31, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.timeline-content {
+  flex: 1;
+}
+
+.timeline-date {
+  font-size: 0.8rem;
+  color: #10b981;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.timeline-content strong {
+  font-size: 1rem;
+  color: #fff;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.timeline-content p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* 新增 bank advantage 区域 */
+.bank-advantage {
+  background: rgba(119, 31, 255, 0.1);
+  border-radius: 1rem;
+  padding: 0.8rem 1.2rem;
+  margin-bottom: 1.8rem;
+  text-align: center;
+  border: 1px solid rgba(119, 31, 255, 0.2);
+}
+
+.advantage-text {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.advantage-text strong {
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gx-scalability-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  .scalability-title {
+    font-size: 1.5rem;
+  }
+  .quote-text {
+    font-size: 0.9rem;
+  }
+  .scalability-grid {
+    flex-direction: column;
+  }
+  .timeline {
+    flex-direction: column;
+  }
+  .timeline-item {
+    margin-bottom: 1rem;
+  }
+}

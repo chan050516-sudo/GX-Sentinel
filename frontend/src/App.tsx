@@ -10,6 +10,9 @@ import Sidebar from "./components/Sidebar";
 import FloatingMentor from "./components/FloatingMentor";
 import LocationRadar from "./pages/LocationRadar";
 import GeoNotification from "./components/GeoNotification";
+import TechnicalArchitecture from './components/TechnicalArchitecture';
+import ScalabilityFuture from './components/ScalabilityFuture';
+import BusinessModel from './components/BusinessModel';
 import "./App.css";
 
 // Wrapper to handle layout based on route
@@ -32,6 +35,9 @@ function AppLayout() {
           <Route path="/chat" element={<ChatAssistant />} />
           <Route path="/social" element={<SocialCircle />} />
           <Route path="/location" element={<LocationRadar />} />
+          <Route path="/architecture" element={<TechnicalArchitecture />} />
+          <Route path="/scalability" element={<ScalabilityFuture />} />
+          <Route path="/business" element={<BusinessModel />} />
         </Routes>
       </div>
     </div>
