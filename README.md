@@ -1,42 +1,209 @@
 # GX-Sentinel
 
-GX-SENTINEL
-├── 📂 backend                 # Python FastAPI 后端核心
-│   ├── 📂 agents              # Agentic AI 逻辑层 (基于 LangGraph)
-│   │   ├── graph_allocator.py # Module 1: 收入分配 Agent 状态机
-│   │   ├── graph_guardian.py  # Module 2: 消费拦截/审计 Agent 状态机
-│   │   ├── graph_mentor.py    # Module 4: 财务导师/周报生成 Agent
-│   │   ├── state.py           # 
- (TypedDict)
-│   │   └── tools.py           # 供 Agent 调用的外部工具
-│   ├── 📂 firebase            # Firebase 管理逻辑
-│   │   ├── crud.py            # 封装数据库的增删改查 (Create, Read, Update, Delete)
-│   │   └── init.py            # Firebase Admin SDK 初始化配置
-│   ├── 📂 model               # 数据模型定义
-│   │   ├── firestore_models.py # 定义存储在 Firestore 中的文档结构
-│   │   └── models.py          # FastAPI 接收/返回的 Pydantic 数据模型 (API Contract)
-│   ├── 📂 routers             # API 路由接口 (根据功能模块拆分)
-│   │   ├── allocator.py       # Module 1: 处理收入分配相关接口
-│   │   ├── chat.py            # Module 4: 处理 AI 聊天与报告接口
-│   │   ├── interceptor.py     # Module 2: 核心拦截器 (Sync/Async/Outcome) 接口
-│   │   ├── social.py          # Module 5: 社交排行榜与奖励接口
-│   │   └── transaction.py     # Module 3: 模拟交易流与手动记录接口
-│   ├── 📂 services            # 核心业务引擎 (Resilience 模型计算、Runway 公式等)
-│   └── main.py                # 后端入口文件，配置 FastAPI 路由与中间件
-│
-├── 📂 chrome-extension/src    # Chrome 浏览器扩展程序 (拦截器前端)
-│   ├── background.ts          # 扩展 Service Worker，处理跨域请求与状态
-│   ├── content-script.ts      # 注入 Shopee/Lazada 页面的脚本，抓取价格并触发拦截
-│   └── overlay-ui.ts          # 拦截器 UI 组件 (红色认知摩擦层、理由输入框)
-│
-├── 📂 frontend                # React Web Dashboard (主控台前端)
-│   ├── 📂 src                 # React 源代码
-│   └── ...                    # (包含 Gauge 图表、Risk Profile、社交排名等组件)
-│
-├── .gitignore                 # 忽略文件配置 (禁止上传 .env 或 venv)
-└── README.md                  # 项目说明文档
+AI-powered behavioral banking layer for youth financial resilience.
+
+Instead of tracking spending after it happens,
+GX-Sentinel intervenes at the exact moment financial decisions are made.
+
+Built for The Youth Resilience Challenge by GXBank.
 
 
+## Product Closed Loop
 
-Swagger UI Testing:
-http://localhost:8000/docs
+![Product Closed Loop](./assets/Feature-Loop.png)
+
+
+## Problem
+
+Young Malaysians are financially aware,
+but modern digital ecosystems are optimized to remove reflection.
+
+Banking apps record transactions after the damage is done.
+GX-Sentinel introduces real-time behavioral intervention before debt accumulates.
+
+
+# 🧠 Key Features
+
+---
+
+## 1. Smart Allocator
+
+### Income → Automatic Behavioral Protection
+
+Automatically distributes incoming funds into:
+
+* survival budget,
+* emergency savings,
+* goals,
+* and flexible spending.
+
+The system reduces dependence on willpower by turning good financial habits into default automation.
+
+![SmartAllocator](./assets/Smart-Allocator.png)
+
+---
+
+## 2. Chrome Extension Companion AI
+
+### Real-Time Online Spending Intervention
+
+The browser extension monitors e-commerce and social commerce environments in real time.
+
+Supported platforms:
+
+* Shopee
+* Lazada
+* TikTok Shop
+
+The system:
+
+* detects impulse-buying patterns,
+* calculates a 5-factor impulse score,
+* analyzes contextual risk,
+* and introduces behavioral friction before checkout.
+
+Instead of saying:
+
+> “You spent RM850.”
+
+It reframes the purchase into:
+
+> “This removes 6.5 days of financial runway.”
+
+![Companion AI](./assets/chrome-extension.png)
+
+---
+
+## 3. Location Radar
+
+### Offline Spending Awareness
+
+Using Google Maps API and geo-notification systems, GX-Sentinel detects high-spending environments such as:
+
+* malls,
+* entertainment districts,
+* nightlife zones,
+* and premium retail areas.
+
+The system:
+
+* estimates spending risk,
+* projects runway impact,
+* and suggests nearby lower-cost alternatives.
+
+![Location Radar](./assets/GeoRadar.png)
+
+---
+
+## 4. Resilience Score
+
+### Behavioral Discipline Engine
+
+GX-Sentinel introduces a dynamic behavioral metric called the **Resilience Score**.
+
+The score reflects:
+
+* consistency,
+* spending discipline,
+* saving streaks,
+* and recovery behavior.
+
+This transforms financial resilience into:
+
+* visible progress,
+* measurable achievement,
+* and positive reinforcement.
+
+![Risk Profile](./assets/Risk-Profile.png)
+
+---
+
+## 5. AI Mentor & Weekly Reflection
+
+### Post-Action Financial Guidance
+
+Instead of only showing transaction histories, GX-Sentinel helps users:
+
+* review behavioral patterns,
+* understand spending triggers,
+* simulate runway loss,
+* and receive AI-generated financial coaching.
+
+Features include:
+
+* personalized weekly reports,
+* risk profiling,
+* financial runway analysis,
+* and AI mentor conversations.
+
+![AI Mentor](./assets/Chat-Mentor.png)
+
+---
+
+## 6. Social Circle & Bonus Packet
+
+### Community Accountability Layer
+
+Financial resilience is difficult in isolation.
+
+GX-Sentinel adds:
+
+* squad accountability,
+* streak sharing,
+* community encouragement,
+* and peer-based positive reinforcement.
+
+The goal is to transform financial discipline from:
+
+> “individual suffering”
+> into
+> “socially supported behavior.”
+
+![Social Circle](./assets/Social-Circle.png)
+
+---
+
+
+## Architecture
+
+Frontend:
+- React + TypeScript
+- Chrome Extension
+
+Backend:
+- FastAPI
+- LangGraph multi-agent orchestration
+
+AI:
+- Gemini API
+- DeBERTa zero-shot classification
+
+Database:
+- Firebase Firestore
+
+External APIs:
+- Google Maps API
+
+
+## Business Value
+
+For GXBank:
+- Higher CASA retention
+- Daily engagement instead of monthly banking usage
+- Behavioral insights for personalization
+
+For GX-Sentinel:
+- Performance-based revenue sharing
+- Analytics dashboard
+- API licensing
+
+
+# 👨‍💻 Team Vision
+
+We believe financial resilience should not depend entirely on self-control.
+
+In a world optimized to maximize impulse,
+young people need systems designed to protect reflection.
+
+GX-Sentinel explores what banking could become when AI is used not only to optimize profit —
+but to strengthen human decision-making.

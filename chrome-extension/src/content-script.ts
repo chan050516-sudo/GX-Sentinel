@@ -202,7 +202,7 @@ const scenarios = {
         state: "suggesting",
         html: `
             <div class="gx-msg-header success">🎯 Goal Alignment Opportunity</div>
-            <p>This RM 408/night hotel consumes <strong style="color:#f43f5e">15.5%</strong> of your progress towards 'Buy a Car' and drops runway by 6.5 days.</p>
+            <p>This RM 403/night hotel consumes <strong style="color:#f43f5e">15.5%</strong> of your progress towards 'Buy a Car' and drops runway by 6.5 days.</p>
             <div class="gx-alt-box">
                 <div style="flex:1">
                     <span style="font-size:11px; color:#10b981">Optimal Alternative Found: 5.3km away</span><br/>
