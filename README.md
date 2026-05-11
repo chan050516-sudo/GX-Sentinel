@@ -8,6 +8,20 @@ GX-Sentinel intervenes at the exact moment financial decisions are made.
 Built for The Youth Resilience Challenge by GXBank.
 
 
+## 🔗 Links
+
+### 🎬 Pitch Video
+[Watch Full Demo Video](https://youtu.be/qucf4fIQc_w)
+
+### 🌐 Frontend Deployment
+[Open Web App](https://gx-sentinel.vercel.app/)
+
+### 📂 GitHub Repository
+[View Repo](https://github.com/chan050516-sudo/GX-Sentinel)
+
+---
+
+
 # Product Closed Loop
 
 ![Product Closed Loop](./assets/Feature-Loop.jpg)
