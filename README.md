@@ -8,12 +8,12 @@ GX-Sentinel intervenes at the exact moment financial decisions are made.
 Built for The Youth Resilience Challenge by GXBank.
 
 
-## Product Closed Loop
+# Product Closed Loop
 
-![Product Closed Loop](./assets/Feature-Loop.png)
+![Product Closed Loop](./assets/Feature-Loop.jpg)
 
 
-## Problem
+# Problem
 
 Young Malaysians are financially aware,
 but modern digital ecosystems are optimized to remove reflection.
@@ -164,7 +164,7 @@ The goal is to transform financial discipline from:
 ---
 
 
-## Architecture
+# Architecture
 
 Frontend:
 - React + TypeScript
@@ -185,7 +185,7 @@ External APIs:
 - Google Maps API
 
 
-## Business Value
+# Business Value
 
 For GXBank:
 - Higher CASA retention
